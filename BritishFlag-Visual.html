@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>GeoProof — British Flag Theorem explorer</title>
+<style>
+  body{background:#f4f4f5;display:flex;justify-content:center;padding:40px 16px;font-family:sans-serif;}
+  .widget{width:680px;max-width:100%;}
+  .card{background:#ffffff;border:1px solid #e2e2e2;padding:1.25rem;}
+  .sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;}
+  #bf-svg{width:100%;height:auto;display:block;touch-action:none;}
+  .handle{cursor:grab;}
+  .handle:active{cursor:grabbing;}
+  .swatch{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:6px;vertical-align:middle;}
+  .toggle-btn{padding:6px 14px;border-radius:999px;border:1px solid #d8d8d8;background:#f4f4f5;color:#888888;font-size:13px;font-weight:500;cursor:pointer;}
+  .toggle-btn.active{background:#1a1a1a;color:#ffffff;border-color:#1a1a1a;}
+  .stage{position:relative;border-radius:12px;overflow:hidden;border:1px solid #e2e2e2;}
+  .stage .card{border:none;}
+  .info-toggle{position:absolute;top:14px;right:14px;z-index:30;background:#1a1a1a;color:#ffffff;border:none;border-radius:999px;padding:7px 14px;font-size:13px;font-weight:500;cursor:pointer;}
+  .info-toggle:hover{background:#333333;}
+  .info-backdrop{position:absolute;inset:0;background:rgba(0,0,0,0.22);opacity:0;visibility:hidden;transition:opacity .2s ease;z-index:25;}
+  .info-backdrop.open{opacity:1;visibility:visible;}
+  .info-drawer{position:absolute;top:0;right:0;height:100%;width:320px;max-width:88%;background:#ffffff;border-left:1px solid #e2e2e2;box-shadow:-8px 0 24px rgba(0,0,0,0.14);padding:22px 20px;overflow-y:auto;transform:translateX(100%);transition:transform .25s ease;z-index:28;box-sizing:border-box;}
+  .info-drawer.open{transform:translateX(0);}
+  .info-close{position:absolute;top:14px;right:14px;background:#f4f4f5;border:1px solid #e2e2e2;border-radius:50%;width:28px;height:28px;font-size:14px;cursor:pointer;color:#555555;}
+  .info-drawer h3{font-size:17px;margin:6px 0 12px;padding-right:30px;color:#1a1a1a;}
+  .info-drawer h4{font-size:12px;margin:18px 0 6px;color:#666666;text-transform:uppercase;letter-spacing:.04em;}
+  .info-drawer p{font-size:13.5px;line-height:1.55;color:#333333;margin:0 0 10px;}
+  .formula-box{background:#f4f4f5;border-radius:8px;padding:10px 12px;text-align:center;font-size:14px;font-weight:600;margin:10px 0;color:#1a1a1a;}
+</style>
+</head>
+<body>
+<div class="widget">
+<div style="margin-bottom:12px;"><a href="index.html" style="font-size:14px;color:#1a1a1a;text-decoration:none;">&larr; GeoProof</a></div>
+<div class="stage">
+<div class="card">
+<h2 class="sr-only">A rectangle has corners A, B, C, D in order. Drag the point P anywhere — inside or outside the rectangle — and drag the top-right corner to resize the rectangle. Lines connect P to all four corners. The theorem says the two distances to one pair of opposite corners and the two distances to the other pair are balanced: PA squared plus PC squared always equals PB squared plus PD squared. Both totals are shown live and stay equal no matter where P is. An info button opens a drawer explaining the theorem.</h2>
+<svg id="bf-svg" viewBox="0 0 680 560" aria-hidden="true">
+  <polygon id="rect-poly" fill="#8B5FBF" fill-opacity="0.07" stroke="#1a1a1a" stroke-width="2.5"></polygon>
+  <line id="line-pa" stroke="#378ADD" stroke-width="3" stroke-linecap="round"></line>
+  <line id="line-pc" stroke="#378ADD" stroke-width="3" stroke-linecap="round"></line>
+  <line id="line-pb" stroke="#BA7517" stroke-width="3" stroke-linecap="round"></line>
+  <line id="line-pd" stroke="#BA7517" stroke-width="3" stroke-linecap="round"></line>
+  <text id="lab-pa" text-anchor="middle" dominant-baseline="middle" fill="#185FA5" font-size="12.5" font-weight="600"></text>
+  <text id="lab-pc" text-anchor="middle" dominant-baseline="middle" fill="#185FA5" font-size="12.5" font-weight="600"></text>
+  <text id="lab-pb" text-anchor="middle" dominant-baseline="middle" fill="#7A4D0B" font-size="12.5" font-weight="600"></text>
+  <text id="lab-pd" text-anchor="middle" dominant-baseline="middle" fill="#7A4D0B" font-size="12.5" font-weight="600"></text>
+  <circle id="dot-A" r="5" fill="#378ADD"></circle>
+  <circle id="dot-C" r="5" fill="#378ADD"></circle>
+  <circle id="dot-B" r="5" fill="#BA7517"></circle>
+  <circle id="dot-D" r="5" fill="#BA7517"></circle>
+  <text id="tag-A" text-anchor="middle" dominant-baseline="middle" fill="#1a1a1a" font-size="14" font-weight="700">A</text>
+  <text id="tag-B" text-anchor="middle" dominant-baseline="middle" fill="#1a1a1a" font-size="14" font-weight="700">B</text>
+  <text id="tag-C" text-anchor="middle" dominant-baseline="middle" fill="#1a1a1a" font-size="14" font-weight="700">C</text>
+  <text id="tag-D" text-anchor="middle" dominant-baseline="middle" fill="#1a1a1a" font-size="14" font-weight="700">D</text>
+  <circle id="handle-resize" class="handle" r="10" fill="#ffffff" stroke="#1a1a1a" stroke-width="2"></circle>
+  <circle id="handle-P" class="handle" r="12" fill="#ffffff" stroke="#1a1a1a" stroke-width="2.5"></circle>
+  <text id="tag-P" text-anchor="middle" dominant-baseline="middle" fill="#1a1a1a" font-size="14" font-weight="700">P</text>
+</svg>
+
+<div style="display:flex; justify-content:center; gap:10px; flex-wrap:wrap; margin-top:0.75rem;">
+  <button type="button" id="toggle-ac" class="toggle-btn active">PA &amp; PC</button>
+  <button type="button" id="toggle-bd" class="toggle-btn active">PB &amp; PD</button>
+  <button type="button" id="toggle-labels" class="toggle-btn active">Distance labels</button>
+</div>
+
+<div style="display:flex; justify-content:center; margin-top:0.85rem;">
+  <span id="status-badge" style="display:inline-block; padding:4px 14px; border-radius:999px; font-size:14px; font-weight:500;"></span>
+</div>
+
+<div id="formula-symbolic" style="text-align:center; font-size:15px; font-weight:600; color:#1a1a1a; margin-top:1.1rem;">PA² + PC² = PB² + PD²</div>
+
+<div id="sum-row" style="display:flex; align-items:center; justify-content:center; gap:10px; flex-wrap:wrap; margin-top:0.6rem; font-size:15px; color:#1a1a1a;"></div>
+<div id="detail-row" style="text-align:center; font-size:12.5px; color:#777777; margin-top:0.55rem;"></div>
+<div id="summary-row" style="text-align:center; font-size:13px; color:#777777; margin-top:0.6rem;">Drag <b>P</b> anywhere — even outside the rectangle — and the two totals stay equal. Drag the top-right corner to resize.</div>
+</div>
+
+<button type="button" id="info-toggle-btn" class="info-toggle">ⓘ About this theorem</button>
+<div id="info-backdrop" class="info-backdrop"></div>
+<aside id="info-drawer" class="info-drawer">
+  <button type="button" id="info-close" class="info-close" aria-label="Close">✕</button>
+  <h3>The British Flag Theorem</h3>
+  <p>Take any rectangle with corners A, B, C, D (in order, so A and C are opposite, and B and D are opposite). Pick any point P at all — inside the rectangle, on an edge, or far outside. Then the sums of the squared distances to each pair of opposite corners are equal:</p>
+  <div class="formula-box">PA² + PC² = PB² + PD²</div>
+  <p>The name comes from the way the four lines from an interior P to the corners resemble the diagonals on the Union Jack flag.</p>
+  <h4>Why it's true</h4>
+  <p>Drop P's coordinates relative to the rectangle's sides. Using the Pythagorean theorem on the horizontal and vertical gaps, each squared distance splits into a horizontal part and a vertical part. When you add the two opposite corners, the cross terms cancel and both sums collapse to the same total — twice the squared horizontal offset plus twice the squared vertical offset, plus the rectangle's own half-dimensions. So the two diagonal pairs must match.</p>
+  <h4>It works outside too</h4>
+  <p>Nothing in the argument assumes P is inside. Drag P well beyond a corner and the equality still holds exactly — the badge tells you whether P is currently inside or outside.</p>
+  <h4>Needs a rectangle</h4>
+  <p>The right angles are essential. The identity generally fails for a non-rectangular quadrilateral; it's the rectangle's equal, perpendicular sides that make the cross terms cancel.</p>
+  <h4>A 3-D cousin</h4>
+  <p>The same idea extends to a box (rectangular cuboid): for opposite corners of the box, the sums of squared distances from any point are again equal.</p>
+  <h4>A bit of history</h4>
+  <p>It's a modern teaching favorite rather than a classical named result — a direct, memorable consequence of the Pythagorean theorem applied twice.</p>
+</aside>
+</div>
+</div>
+
+<script>
+(function(){
+  var svg=document.getElementById('bf-svg');
+  var center={x:340,y:280};
+  var halfW=180, halfH=120;
+  var P={x:250,y:340};
+  var UNIT=24; // pixels per unit (for readable squared values)
+  var showAC=true, showBD=true, showLabels=true;
+  var minX=20,maxX=660,minY=20,maxY=540;
+
+  function sub(p,q){return {x:p.x-q.x,y:p.y-q.y};}
+  function len(v){return Math.hypot(v.x,v.y);}
+  function fmt(n){
+    var r=Math.round(n*10)/10;
+    return (Math.abs(r-Math.round(r))<1e-9)?Math.round(r).toLocaleString():r.toFixed(1);
+  }
+  function mid(p,q){return {x:(p.x+q.x)/2,y:(p.y+q.y)/2};}
+
+  var rectPoly=document.getElementById('rect-poly');
+  var linePA=document.getElementById('line-pa');
+  var linePC=document.getElementById('line-pc');
+  var linePB=document.getElementById('line-pb');
+  var linePD=document.getElementById('line-pd');
+  var labPA=document.getElementById('lab-pa');
+  var labPC=document.getElementById('lab-pc');
+  var labPB=document.getElementById('lab-pb');
+  var labPD=document.getElementById('lab-pd');
+  var dotA=document.getElementById('dot-A');
+  var dotB=document.getElementById('dot-B');
+  var dotC=document.getElementById('dot-C');
+  var dotD=document.getElementById('dot-D');
+  var tagA=document.getElementById('tag-A');
+  var tagB=document.getElementById('tag-B');
+  var tagC=document.getElementById('tag-C');
+  var tagD=document.getElementById('tag-D');
+  var handleResize=document.getElementById('handle-resize');
+  var handleP=document.getElementById('handle-P');
+  var tagP=document.getElementById('tag-P');
+  var statusBadge=document.getElementById('status-badge');
+  var sumRow=document.getElementById('sum-row');
+  var detailRow=document.getElementById('detail-row');
+  var toggleAC=document.getElementById('toggle-ac');
+  var toggleBD=document.getElementById('toggle-bd');
+  var toggleLabels=document.getElementById('toggle-labels');
+
+  function corners(){
+    return {
+      A:{x:center.x-halfW,y:center.y-halfH},
+      B:{x:center.x+halfW,y:center.y-halfH},
+      C:{x:center.x+halfW,y:center.y+halfH},
+      D:{x:center.x-halfW,y:center.y+halfH}
+    };
+  }
+
+  function setLine(el,p,q){ el.setAttribute('x1',p.x); el.setAttribute('y1',p.y); el.setAttribute('x2',q.x); el.setAttribute('y2',q.y); }
+  function disp(el,on){ el.style.display=on?'block':'none'; }
+
+  function update(){
+    var c=corners();
+    rectPoly.setAttribute('points',
+      c.A.x+','+c.A.y+' '+c.B.x+','+c.B.y+' '+c.C.x+','+c.C.y+' '+c.D.x+','+c.D.y);
+
+    dotA.setAttribute('cx',c.A.x); dotA.setAttribute('cy',c.A.y);
+    dotB.setAttribute('cx',c.B.x); dotB.setAttribute('cy',c.B.y);
+    dotC.setAttribute('cx',c.C.x); dotC.setAttribute('cy',c.C.y);
+    dotD.setAttribute('cx',c.D.x); dotD.setAttribute('cy',c.D.y);
+
+    tagA.setAttribute('x',c.A.x-13); tagA.setAttribute('y',c.A.y-13);
+    tagB.setAttribute('x',c.B.x+13); tagB.setAttribute('y',c.B.y-13);
+    tagC.setAttribute('x',c.C.x+13); tagC.setAttribute('y',c.C.y+13);
+    tagD.setAttribute('x',c.D.x-13); tagD.setAttribute('y',c.D.y+13);
+
+    handleResize.setAttribute('cx',c.B.x); handleResize.setAttribute('cy',c.B.y);
+    handleP.setAttribute('cx',P.x); handleP.setAttribute('cy',P.y);
+    tagP.setAttribute('x',P.x); tagP.setAttribute('y',P.y-20);
+
+    setLine(linePA,P,c.A); setLine(linePC,P,c.C);
+    setLine(linePB,P,c.B); setLine(linePD,P,c.D);
+
+    var PA=len(sub(P,c.A))/UNIT, PB=len(sub(P,c.B))/UNIT,
+        PC=len(sub(P,c.C))/UNIT, PD=len(sub(P,c.D))/UNIT;
+
+    var mPA=mid(P,c.A), mPC=mid(P,c.C), mPB=mid(P,c.B), mPD=mid(P,c.D);
+    labPA.setAttribute('x',mPA.x); labPA.setAttribute('y',mPA.y-8); labPA.textContent='PA='+fmt(PA);
+    labPC.setAttribute('x',mPC.x); labPC.setAttribute('y',mPC.y-8); labPC.textContent='PC='+fmt(PC);
+    labPB.setAttribute('x',mPB.x); labPB.setAttribute('y',mPB.y-8); labPB.textContent='PB='+fmt(PB);
+    labPD.setAttribute('x',mPD.x); labPD.setAttribute('y',mPD.y-8); labPD.textContent='PD='+fmt(PD);
+
+    disp(linePA,showAC); disp(linePC,showAC); disp(dotA,showAC); disp(dotC,showAC);
+    disp(linePB,showBD); disp(linePD,showBD); disp(dotB,showBD); disp(dotD,showBD);
+    disp(labPA,showAC&&showLabels); disp(labPC,showAC&&showLabels);
+    disp(labPB,showBD&&showLabels); disp(labPD,showBD&&showLabels);
+
+    var s1=PA*PA+PC*PC, s2=PB*PB+PD*PD;
+    var mismatch=Math.abs(s1-s2)>0.05;
+
+    var inside=(Math.abs(P.x-center.x)<=halfW && Math.abs(P.y-center.y)<=halfH);
+    statusBadge.textContent=inside?'P is inside the rectangle':'P is outside the rectangle';
+    statusBadge.style.background=inside?'#E1F0FB':'#FBF3D9';
+    statusBadge.style.color=inside?'#0E3F66':'#5C4813';
+
+    sumRow.innerHTML =
+      '<span><span class="swatch" style="background:#378ADD"></span>PA² + PC² = '+fmt(s1)+'</span>'+
+      '<b style="color:'+(mismatch?'#e24b4a':'#1d9e75')+';font-size:18px;">=</b>'+
+      '<span><span class="swatch" style="background:#BA7517"></span>PB² + PD² = '+fmt(s2)+'</span>'+
+      (mismatch?'':'<span style="color:#1d9e75;font-weight:700;">&check;</span>');
+
+    detailRow.textContent='PA²='+fmt(PA*PA)+'  PC²='+fmt(PC*PC)+'   |   PB²='+fmt(PB*PB)+'  PD²='+fmt(PD*PD);
+  }
+
+  // dragging
+  var dragging=null;
+  function toSvgPoint(evt){
+    var rect=svg.getBoundingClientRect();
+    var vb=svg.viewBox.baseVal;
+    return {
+      x:(evt.clientX-rect.left)/rect.width*vb.width+vb.x,
+      y:(evt.clientY-rect.top)/rect.height*vb.height+vb.y
+    };
+  }
+  function onDown(key){
+    return function(e){
+      dragging=key;
+      if(e.target.setPointerCapture){ try{ e.target.setPointerCapture(e.pointerId); }catch(err){} }
+      e.preventDefault();
+    };
+  }
+  function onMove(e){
+    if(!dragging) return;
+    var p=toSvgPoint(e);
+    if(dragging==='P'){
+      P={x:Math.min(maxX,Math.max(minX,p.x)), y:Math.min(maxY,Math.max(minY,p.y))};
+    } else if(dragging==='resize'){
+      halfW=Math.min(300,Math.max(40,Math.abs(p.x-center.x)));
+      halfH=Math.min(230,Math.max(40,Math.abs(p.y-center.y)));
+    }
+    update();
+  }
+  function onUp(){ dragging=null; }
+  handleP.addEventListener('pointerdown',onDown('P'));
+  handleResize.addEventListener('pointerdown',onDown('resize'));
+  svg.addEventListener('pointermove',onMove);
+  window.addEventListener('pointerup',onUp);
+
+  toggleAC.addEventListener('click',function(){ showAC=!showAC; toggleAC.classList.toggle('active',showAC); update(); });
+  toggleBD.addEventListener('click',function(){ showBD=!showBD; toggleBD.classList.toggle('active',showBD); update(); });
+  toggleLabels.addEventListener('click',function(){ showLabels=!showLabels; toggleLabels.classList.toggle('active',showLabels); update(); });
+
+  var infoToggle=document.getElementById('info-toggle-btn');
+  var infoDrawer=document.getElementById('info-drawer');
+  var infoBackdrop=document.getElementById('info-backdrop');
+  var infoClose=document.getElementById('info-close');
+  function openDrawer(){ infoDrawer.classList.add('open'); infoBackdrop.classList.add('open'); }
+  function closeDrawer(){ infoDrawer.classList.remove('open'); infoBackdrop.classList.remove('open'); }
+  infoToggle.addEventListener('click',function(){
+    if(infoDrawer.classList.contains('open')) closeDrawer(); else openDrawer();
+  });
+  infoClose.addEventListener('click',closeDrawer);
+  infoBackdrop.addEventListener('click',closeDrawer);
+  document.addEventListener('keydown',function(e){ if(e.key==='Escape') closeDrawer(); });
+
+  update();
+})();
+</script>
+</body>
+</html>
