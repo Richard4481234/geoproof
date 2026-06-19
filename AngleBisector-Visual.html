@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>GeoProof — Angle Bisector Theorem explorer</title>
+<style>
+  body{background:#f4f4f5;display:flex;justify-content:center;padding:40px 16px;font-family:sans-serif;}
+  .widget{width:680px;max-width:100%;}
+  .card{background:#ffffff;border:1px solid #e2e2e2;padding:1.25rem;}
+  .sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;}
+  #ab-svg{width:100%;height:auto;display:block;touch-action:none;}
+  .handle{cursor:grab;}
+  .handle:active{cursor:grabbing;}
+  .swatch{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:6px;vertical-align:middle;}
+  .side-input{width:64px;padding:4px 6px;border:1px solid #ccc;border-radius:6px;font-size:14px;text-align:center;}
+  .toggle-btn{padding:6px 14px;border-radius:999px;border:1px solid #d8d8d8;background:#f4f4f5;color:#888888;font-size:13px;font-weight:500;cursor:pointer;}
+  .toggle-btn.active{background:#1a1a1a;color:#ffffff;border-color:#1a1a1a;}
+  .stage{position:relative;border-radius:12px;overflow:hidden;border:1px solid #e2e2e2;}
+  .stage .card{border:none;}
+  .info-toggle{position:absolute;top:14px;right:14px;z-index:30;background:#1a1a1a;color:#ffffff;border:none;border-radius:999px;padding:7px 14px;font-size:13px;font-weight:500;cursor:pointer;}
+  .info-toggle:hover{background:#333333;}
+  .info-backdrop{position:absolute;inset:0;background:rgba(0,0,0,0.22);opacity:0;visibility:hidden;transition:opacity .2s ease;z-index:25;}
+  .info-backdrop.open{opacity:1;visibility:visible;}
+  .info-drawer{position:absolute;top:0;right:0;height:100%;width:320px;max-width:88%;background:#ffffff;border-left:1px solid #e2e2e2;box-shadow:-8px 0 24px rgba(0,0,0,0.14);padding:22px 20px;overflow-y:auto;transform:translateX(100%);transition:transform .25s ease;z-index:28;box-sizing:border-box;}
+  .info-drawer.open{transform:translateX(0);}
+  .info-close{position:absolute;top:14px;right:14px;background:#f4f4f5;border:1px solid #e2e2e2;border-radius:50%;width:28px;height:28px;font-size:14px;cursor:pointer;color:#555555;}
+  .info-drawer h3{font-size:17px;margin:6px 0 12px;padding-right:30px;color:#1a1a1a;}
+  .info-drawer h4{font-size:12px;margin:18px 0 6px;color:#666666;text-transform:uppercase;letter-spacing:.04em;}
+  .info-drawer p{font-size:13.5px;line-height:1.55;color:#333333;margin:0 0 10px;}
+  .formula-box{background:#f4f4f5;border-radius:8px;padding:10px 12px;text-align:center;font-size:15px;font-weight:600;margin:10px 0;color:#1a1a1a;}
+</style>
+</head>
+<body>
+<div class="widget">
+<div style="margin-bottom:12px;"><a href="index.html" style="font-size:14px;color:#1a1a1a;text-decoration:none;">&larr; GeoProof</a></div>
+<div class="stage">
+<div class="card">
+<h2 class="sr-only">Drag any of the three triangle vertices, or type exact side lengths. The bisector of the angle at A is drawn from A to a point D on the opposite side BC, splitting that angle into two equal halves. The theorem says D divides BC so that the ratio BD to DC equals the ratio of the two sides meeting at A, namely AB to AC. Both ratios are shown live and stay equal. An info button opens a drawer explaining the theorem.</h2>
+<svg id="ab-svg" viewBox="0 0 680 560" aria-hidden="true">
+  <polygon id="half-wedge-1" fill="#8B5FBF" fill-opacity="0.22" stroke="#8B5FBF" stroke-width="1" stroke-opacity="0.55"></polygon>
+  <polygon id="half-wedge-2" fill="#8B5FBF" fill-opacity="0.22" stroke="#8B5FBF" stroke-width="1" stroke-opacity="0.55"></polygon>
+  <line id="edge-a" stroke="#378ADD" stroke-width="5" stroke-linecap="round"></line>
+  <line id="edge-b" stroke="#639922" stroke-width="5" stroke-linecap="round"></line>
+  <line id="edge-c" stroke="#D4537E" stroke-width="5" stroke-linecap="round"></line>
+  <line id="bisector" stroke="#8B5FBF" stroke-width="3" stroke-dasharray="7,4" stroke-linecap="round"></line>
+  <text id="len-c-label" text-anchor="middle" dominant-baseline="middle" fill="#4B1528" font-size="14" font-weight="500"></text>
+  <text id="len-b-label" text-anchor="middle" dominant-baseline="middle" fill="#173404" font-size="14" font-weight="500"></text>
+  <text id="bd-label" text-anchor="middle" dominant-baseline="middle" fill="#185FA5" font-size="13" font-weight="600"></text>
+  <text id="dc-label" text-anchor="middle" dominant-baseline="middle" fill="#185FA5" font-size="13" font-weight="600"></text>
+  <text id="half1-label" text-anchor="middle" dominant-baseline="middle" fill="#5B3886" font-size="12.5" font-weight="600"></text>
+  <text id="half2-label" text-anchor="middle" dominant-baseline="middle" fill="#5B3886" font-size="12.5" font-weight="600"></text>
+  <text id="tag-A" text-anchor="middle" dominant-baseline="middle" fill="#1a1a1a" font-size="14" font-weight="700">A</text>
+  <text id="tag-B" text-anchor="middle" dominant-baseline="middle" fill="#1a1a1a" font-size="14" font-weight="700">B</text>
+  <text id="tag-C" text-anchor="middle" dominant-baseline="middle" fill="#1a1a1a" font-size="14" font-weight="700">C</text>
+  <circle id="dot-D" r="5" fill="#8B5FBF"></circle>
+  <text id="tag-D" text-anchor="middle" dominant-baseline="middle" fill="#5B3886" font-size="13" font-weight="700">D</text>
+  <circle id="handle-A" class="handle" r="12" fill="#ffffff" stroke="#1a1a1a" stroke-width="2"></circle>
+  <circle id="handle-B" class="handle" r="12" fill="#ffffff" stroke="#1a1a1a" stroke-width="2"></circle>
+  <circle id="handle-C" class="handle" r="12" fill="#ffffff" stroke="#1a1a1a" stroke-width="2"></circle>
+</svg>
+
+<div style="display:flex; justify-content:center; gap:10px; flex-wrap:wrap; margin-top:0.75rem;">
+  <button type="button" id="toggle-bisector" class="toggle-btn active">Bisector &amp; D</button>
+  <button type="button" id="toggle-angles" class="toggle-btn active">Equal angles</button>
+  <button type="button" id="toggle-sides" class="toggle-btn active">Side labels</button>
+</div>
+
+<div style="display:flex; justify-content:center; margin-top:0.75rem;">
+  <span id="status-badge" style="display:inline-block; padding:4px 14px; border-radius:999px; font-size:14px; font-weight:500;"></span>
+</div>
+
+<div style="display:flex; align-items:center; justify-content:center; gap:16px; flex-wrap:wrap; margin-top:1rem; font-size:14px; color:#1a1a1a;">
+  <label style="display:flex; align-items:center; gap:6px;"><span class="swatch" style="background:#378ADD"></span>a (BC) <input type="number" id="input-a" min="1" step="1" class="side-input"></label>
+  <label style="display:flex; align-items:center; gap:6px;"><span class="swatch" style="background:#639922"></span>b (AC) <input type="number" id="input-b" min="1" step="1" class="side-input"></label>
+  <label style="display:flex; align-items:center; gap:6px;"><span class="swatch" style="background:#D4537E"></span>c (AB) <input type="number" id="input-c" min="1" step="1" class="side-input"></label>
+</div>
+<div id="tri-error" style="display:none; text-align:center; color:#e24b4a; font-size:13px; margin-top:6px;">Not a valid triangle — try different lengths</div>
+
+<div id="formula-symbolic" style="text-align:center; font-size:15px; font-weight:600; color:#1a1a1a; margin-top:1.1rem;">BD / DC = AB / AC</div>
+
+<div id="ratio-row" style="display:flex; align-items:center; justify-content:center; gap:10px; flex-wrap:wrap; margin-top:0.6rem; font-size:15px; color:#1a1a1a;"></div>
+<div id="summary-row" style="text-align:center; font-size:13px; color:#777777; margin-top:0.7rem;">The dashed bisector splits angle A into two equal halves — and lands on BC at exactly the point that matches the side ratio.</div>
+</div>
+
+<button type="button" id="info-toggle-btn" class="info-toggle">ⓘ About this theorem</button>
+<div id="info-backdrop" class="info-backdrop"></div>
+<aside id="info-drawer" class="info-drawer">
+  <button type="button" id="info-close" class="info-close" aria-label="Close">✕</button>
+  <h3>The Angle Bisector Theorem</h3>
+  <p>In a triangle ABC, draw the bisector of the angle at A — the ray that splits ∠A into two equal halves. It meets the opposite side BC at a point D. The theorem says D divides BC in the same ratio as the two sides that form angle A:</p>
+  <div class="formula-box">BD / DC = AB / AC</div>
+  <p>So the bisector always lands closer to the shorter of the two adjacent sides.</p>
+  <h4>What to watch</h4>
+  <p>Drag a vertex to make AB and AC very different in length and D slides toward the shorter side; make AB = AC (an isosceles triangle) and D lands exactly at the midpoint of BC, since the ratio becomes 1.</p>
+  <h4>Why it's true</h4>
+  <p>One classic proof draws a line through C parallel to the bisector AD, meeting line AB extended at E. That makes triangle ACE isosceles with AE = AC, and similar triangles give BD/DC = AB/AE = AB/AC. An area argument works too: triangles ABD and ACD share the same height from A, so their areas — and hence the bases BD and DC — are in the ratio of AB to AC.</p>
+  <h4>The converse holds as well</h4>
+  <p>If a point D on BC satisfies BD/DC = AB/AC, then AD must be the bisector of angle A. The condition and the bisector are equivalent.</p>
+  <h4>Where it's used</h4>
+  <p>It underlies the incenter (where all three bisectors meet), constructions for dividing a segment in a given ratio, and many olympiad-style length-chasing problems.</p>
+  <h4>A bit of history</h4>
+  <p>The result is essentially Proposition 3 of Book VI of Euclid's <i>Elements</i> (c. 300 BCE), built on the theory of proportions and similar triangles developed there.</p>
+</aside>
+</div>
+</div>
+
+<script>
+(function(){
+  var svg = document.getElementById('ab-svg');
+  var pts = { A:{x:340,y:120}, B:{x:170,y:430}, C:{x:520,y:430} };
+  var minX=20,maxX=660,minY=20,maxY=540;
+  var unitScale=1;
+  var showBisector=true, showAngles=true, showSides=true;
+
+  function sub(p,q){return {x:p.x-q.x,y:p.y-q.y};}
+  function add(p,q){return {x:p.x+q.x,y:p.y+q.y};}
+  function len(v){return Math.hypot(v.x,v.y);}
+  function fmt(n){
+    var r=Math.round(n*10)/10;
+    return (Math.abs(r-Math.round(r))<1e-9)?Math.round(r).toLocaleString():r.toFixed(1);
+  }
+  function ptsToStr(arr){return arr.map(function(p){return p.x.toFixed(1)+','+p.y.toFixed(1);}).join(' ');}
+  function angleDeg(P,Q,R){
+    var u=sub(Q,P), v=sub(R,P);
+    var lu=len(u), lv=len(v);
+    if(lu<1e-6||lv<1e-6) return 0;
+    var cosA=(u.x*v.x+u.y*v.y)/(lu*lv);
+    cosA=Math.min(1,Math.max(-1,cosA));
+    return Math.acos(cosA)*180/Math.PI;
+  }
+  function midOffset(P1,P2,P3,offset){
+    var M={x:(P1.x+P2.x)/2,y:(P1.y+P2.y)/2};
+    var dir=sub(P3,M), dl=len(dir);
+    if(dl<1e-6) return M;
+    return {x:M.x+dir.x/dl*offset, y:M.y+dir.y/dl*offset};
+  }
+  function angleWedge(P,Q,R,radius){
+    var uaDeg=Math.atan2(Q.y-P.y,Q.x-P.x)*180/Math.PI;
+    var ubDeg=Math.atan2(R.y-P.y,R.x-P.x)*180/Math.PI;
+    var diff=((ubDeg-uaDeg+540)%360)-180;
+    var steps=Math.max(2,Math.round(Math.abs(diff)/4));
+    var arr=[P];
+    for(var i=0;i<=steps;i++){
+      var ang=(uaDeg+diff*(i/steps))*Math.PI/180;
+      arr.push({x:P.x+radius*Math.cos(ang), y:P.y+radius*Math.sin(ang)});
+    }
+    return {pts:arr, bis:(uaDeg+diff/2)*Math.PI/180};
+  }
+
+  var elA=document.getElementById('handle-A');
+  var elB=document.getElementById('handle-B');
+  var elC=document.getElementById('handle-C');
+  var edgeA=document.getElementById('edge-a');
+  var edgeB=document.getElementById('edge-b');
+  var edgeC=document.getElementById('edge-c');
+  var bisector=document.getElementById('bisector');
+  var lenCLabel=document.getElementById('len-c-label');
+  var lenBLabel=document.getElementById('len-b-label');
+  var bdLabel=document.getElementById('bd-label');
+  var dcLabel=document.getElementById('dc-label');
+  var half1=document.getElementById('half-wedge-1');
+  var half2=document.getElementById('half-wedge-2');
+  var half1Label=document.getElementById('half1-label');
+  var half2Label=document.getElementById('half2-label');
+  var tagA=document.getElementById('tag-A');
+  var tagB=document.getElementById('tag-B');
+  var tagC=document.getElementById('tag-C');
+  var dotD=document.getElementById('dot-D');
+  var tagD=document.getElementById('tag-D');
+  var statusBadge=document.getElementById('status-badge');
+  var inputA=document.getElementById('input-a');
+  var inputB=document.getElementById('input-b');
+  var inputC=document.getElementById('input-c');
+  var triError=document.getElementById('tri-error');
+  var toggleBisector=document.getElementById('toggle-bisector');
+  var toggleAngles=document.getElementById('toggle-angles');
+  var toggleSides=document.getElementById('toggle-sides');
+  var ratioRow=document.getElementById('ratio-row');
+
+  function update(){
+    elA.setAttribute('cx',pts.A.x); elA.setAttribute('cy',pts.A.y);
+    elB.setAttribute('cx',pts.B.x); elB.setAttribute('cy',pts.B.y);
+    elC.setAttribute('cx',pts.C.x); elC.setAttribute('cy',pts.C.y);
+
+    // edges: a = BC, b = AC, c = AB
+    edgeA.setAttribute('x1',pts.B.x); edgeA.setAttribute('y1',pts.B.y);
+    edgeA.setAttribute('x2',pts.C.x); edgeA.setAttribute('y2',pts.C.y);
+    edgeB.setAttribute('x1',pts.A.x); edgeB.setAttribute('y1',pts.A.y);
+    edgeB.setAttribute('x2',pts.C.x); edgeB.setAttribute('y2',pts.C.y);
+    edgeC.setAttribute('x1',pts.A.x); edgeC.setAttribute('y1',pts.A.y);
+    edgeC.setAttribute('x2',pts.B.x); edgeC.setAttribute('y2',pts.B.y);
+
+    var bPix=len(sub(pts.A,pts.C));   // AC
+    var cPix=len(sub(pts.A,pts.B));   // AB
+    var b=bPix/unitScale, c=cPix/unitScale, a=len(sub(pts.B,pts.C))/unitScale;
+
+    // D on BC with BD/DC = c/b  =>  D = (b*B + c*C)/(b+c)
+    var wsum=bPix+cPix; if(wsum<1e-6) wsum=1;
+    var D={x:(bPix*pts.B.x+cPix*pts.C.x)/wsum, y:(bPix*pts.B.y+cPix*pts.C.y)/wsum};
+    var BD=len(sub(D,pts.B))/unitScale;
+    var DC=len(sub(pts.C,D))/unitScale;
+
+    bisector.setAttribute('x1',pts.A.x); bisector.setAttribute('y1',pts.A.y);
+    bisector.setAttribute('x2',D.x); bisector.setAttribute('y2',D.y);
+    dotD.setAttribute('cx',D.x); dotD.setAttribute('cy',D.y);
+
+    var tagDpos=midOffset(D,D,pts.A,0); // placeholder
+    var dAway=sub(D,pts.A); var dl=len(dAway)||1;
+    tagD.setAttribute('x',D.x+dAway.x/dl*16); tagD.setAttribute('y',D.y+dAway.y/dl*16);
+
+    // vertex tags pushed outward from centroid
+    var cen={x:(pts.A.x+pts.B.x+pts.C.x)/3, y:(pts.A.y+pts.B.y+pts.C.y)/3};
+    function tagPos(P){ var d=sub(P,cen), l=len(d)||1; return {x:P.x+d.x/l*22, y:P.y+d.y/l*22}; }
+    var tA=tagPos(pts.A), tB=tagPos(pts.B), tC=tagPos(pts.C);
+    tagA.setAttribute('x',tA.x); tagA.setAttribute('y',tA.y);
+    tagB.setAttribute('x',tB.x); tagB.setAttribute('y',tB.y);
+    tagC.setAttribute('x',tC.x); tagC.setAttribute('y',tC.y);
+
+    // side labels AB (c) and AC (b)
+    var posC=midOffset(pts.A,pts.B,pts.C,18);
+    var posB=midOffset(pts.A,pts.C,pts.B,18);
+    lenCLabel.setAttribute('x',posC.x); lenCLabel.setAttribute('y',posC.y);
+    lenBLabel.setAttribute('x',posB.x); lenBLabel.setAttribute('y',posB.y);
+    lenCLabel.textContent='AB = '+fmt(c);
+    lenBLabel.textContent='AC = '+fmt(b);
+
+    // BD / DC labels along BC, nudged away from A
+    var posBD=midOffset(pts.B,D,pts.A,-16);
+    var posDC=midOffset(D,pts.C,pts.A,-16);
+    bdLabel.setAttribute('x',posBD.x); bdLabel.setAttribute('y',posBD.y);
+    dcLabel.setAttribute('x',posDC.x); dcLabel.setAttribute('y',posDC.y);
+    bdLabel.textContent='BD = '+fmt(BD);
+    dcLabel.textContent='DC = '+fmt(DC);
+
+    // half-angle wedges at A
+    var w1=angleWedge(pts.A,pts.B,D,32);
+    var w2=angleWedge(pts.A,D,pts.C,32);
+    half1.setAttribute('points',ptsToStr(w1.pts));
+    half2.setAttribute('points',ptsToStr(w2.pts));
+    var half1deg=angleDeg(pts.A,pts.B,D);
+    var half2deg=angleDeg(pts.A,D,pts.C);
+    half1Label.setAttribute('x',pts.A.x+46*Math.cos(w1.bis));
+    half1Label.setAttribute('y',pts.A.y+46*Math.sin(w1.bis));
+    half2Label.setAttribute('x',pts.A.x+46*Math.cos(w2.bis));
+    half2Label.setAttribute('y',pts.A.y+46*Math.sin(w2.bis));
+    half1Label.textContent=Math.round(half1deg)+'°';
+    half2Label.textContent=Math.round(half2deg)+'°';
+
+    // visibility
+    var disp=function(el,on){ el.style.display=on?'block':'none'; };
+    disp(bisector,showBisector); disp(dotD,showBisector); disp(tagD,showBisector);
+    disp(bdLabel,showBisector); disp(dcLabel,showBisector);
+    disp(half1,showAngles); disp(half2,showAngles);
+    disp(half1Label,showAngles); disp(half2Label,showAngles);
+    disp(lenCLabel,showSides); disp(lenBLabel,showSides);
+
+    // sync inputs
+    if(document.activeElement!==inputA) inputA.value=Math.round(a);
+    if(document.activeElement!==inputB) inputB.value=Math.round(b);
+    if(document.activeElement!==inputC) inputC.value=Math.round(c);
+
+    // badge
+    var isIso=Math.abs(b-c)<Math.max(0.05,0.004*Math.max(b,c));
+    if(isIso){
+      statusBadge.textContent='AB = AC → D is the midpoint of BC';
+      statusBadge.style.background='#EDE6F6'; statusBadge.style.color='#3F2A5C';
+    } else {
+      statusBadge.textContent='∠BAD = ∠DAC = '+ (Math.round(((half1deg+half2deg)/2)*10)/10) +'°';
+      statusBadge.style.background='#EAF3DE'; statusBadge.style.color='#173404';
+    }
+
+    var r1=DC>1e-9?BD/DC:0, r2=b>1e-9?c/b:0;
+    var mismatch=Math.abs(r1-r2)>0.02;
+    ratioRow.innerHTML =
+      '<span><span class="swatch" style="background:#378ADD"></span>BD / DC = '+fmt(BD)+' / '+fmt(DC)+' = '+r1.toFixed(3)+'</span>'+
+      '<b style="color:'+(mismatch?'#e24b4a':'#1d9e75')+';font-size:18px;">=</b>'+
+      '<span><span class="swatch" style="background:#D4537E"></span>AB / AC = '+fmt(c)+' / '+fmt(b)+' = '+r2.toFixed(3)+'</span>'+
+      (mismatch?'':'<span style="color:#1d9e75;font-weight:700;">&check;</span>');
+  }
+
+  function setTriangleFromSides(aVal,bVal,cVal){
+    // a=BC, b=AC, c=AB ; place C0 at origin, B0 on +x at distance a, A0 via angle at C
+    var cosC=(aVal*aVal+bVal*bVal-cVal*cVal)/(2*aVal*bVal);
+    cosC=Math.min(1,Math.max(-1,cosC));
+    var angleCrad=Math.acos(cosC);
+    var C0={x:0,y:0}, B0={x:aVal,y:0};
+    var A0={x:bVal*Math.cos(angleCrad), y:-bVal*Math.sin(angleCrad)};
+    var allPts=[A0,B0,C0];
+    var bbMinX=Math.min.apply(null,allPts.map(function(p){return p.x;}));
+    var bbMaxX=Math.max.apply(null,allPts.map(function(p){return p.x;}));
+    var bbMinY=Math.min.apply(null,allPts.map(function(p){return p.y;}));
+    var bbMaxY=Math.max.apply(null,allPts.map(function(p){return p.y;}));
+    var bboxW=Math.max(bbMaxX-bbMinX,1e-6), bboxH=Math.max(bbMaxY-bbMinY,1e-6);
+    var margin=70;
+    var scale=Math.min((680-2*margin)/bboxW, (560-2*margin)/bboxH);
+    var cx=(bbMinX+bbMaxX)/2, cy=(bbMinY+bbMaxY)/2;
+    var tx=340-cx*scale, ty=280-cy*scale;
+    function tf(P){ return {x:P.x*scale+tx, y:P.y*scale+ty}; }
+    pts.A=tf(A0); pts.B=tf(B0); pts.C=tf(C0);
+    unitScale=scale;
+    update();
+  }
+
+  function onSideInput(){
+    var aVal=parseFloat(inputA.value), bVal=parseFloat(inputB.value), cVal=parseFloat(inputC.value);
+    if(isNaN(aVal)||isNaN(bVal)||isNaN(cVal)||!(aVal>0&&bVal>0&&cVal>0)){
+      triError.style.display='block'; return;
+    }
+    if(!(aVal+bVal>cVal && aVal+cVal>bVal && bVal+cVal>aVal)){
+      triError.style.display='block'; return;
+    }
+    triError.style.display='none';
+    setTriangleFromSides(aVal,bVal,cVal);
+  }
+  inputA.addEventListener('input',onSideInput);
+  inputB.addEventListener('input',onSideInput);
+  inputC.addEventListener('input',onSideInput);
+
+  toggleBisector.addEventListener('click',function(){
+    showBisector=!showBisector; toggleBisector.classList.toggle('active',showBisector); update();
+  });
+  toggleAngles.addEventListener('click',function(){
+    showAngles=!showAngles; toggleAngles.classList.toggle('active',showAngles); update();
+  });
+  toggleSides.addEventListener('click',function(){
+    showSides=!showSides; toggleSides.classList.toggle('active',showSides); update();
+  });
+
+  var infoToggle=document.getElementById('info-toggle-btn');
+  var infoDrawer=document.getElementById('info-drawer');
+  var infoBackdrop=document.getElementById('info-backdrop');
+  var infoClose=document.getElementById('info-close');
+  function openDrawer(){ infoDrawer.classList.add('open'); infoBackdrop.classList.add('open'); }
+  function closeDrawer(){ infoDrawer.classList.remove('open'); infoBackdrop.classList.remove('open'); }
+  infoToggle.addEventListener('click',function(){
+    if(infoDrawer.classList.contains('open')) closeDrawer(); else openDrawer();
+  });
+  infoClose.addEventListener('click',closeDrawer);
+  infoBackdrop.addEventListener('click',closeDrawer);
+  document.addEventListener('keydown',function(e){ if(e.key==='Escape') closeDrawer(); });
+
+  function toSvgPoint(evt){
+    var rect=svg.getBoundingClientRect();
+    var vb=svg.viewBox.baseVal;
+    var x=(evt.clientX-rect.left)/rect.width*vb.width+vb.x;
+    var y=(evt.clientY-rect.top)/rect.height*vb.height+vb.y;
+    return {x:x,y:y};
+  }
+  var dragging=null;
+  function onDown(key){
+    return function(e){
+      dragging=key;
+      if(e.target.setPointerCapture){ try{ e.target.setPointerCapture(e.pointerId); }catch(err){} }
+      e.preventDefault();
+    };
+  }
+  function onMove(e){
+    if(!dragging) return;
+    var p=toSvgPoint(e);
+    pts[dragging]={ x:Math.min(maxX,Math.max(minX,p.x)), y:Math.min(maxY,Math.max(minY,p.y)) };
+    update();
+  }
+  function onUp(){ dragging=null; }
+  elA.addEventListener('pointerdown',onDown('A'));
+  elB.addEventListener('pointerdown',onDown('B'));
+  elC.addEventListener('pointerdown',onDown('C'));
+  svg.addEventListener('pointermove',onMove);
+  window.addEventListener('pointerup',onUp);
+
+  setTriangleFromSides(14,10,16);
+})();
+</script>
+</body>
+</html>
