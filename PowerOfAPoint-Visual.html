@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>GeoProof — Power of a Point explorer</title>
+<style>
+  body{background:#f4f4f5;display:flex;justify-content:center;padding:40px 16px;font-family:sans-serif;}
+  .widget{width:680px;max-width:100%;}
+  .card{background:#ffffff;border:1px solid #e2e2e2;padding:1.25rem;}
+  .sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;}
+  #pp-svg{width:100%;height:auto;display:block;touch-action:none;}
+  .handle{cursor:grab;}
+  .handle:active{cursor:grabbing;}
+  .swatch{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:6px;vertical-align:middle;}
+  .toggle-btn{padding:6px 14px;border-radius:999px;border:1px solid #d8d8d8;background:#f4f4f5;color:#888888;font-size:13px;font-weight:500;cursor:pointer;}
+  .toggle-btn.active{background:#1a1a1a;color:#ffffff;border-color:#1a1a1a;}
+  .stage{position:relative;border-radius:12px;overflow:hidden;border:1px solid #e2e2e2;}
+  .stage .card{border:none;}
+  .info-toggle{position:absolute;top:14px;right:14px;z-index:30;background:#1a1a1a;color:#ffffff;border:none;border-radius:999px;padding:7px 14px;font-size:13px;font-weight:500;cursor:pointer;}
+  .info-toggle:hover{background:#333333;}
+  .info-backdrop{position:absolute;inset:0;background:rgba(0,0,0,0.22);opacity:0;visibility:hidden;transition:opacity .2s ease;z-index:25;}
+  .info-backdrop.open{opacity:1;visibility:visible;}
+  .info-drawer{position:absolute;top:0;right:0;height:100%;width:320px;max-width:88%;background:#ffffff;border-left:1px solid #e2e2e2;box-shadow:-8px 0 24px rgba(0,0,0,0.14);padding:22px 20px;overflow-y:auto;transform:translateX(100%);transition:transform .25s ease;z-index:28;box-sizing:border-box;}
+  .info-drawer.open{transform:translateX(0);}
+  .info-close{position:absolute;top:14px;right:14px;background:#f4f4f5;border:1px solid #e2e2e2;border-radius:50%;width:28px;height:28px;font-size:14px;cursor:pointer;color:#555555;}
+  .info-drawer h3{font-size:17px;margin:6px 0 12px;padding-right:30px;color:#1a1a1a;}
+  .info-drawer h4{font-size:12px;margin:18px 0 6px;color:#666666;text-transform:uppercase;letter-spacing:.04em;}
+  .info-drawer p{font-size:13.5px;line-height:1.55;color:#333333;margin:0 0 10px;}
+  .formula-box{background:#f4f4f5;border-radius:8px;padding:10px 12px;text-align:center;font-size:14px;font-weight:600;margin:10px 0;color:#1a1a1a;}
+</style>
+</head>
+<body>
+<div class="widget">
+<div style="margin-bottom:12px;"><a href="index.html" style="font-size:14px;color:#1a1a1a;text-decoration:none;">&larr; GeoProof</a></div>
+<div class="stage">
+<div class="card">
+<h2 class="sr-only">A circle is shown with two lines drawn across it. One line passes through circle points A and B, the other through points C and D; drag any of the four points around the circle. The two lines meet at a point P. The Power of a Point theorem says the products of the two distances along each line are equal: PA times PB equals PC times PD. When P is inside the circle the lines are crossing chords; when P is outside it is the secant case. Both products are shown live and stay equal. An info button opens a drawer explaining the theorem.</h2>
+<svg id="pp-svg" viewBox="0 0 680 560" aria-hidden="true">
+  <circle id="main-circle" fill="none" stroke="#c8c8cc" stroke-width="2"></circle>
+  <circle id="center-dot" r="3" fill="#bbbbbb"></circle>
+  <line id="chord-ab" stroke="#378ADD" stroke-width="3" stroke-linecap="round"></line>
+  <line id="chord-cd" stroke="#D4537E" stroke-width="3" stroke-linecap="round"></line>
+  <line id="ext-ab" stroke="#378ADD" stroke-width="1.5" stroke-dasharray="4,4" stroke-opacity="0.6"></line>
+  <line id="ext-cd" stroke="#D4537E" stroke-width="1.5" stroke-dasharray="4,4" stroke-opacity="0.6"></line>
+  <text id="lab-pa" text-anchor="middle" dominant-baseline="middle" fill="#185FA5" font-size="12.5" font-weight="600"></text>
+  <text id="lab-pb" text-anchor="middle" dominant-baseline="middle" fill="#185FA5" font-size="12.5" font-weight="600"></text>
+  <text id="lab-pc" text-anchor="middle" dominant-baseline="middle" fill="#993556" font-size="12.5" font-weight="600"></text>
+  <text id="lab-pd" text-anchor="middle" dominant-baseline="middle" fill="#993556" font-size="12.5" font-weight="600"></text>
+  <text id="tag-A" text-anchor="middle" dominant-baseline="middle" fill="#1a1a1a" font-size="14" font-weight="700">A</text>
+  <text id="tag-B" text-anchor="middle" dominant-baseline="middle" fill="#1a1a1a" font-size="14" font-weight="700">B</text>
+  <text id="tag-C" text-anchor="middle" dominant-baseline="middle" fill="#1a1a1a" font-size="14" font-weight="700">C</text>
+  <text id="tag-D" text-anchor="middle" dominant-baseline="middle" fill="#1a1a1a" font-size="14" font-weight="700">D</text>
+  <circle id="dot-P" r="5.5" fill="#1a1a1a"></circle>
+  <text id="tag-P" text-anchor="middle" dominant-baseline="middle" fill="#1a1a1a" font-size="14" font-weight="700">P</text>
+  <circle id="handle-A" class="handle" r="11" fill="#ffffff" stroke="#378ADD" stroke-width="2.5"></circle>
+  <circle id="handle-B" class="handle" r="11" fill="#ffffff" stroke="#378ADD" stroke-width="2.5"></circle>
+  <circle id="handle-C" class="handle" r="11" fill="#ffffff" stroke="#D4537E" stroke-width="2.5"></circle>
+  <circle id="handle-D" class="handle" r="11" fill="#ffffff" stroke="#D4537E" stroke-width="2.5"></circle>
+</svg>
+
+<div style="display:flex; justify-content:center; gap:10px; flex-wrap:wrap; margin-top:0.75rem;">
+  <button type="button" id="toggle-labels" class="toggle-btn active">Distance labels</button>
+  <button type="button" id="toggle-power" class="toggle-btn">Power value</button>
+</div>
+
+<div style="display:flex; justify-content:center; margin-top:0.85rem;">
+  <span id="status-badge" style="display:inline-block; padding:4px 14px; border-radius:999px; font-size:14px; font-weight:500;"></span>
+</div>
+
+<div id="formula-symbolic" style="text-align:center; font-size:15px; font-weight:600; color:#1a1a1a; margin-top:1.1rem;">PA · PB = PC · PD</div>
+
+<div id="prod-row" style="display:flex; align-items:center; justify-content:center; gap:10px; flex-wrap:wrap; margin-top:0.6rem; font-size:15px; color:#1a1a1a;"></div>
+<div id="power-detail" style="text-align:center; font-size:12.5px; color:#777777; margin-top:0.5rem; display:none;"></div>
+<div id="summary-row" style="text-align:center; font-size:13px; color:#777777; margin-top:0.6rem;">Drag A, B, C, or D around the circle. P is where the two lines meet — inside (crossing chords) or outside (secants).</div>
+</div>
+
+<button type="button" id="info-toggle-btn" class="info-toggle">ⓘ About this theorem</button>
+<div id="info-backdrop" class="info-backdrop"></div>
+<aside id="info-drawer" class="info-drawer">
+  <button type="button" id="info-close" class="info-close" aria-label="Close">✕</button>
+  <h3>The Power of a Point</h3>
+  <p>Fix a circle and a point P. Draw any line through P that meets the circle at two points — say A and B. The product of the two distances PA · PB is always the same, no matter which line you pick. So for a second line meeting the circle at C and D:</p>
+  <div class="formula-box">PA · PB = PC · PD</div>
+  <p>That shared value is called the <i>power</i> of the point P with respect to the circle.</p>
+  <h4>Two faces: chords and secants</h4>
+  <p>When P is inside the circle, the two lines are chords that cross at P — this is the "intersecting chords" theorem. When P is outside, the lines are secants and P is their external meeting point — the "secant–secant" theorem. The same equation covers both.</p>
+  <h4>The exact value</h4>
+  <p>If O is the center and r the radius, the power equals |PO² − r²|. Inside the circle PO &lt; r, so the signed power PO² − r² is negative; outside it is positive. Either way the unsigned products PA · PB and PC · PD match it — toggle "Power value" to see PO² − r² alongside the products.</p>
+  <h4>The tangent case</h4>
+  <p>If P is outside and one line just grazes the circle, its two intersection points merge into a single tangent point T, and PA · PB becomes PT². So the tangent length satisfies PT² = PC · PD — a handy way to find tangent lengths.</p>
+  <h4>A bit of history</h4>
+  <p>The intersecting-chords and secant relations appear in Euclid's <i>Elements</i> (Book III, Propositions 35 and 36, c. 300 BCE). The unifying notion of the "power of a point" was named by Jakob Steiner in the 19th century.</p>
+</aside>
+</div>
+</div>
+
+<script>
+(function(){
+  var svg=document.getElementById('pp-svg');
+  var center={x:340,y:285}, R=185;
+  var UNIT=30;
+  var showLabels=true, showPower=false;
+  // four points on the circle, by angle (degrees)
+  var ang={A:152,B:18,C:255,D:60};
+
+  function sub(p,q){return {x:p.x-q.x,y:p.y-q.y};}
+  function len(v){return Math.hypot(v.x,v.y);}
+  function cross(u,v){return u.x*v.y-u.y*v.x;}
+  function ptOn(aDeg){var r=aDeg*Math.PI/180; return {x:center.x+R*Math.cos(r), y:center.y+R*Math.sin(r)};}
+  function angleOf(p){return ((Math.atan2(p.y-center.y,p.x-center.x)*180/Math.PI)+360)%360;}
+  function fmt(n){
+    var r=Math.round(n*10)/10;
+    return (Math.abs(r-Math.round(r))<1e-9)?Math.round(r).toLocaleString():r.toFixed(1);
+  }
+  function lineIntersect(A,B,C,D){
+    var r=sub(B,A), s=sub(D,C), den=cross(r,s);
+    if(Math.abs(den)<1e-9) return null;
+    var t=cross(sub(C,A),s)/den;
+    return {x:A.x+t*r.x, y:A.y+t*r.y};
+  }
+
+  var mainCircle=document.getElementById('main-circle');
+  var centerDot=document.getElementById('center-dot');
+  var chordAB=document.getElementById('chord-ab');
+  var chordCD=document.getElementById('chord-cd');
+  var extAB=document.getElementById('ext-ab');
+  var extCD=document.getElementById('ext-cd');
+  var labPA=document.getElementById('lab-pa');
+  var labPB=document.getElementById('lab-pb');
+  var labPC=document.getElementById('lab-pc');
+  var labPD=document.getElementById('lab-pd');
+  var tagA=document.getElementById('tag-A');
+  var tagB=document.getElementById('tag-B');
+  var tagC=document.getElementById('tag-C');
+  var tagD=document.getElementById('tag-D');
+  var dotP=document.getElementById('dot-P');
+  var tagP=document.getElementById('tag-P');
+  var hA=document.getElementById('handle-A');
+  var hB=document.getElementById('handle-B');
+  var hC=document.getElementById('handle-C');
+  var hD=document.getElementById('handle-D');
+  var statusBadge=document.getElementById('status-badge');
+  var prodRow=document.getElementById('prod-row');
+  var powerDetail=document.getElementById('power-detail');
+  var toggleLabels=document.getElementById('toggle-labels');
+  var togglePower=document.getElementById('toggle-power');
+
+  mainCircle.setAttribute('cx',center.x); mainCircle.setAttribute('cy',center.y); mainCircle.setAttribute('r',R);
+  centerDot.setAttribute('cx',center.x); centerDot.setAttribute('cy',center.y);
+
+  function setLine(el,p,q){ el.setAttribute('x1',p.x); el.setAttribute('y1',p.y); el.setAttribute('x2',q.x); el.setAttribute('y2',q.y); }
+  function mid(p,q){return {x:(p.x+q.x)/2,y:(p.y+q.y)/2};}
+  function disp(el,on){ el.style.display=on?'block':'none'; }
+
+  function update(){
+    var A=ptOn(ang.A), B=ptOn(ang.B), C=ptOn(ang.C), D=ptOn(ang.D);
+    hA.setAttribute('cx',A.x); hA.setAttribute('cy',A.y);
+    hB.setAttribute('cx',B.x); hB.setAttribute('cy',B.y);
+    hC.setAttribute('cx',C.x); hC.setAttribute('cy',C.y);
+    hD.setAttribute('cx',D.x); hD.setAttribute('cy',D.y);
+
+    var tA=ptOn(ang.A); var oA={x:center.x+(R+20)*Math.cos(ang.A*Math.PI/180),y:center.y+(R+20)*Math.sin(ang.A*Math.PI/180)};
+    var oB={x:center.x+(R+20)*Math.cos(ang.B*Math.PI/180),y:center.y+(R+20)*Math.sin(ang.B*Math.PI/180)};
+    var oC={x:center.x+(R+20)*Math.cos(ang.C*Math.PI/180),y:center.y+(R+20)*Math.sin(ang.C*Math.PI/180)};
+    var oD={x:center.x+(R+20)*Math.cos(ang.D*Math.PI/180),y:center.y+(R+20)*Math.sin(ang.D*Math.PI/180)};
+    tagA.setAttribute('x',oA.x); tagA.setAttribute('y',oA.y);
+    tagB.setAttribute('x',oB.x); tagB.setAttribute('y',oB.y);
+    tagC.setAttribute('x',oC.x); tagC.setAttribute('y',oC.y);
+    tagD.setAttribute('x',oD.x); tagD.setAttribute('y',oD.y);
+
+    var P=lineIntersect(A,B,C,D);
+    if(!P){
+      // lines parallel — degenerate
+      setLine(chordAB,A,B); setLine(chordCD,C,D);
+      extAB.style.display='none'; extCD.style.display='none';
+      dotP.style.display='none'; tagP.style.display='none';
+      disp(labPA,false); disp(labPB,false); disp(labPC,false); disp(labPD,false);
+      statusBadge.textContent='Lines are parallel — no meeting point';
+      statusBadge.style.background='#FAECE7'; statusBadge.style.color='#4A1B0C';
+      prodRow.innerHTML='<span style="color:#777;">Rotate a point so the two lines meet.</span>';
+      powerDetail.style.display='none';
+      return;
+    }
+
+    dotP.style.display='block'; tagP.style.display='block';
+    dotP.setAttribute('cx',P.x); dotP.setAttribute('cy',P.y);
+    tagP.setAttribute('x',P.x); tagP.setAttribute('y',P.y-18);
+
+    // chords drawn between the two circle points
+    setLine(chordAB,A,B); setLine(chordCD,C,D);
+
+    var dist=len(sub(P,center));
+    var inside=dist<R-0.5;
+
+    // when P is outside, extend each line from the near circle point out to P (dashed)
+    if(!inside){
+      extAB.style.display='block'; extCD.style.display='block';
+      var nearAB=(len(sub(P,A))<len(sub(P,B)))?A:B;
+      var nearCD=(len(sub(P,C))<len(sub(P,D)))?C:D;
+      setLine(extAB,nearAB,P); setLine(extCD,nearCD,P);
+    } else {
+      extAB.style.display='none'; extCD.style.display='none';
+    }
+
+    var PA=len(sub(P,A))/UNIT, PB=len(sub(P,B))/UNIT, PC=len(sub(P,C))/UNIT, PD=len(sub(P,D))/UNIT;
+
+    var mPA=mid(P,A), mPB=mid(P,B), mPC=mid(P,C), mPD=mid(P,D);
+    labPA.setAttribute('x',mPA.x); labPA.setAttribute('y',mPA.y-7); labPA.textContent='PA='+fmt(PA);
+    labPB.setAttribute('x',mPB.x); labPB.setAttribute('y',mPB.y-7); labPB.textContent='PB='+fmt(PB);
+    labPC.setAttribute('x',mPC.x); labPC.setAttribute('y',mPC.y-7); labPC.textContent='PC='+fmt(PC);
+    labPD.setAttribute('x',mPD.x); labPD.setAttribute('y',mPD.y-7); labPD.textContent='PD='+fmt(PD);
+    disp(labPA,showLabels); disp(labPB,showLabels); disp(labPC,showLabels); disp(labPD,showLabels);
+
+    var p1=PA*PB, p2=PC*PD;
+    var mismatch=Math.abs(p1-p2)>0.05*Math.max(1,p1);
+
+    statusBadge.textContent=inside?'P inside — crossing chords':'P outside — secant case';
+    statusBadge.style.background=inside?'#E1F0FB':'#FBF3D9';
+    statusBadge.style.color=inside?'#0E3F66':'#5C4813';
+
+    prodRow.innerHTML =
+      '<span><span class="swatch" style="background:#378ADD"></span>PA · PB = '+fmt(PA)+' · '+fmt(PB)+' = '+fmt(p1)+'</span>'+
+      '<b style="color:'+(mismatch?'#e24b4a':'#1d9e75')+';font-size:18px;">=</b>'+
+      '<span><span class="swatch" style="background:#D4537E"></span>PC · PD = '+fmt(PC)+' · '+fmt(PD)+' = '+fmt(p2)+'</span>'+
+      (mismatch?'':'<span style="color:#1d9e75;font-weight:700;">&check;</span>');
+
+    var powerSigned=(dist*dist-R*R)/(UNIT*UNIT);
+    powerDetail.style.display=showPower?'block':'none';
+    powerDetail.textContent='Power = PO² − r² = '+fmt(powerSigned)+'   (|power| = '+fmt(Math.abs(powerSigned))+', matches the products above)';
+  }
+
+  // dragging — constrain handles to the circle
+  var dragging=null;
+  function toSvgPoint(evt){
+    var rect=svg.getBoundingClientRect();
+    var vb=svg.viewBox.baseVal;
+    return { x:(evt.clientX-rect.left)/rect.width*vb.width+vb.x, y:(evt.clientY-rect.top)/rect.height*vb.height+vb.y };
+  }
+  function onDown(key){
+    return function(e){
+      dragging=key;
+      if(e.target.setPointerCapture){ try{ e.target.setPointerCapture(e.pointerId); }catch(err){} }
+      e.preventDefault();
+    };
+  }
+  function onMove(e){
+    if(!dragging) return;
+    var p=toSvgPoint(e);
+    var v=sub(p,center); if(len(v)<1e-6) return;
+    ang[dragging]=((Math.atan2(v.y,v.x)*180/Math.PI)+360)%360;
+    update();
+  }
+  function onUp(){ dragging=null; }
+  hA.addEventListener('pointerdown',onDown('A'));
+  hB.addEventListener('pointerdown',onDown('B'));
+  hC.addEventListener('pointerdown',onDown('C'));
+  hD.addEventListener('pointerdown',onDown('D'));
+  svg.addEventListener('pointermove',onMove);
+  window.addEventListener('pointerup',onUp);
+
+  toggleLabels.addEventListener('click',function(){ showLabels=!showLabels; toggleLabels.classList.toggle('active',showLabels); update(); });
+  togglePower.addEventListener('click',function(){ showPower=!showPower; togglePower.classList.toggle('active',showPower); update(); });
+
+  var infoToggle=document.getElementById('info-toggle-btn');
+  var infoDrawer=document.getElementById('info-drawer');
+  var infoBackdrop=document.getElementById('info-backdrop');
+  var infoClose=document.getElementById('info-close');
+  function openDrawer(){ infoDrawer.classList.add('open'); infoBackdrop.classList.add('open'); }
+  function closeDrawer(){ infoDrawer.classList.remove('open'); infoBackdrop.classList.remove('open'); }
+  infoToggle.addEventListener('click',function(){
+    if(infoDrawer.classList.contains('open')) closeDrawer(); else openDrawer();
+  });
+  infoClose.addEventListener('click',closeDrawer);
+  infoBackdrop.addEventListener('click',closeDrawer);
+  document.addEventListener('keydown',function(e){ if(e.key==='Escape') closeDrawer(); });
+
+  update();
+})();
+</script>
+</body>
+</html>
