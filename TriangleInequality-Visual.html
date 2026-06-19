@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>GeoProof — Triangle Inequality explorer</title>
+<style>
+  body{background:#f4f4f5;display:flex;justify-content:center;padding:40px 16px;font-family:sans-serif;}
+  .widget{width:680px;max-width:100%;}
+  .card{background:#ffffff;border:1px solid #e2e2e2;padding:1.25rem;}
+  .sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;}
+  #ti-svg{width:100%;height:auto;display:block;touch-action:none;}
+  .handle{cursor:grab;}
+  .handle:active{cursor:grabbing;}
+  .swatch{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:6px;vertical-align:middle;}
+  .side-input{width:64px;padding:4px 6px;border:1px solid #ccc;border-radius:6px;font-size:14px;text-align:center;}
+  .toggle-btn{padding:6px 14px;border-radius:999px;border:1px solid #d8d8d8;background:#f4f4f5;color:#888888;font-size:13px;font-weight:500;cursor:pointer;}
+  .toggle-btn.active{background:#1a1a1a;color:#ffffff;border-color:#1a1a1a;}
+  .step-btn{width:26px;height:26px;border-radius:50%;border:1px solid #d8d8d8;background:#f4f4f5;color:#555555;font-size:15px;line-height:1;cursor:pointer;padding:0;}
+  .step-btn:hover{background:#e9e9ea;}
+  .stage{position:relative;border-radius:12px;overflow:hidden;border:1px solid #e2e2e2;}
+  .stage .card{border:none;}
+  .info-toggle{position:absolute;top:14px;right:14px;z-index:30;background:#1a1a1a;color:#ffffff;border:none;border-radius:999px;padding:7px 14px;font-size:13px;font-weight:500;cursor:pointer;}
+  .info-toggle:hover{background:#333333;}
+  .info-backdrop{position:absolute;inset:0;background:rgba(0,0,0,0.22);opacity:0;visibility:hidden;transition:opacity .2s ease;z-index:25;}
+  .info-backdrop.open{opacity:1;visibility:visible;}
+  .info-drawer{position:absolute;top:0;right:0;height:100%;width:320px;max-width:88%;background:#ffffff;border-left:1px solid #e2e2e2;box-shadow:-8px 0 24px rgba(0,0,0,0.14);padding:22px 20px;overflow-y:auto;transform:translateX(100%);transition:transform .25s ease;z-index:28;box-sizing:border-box;}
+  .info-drawer.open{transform:translateX(0);}
+  .info-close{position:absolute;top:14px;right:14px;background:#f4f4f5;border:1px solid #e2e2e2;border-radius:50%;width:28px;height:28px;font-size:14px;cursor:pointer;color:#555555;}
+  .info-drawer h3{font-size:17px;margin:6px 0 12px;padding-right:30px;color:#1a1a1a;}
+  .info-drawer h4{font-size:12px;margin:18px 0 6px;color:#666666;text-transform:uppercase;letter-spacing:.04em;}
+  .info-drawer p{font-size:13.5px;line-height:1.55;color:#333333;margin:0 0 10px;}
+  .formula-box{background:#f4f4f5;border-radius:8px;padding:10px 12px;text-align:center;font-size:15px;font-weight:600;margin:10px 0;color:#1a1a1a;}
+</style>
+</head>
+<body>
+<div class="widget">
+<div style="margin-bottom:12px;"><a href="index.html" style="font-size:14px;color:#1a1a1a;text-decoration:none;">&larr; GeoProof</a></div>
+<div class="stage">
+<div class="card">
+<h2 class="sr-only">Type three side lengths a, b, and c, or once a valid triangle exists, drag its third vertex, to explore the triangle inequality theorem: every side must be shorter than the sum of the other two. Two dashed circles show every point that is exactly distance b from one fixed end and exactly distance a from the other; where they cross is the only place the third vertex can be. If the circles do not reach each other, or one sits entirely inside the other, no triangle exists, and the gap is measured directly. An info button opens a drawer explaining the theorem.</h2>
+<svg id="ti-svg" viewBox="0 0 680 560" aria-hidden="true">
+  <circle id="circle-b" fill="none" stroke="#639922" stroke-width="1.5" stroke-dasharray="5,4" stroke-opacity="0.55"></circle>
+  <circle id="circle-a" fill="none" stroke="#378ADD" stroke-width="1.5" stroke-dasharray="5,4" stroke-opacity="0.55"></circle>
+  <line id="gap-line" stroke="#e24b4a" stroke-width="2.5" stroke-dasharray="2,3" style="display:none"></line>
+  <line id="edge-a" stroke="#378ADD" stroke-width="5" stroke-linecap="round"></line>
+  <line id="edge-b" stroke="#639922" stroke-width="5" stroke-linecap="round"></line>
+  <line id="edge-c" stroke="#D4537E" stroke-width="5" stroke-linecap="round"></line>
+  <text id="len-a-label" text-anchor="middle" dominant-baseline="middle" fill="#042C53" font-size="14" font-weight="500"></text>
+  <text id="len-b-label" text-anchor="middle" dominant-baseline="middle" fill="#173404" font-size="14" font-weight="500"></text>
+  <text id="len-c-label" text-anchor="middle" dominant-baseline="middle" fill="#4B1528" font-size="14" font-weight="500"></text>
+  <text id="gap-label" text-anchor="middle" dominant-baseline="middle" fill="#e24b4a" font-size="12.5" font-weight="600" style="display:none"></text>
+  <circle id="dot-A" r="5" fill="#1a1a1a"></circle>
+  <circle id="dot-B" r="5" fill="#1a1a1a"></circle>
+  <circle id="handle-C" class="handle" r="12" fill="#ffffff" stroke="#1a1a1a" stroke-width="2" style="display:none"></circle>
+</svg>
+
+<div style="display:flex; justify-content:center; gap:10px; flex-wrap:wrap; margin-top:0.75rem;">
+  <button type="button" id="flip-btn" class="toggle-btn">Flip &#9651;</button>
+</div>
+
+<div style="display:flex; justify-content:center; margin-top:0.75rem;">
+  <span id="tri-status-badge" style="display:inline-block; padding:4px 14px; border-radius:999px; font-size:14px; font-weight:500;"></span>
+</div>
+
+<div style="display:flex; align-items:center; justify-content:center; gap:14px; flex-wrap:wrap; margin-top:1rem; font-size:14px; color:#1a1a1a;">
+  <label style="display:flex; align-items:center; gap:5px;">
+    <span class="swatch" style="background:#378ADD"></span>a
+    <button type="button" class="step-btn" data-side="a" data-dir="-1" aria-label="Decrease a">&minus;</button>
+    <input type="number" id="input-a" min="1" step="1" class="side-input">
+    <button type="button" class="step-btn" data-side="a" data-dir="1" aria-label="Increase a">+</button>
+  </label>
+  <label style="display:flex; align-items:center; gap:5px;">
+    <span class="swatch" style="background:#639922"></span>b
+    <button type="button" class="step-btn" data-side="b" data-dir="-1" aria-label="Decrease b">&minus;</button>
+    <input type="number" id="input-b" min="1" step="1" class="side-input">
+    <button type="button" class="step-btn" data-side="b" data-dir="1" aria-label="Increase b">+</button>
+  </label>
+  <label style="display:flex; align-items:center; gap:5px;">
+    <span class="swatch" style="background:#D4537E"></span>c
+    <button type="button" class="step-btn" data-side="c" data-dir="-1" aria-label="Decrease c">&minus;</button>
+    <input type="number" id="input-c" min="1" step="1" class="side-input">
+    <button type="button" class="step-btn" data-side="c" data-dir="1" aria-label="Increase c">+</button>
+  </label>
+</div>
+<div id="num-error" style="display:none; text-align:center; color:#e24b4a; font-size:13px; margin-top:6px;">Enter a positive number for each side.</div>
+
+<div id="ineq-list" style="margin-top:1rem; font-size:14px; color:#1a1a1a;"></div>
+
+<div id="range-row" style="text-align:center; font-size:13.5px; color:#555555; margin-top:0.9rem;"></div>
+</div>
+
+<button type="button" id="info-toggle-btn" class="info-toggle">ⓘ About this theorem</button>
+<div id="info-backdrop" class="info-backdrop"></div>
+<aside id="info-drawer" class="info-drawer">
+  <button type="button" id="info-close" class="info-close" aria-label="Close">✕</button>
+  <h3>The Triangle Inequality</h3>
+  <p>For any triangle with sides a, b, and c, each side must be shorter than the sum of the other two:</p>
+  <div class="formula-box">a + b &gt; c&nbsp;&nbsp;&middot;&nbsp;&nbsp;b + c &gt; a&nbsp;&nbsp;&middot;&nbsp;&nbsp;a + c &gt; b</div>
+  <p>If even one of those three checks fails, the lengths simply cannot close up into a triangle — there's no way to connect them.</p>
+  <h4>Why it has to be true</h4>
+  <p>The shortest path between two points is a straight line. So a route from A to B that detours through C (length b + a) can never be shorter than going straight from A to B (length c) — it can only be longer, or equal if C happens to sit exactly on the segment.</p>
+  <h4>The construction in this tool</h4>
+  <p>Side c is drawn as a fixed base between two anchor points. The third vertex must be exactly distance b from one end and exactly distance a from the other — so it has to lie on both a circle of radius b and a circle of radius a. Where those two dashed circles cross is the only place a real triangle can form. This is the classic compass-and-straightedge way to build a triangle from three given side lengths (an "SSS" construction).</p>
+  <h4>The degenerate case</h4>
+  <p>When a + b equals c exactly (or |a − b| equals c exactly), the two circles touch at just one point — right on the line through the two anchors. The "triangle" flattens to a straight segment with zero area. Try dragging the third vertex toward the base, or set the inputs so one sum exactly matches the third side.</p>
+  <h4>Why dragging alone can't break it</h4>
+  <p>Any three actual points in the plane automatically obey the inequality — that's just what distance means. So dragging the third vertex can approach equality (the degenerate, flattened case) but never cross it. The only way to see an impossible combination here is to type in three lengths that don't fit, which is exactly what the circles-not-meeting view shows.</p>
+  <h4>Quick check</h4>
+  <p>13, 14, 15 (the default shown) works: 13 + 14 = 27 &gt; 15. But 5, 5, 10 lands exactly on the boundary (5 + 5 = 10 — degenerate), and 5, 5, 11 is impossible (5 + 5 = 10 &lt; 11).</p>
+  <h4>A bit of history</h4>
+  <p>Euclid's <i>Elements</i> (Book I, Proposition 20) proves this around 300 BCE: "In any triangle, two sides taken together in any manner are greater than the remaining one."</p>
+</aside>
+</div>
+</div>
+
+<script>
+(function(){
+  var svg = document.getElementById('ti-svg');
+  var circleB=document.getElementById('circle-b');
+  var circleA=document.getElementById('circle-a');
+  var gapLine=document.getElementById('gap-line');
+  var gapLabel=document.getElementById('gap-label');
+  var edgeA=document.getElementById('edge-a');
+  var edgeB=document.getElementById('edge-b');
+  var edgeC=document.getElementById('edge-c');
+  var lenALabel=document.getElementById('len-a-label');
+  var lenBLabel=document.getElementById('len-b-label');
+  var lenCLabel=document.getElementById('len-c-label');
+  var dotA=document.getElementById('dot-A');
+  var dotB=document.getElementById('dot-B');
+  var handleC=document.getElementById('handle-C');
+  var statusBadge=document.getElementById('tri-status-badge');
+  var inputA=document.getElementById('input-a');
+  var inputB=document.getElementById('input-b');
+  var inputC=document.getElementById('input-c');
+  var numError=document.getElementById('num-error');
+  var ineqList=document.getElementById('ineq-list');
+  var rangeRow=document.getElementById('range-row');
+  var flipBtn=document.getElementById('flip-btn');
+
+  var flipUpper=true;
+  var currentScale=1, currentTx=0, currentTy=0, currentD=1;
+
+  function fmt(n){
+    var r=Math.round(n*10)/10;
+    return (Math.abs(r-Math.round(r))<1e-9)?Math.round(r).toLocaleString():r.toFixed(1);
+  }
+
+  function midOffsetPx(P1,P2,awayFrom,offset){
+    var M={x:(P1.x+P2.x)/2,y:(P1.y+P2.y)/2};
+    var dir = awayFrom ? {x:M.x-awayFrom.x,y:M.y-awayFrom.y} : {x:0,y:1};
+    var dl=Math.hypot(dir.x,dir.y);
+    if(dl<1e-6){ dir={x:0,y:1}; dl=1; }
+    return {x:M.x+dir.x/dl*offset, y:M.y+dir.y/dl*offset};
+  }
+
+  function ineqRow(xVal,yVal,zVal,xl,yl,zl,tol){
+    var sum=xVal+yVal;
+    var isEq=Math.abs(sum-zVal)<=tol;
+    var holds=sum>zVal+tol;
+    var sign=isEq?'=':(sum>zVal?'&gt;':'&lt;');
+    var color=holds?'#1d9e75':(isEq?'#b8860b':'#e24b4a');
+    var mark=holds?'&check;':'&cross;';
+    return '<div style="display:flex;align-items:center;justify-content:center;gap:8px;padding:3px 0;">'+
+      '<span>'+xl+' + '+yl+' = '+fmt(sum)+'</span>'+
+      '<b style="color:'+color+';font-size:15px;min-width:14px;display:inline-block;text-align:center;">'+sign+'</b>'+
+      '<span>'+zl+' = '+fmt(zVal)+'</span>'+
+      '<span style="color:'+color+';font-weight:700;">'+mark+'</span>'+
+      '</div>';
+  }
+
+  function readSides(){
+    return { a:parseFloat(inputA.value), b:parseFloat(inputB.value), c:parseFloat(inputC.value) };
+  }
+
+  function update(){
+    var s=readSides();
+    if(isNaN(s.a)||isNaN(s.b)||isNaN(s.c)||!(s.a>0&&s.b>0&&s.c>0)){
+      numError.style.display='block';
+      return;
+    }
+    numError.style.display='none';
+    render(s.a,s.b,s.c);
+  }
+
+  function render(a,b,c){
+    var d=c;
+    var reach=a+b, short=Math.abs(a-b);
+    var tol=Math.max(0.01,0.0015*Math.max(a,b,c));
+    var status;
+    if(d>reach+tol) status='long';
+    else if(d<short-tol) status='short';
+    else if(Math.abs(d-reach)<=tol || Math.abs(d-short)<=tol) status='degenerate';
+    else status='valid';
+
+    var A0={x:0,y:0}, B0={x:d,y:0};
+    var Cexists = (status==='valid'||status==='degenerate');
+    var Ctop=null, Cbottom=null, C0=null;
+    if(Cexists){
+      var a1=(b*b-a*a+d*d)/(2*d);
+      var h2=Math.max(0,b*b-a1*a1);
+      var h=Math.sqrt(h2);
+      Ctop={x:a1,y:-h};
+      Cbottom={x:a1,y:h};
+      C0=flipUpper?Ctop:Cbottom;
+    }
+
+    var bbMinX=Math.min(A0.x-b,B0.x-a);
+    var bbMaxX=Math.max(A0.x+b,B0.x+a);
+    var bbMinY=Math.min(A0.y-b,B0.y-a, Cexists?Math.min(Ctop.y,Cbottom.y):0);
+    var bbMaxY=Math.max(A0.y+b,B0.y+a, Cexists?Math.max(Ctop.y,Cbottom.y):0);
+    var bboxW=Math.max(bbMaxX-bbMinX,1e-6), bboxH=Math.max(bbMaxY-bbMinY,1e-6);
+    var margin=40;
+    var scale=Math.min((680-2*margin)/bboxW,(560-2*margin)/bboxH);
+    var cx=(bbMinX+bbMaxX)/2, cy=(bbMinY+bbMaxY)/2;
+    var tx=340-cx*scale, ty=280-cy*scale;
+    function tf(P){ return {x:P.x*scale+tx, y:P.y*scale+ty}; }
+
+    var Apix=tf(A0), Bpix=tf(B0), Cpix=Cexists?tf(C0):null;
+
+    currentScale=scale; currentTx=tx; currentTy=ty; currentD=d;
+
+    circleB.setAttribute('cx',Apix.x); circleB.setAttribute('cy',Apix.y); circleB.setAttribute('r',Math.max(0,b*scale));
+    circleA.setAttribute('cx',Bpix.x); circleA.setAttribute('cy',Bpix.y); circleA.setAttribute('r',Math.max(0,a*scale));
+
+    dotA.setAttribute('cx',Apix.x); dotA.setAttribute('cy',Apix.y);
+    dotB.setAttribute('cx',Bpix.x); dotB.setAttribute('cy',Bpix.y);
+
+    edgeC.setAttribute('x1',Apix.x); edgeC.setAttribute('y1',Apix.y);
+    edgeC.setAttribute('x2',Bpix.x); edgeC.setAttribute('y2',Bpix.y);
+    var posC=midOffsetPx(Apix,Bpix,Cpix,18);
+    lenCLabel.setAttribute('x',posC.x); lenCLabel.setAttribute('y',posC.y);
+    lenCLabel.textContent='c = '+fmt(c);
+
+    if(Cexists){
+      edgeA.style.display='block'; edgeB.style.display='block';
+      edgeA.setAttribute('x1',Bpix.x); edgeA.setAttribute('y1',Bpix.y);
+      edgeA.setAttribute('x2',Cpix.x); edgeA.setAttribute('y2',Cpix.y);
+      edgeB.setAttribute('x1',Apix.x); edgeB.setAttribute('y1',Apix.y);
+      edgeB.setAttribute('x2',Cpix.x); edgeB.setAttribute('y2',Cpix.y);
+      var posA=midOffsetPx(Bpix,Cpix,Apix,16);
+      var posB=midOffsetPx(Apix,Cpix,Bpix,16);
+      lenALabel.setAttribute('x',posA.x); lenALabel.setAttribute('y',posA.y);
+      lenBLabel.setAttribute('x',posB.x); lenBLabel.setAttribute('y',posB.y);
+      lenALabel.textContent='a = '+fmt(a);
+      lenBLabel.textContent='b = '+fmt(b);
+      lenALabel.style.display='block'; lenBLabel.style.display='block';
+      handleC.style.display='block';
+      handleC.setAttribute('cx',Cpix.x); handleC.setAttribute('cy',Cpix.y);
+      gapLine.style.display='none'; gapLabel.style.display='none';
+    } else {
+      edgeA.style.display='none'; edgeB.style.display='none';
+      lenALabel.style.display='none'; lenBLabel.style.display='none';
+      handleC.style.display='none';
+      if(status==='long'){
+        var gp1=tf({x:b,y:0}), gp2=tf({x:d-a,y:0});
+        gapLine.setAttribute('x1',gp1.x); gapLine.setAttribute('y1',gp1.y);
+        gapLine.setAttribute('x2',gp2.x); gapLine.setAttribute('y2',gp2.y);
+        gapLine.style.display='block';
+        var gMid={x:(gp1.x+gp2.x)/2,y:(gp1.y+gp2.y)/2-14};
+        gapLabel.setAttribute('x',gMid.x); gapLabel.setAttribute('y',gMid.y);
+        gapLabel.textContent='gap = '+fmt(d-reach);
+        gapLabel.style.display='block';
+      } else {
+        gapLine.style.display='none'; gapLabel.style.display='none';
+      }
+    }
+
+    if(document.activeElement!==inputA) inputA.value=Math.round(a);
+    if(document.activeElement!==inputB) inputB.value=Math.round(b);
+    if(document.activeElement!==inputC) inputC.value=Math.round(c);
+
+    var badgeText, badgeBg, badgeColor;
+    if(status==='valid'){ badgeText='Valid triangle'; badgeBg='#EAF3DE'; badgeColor='#173404'; }
+    else if(status==='degenerate'){ badgeText='Degenerate — flattened to a line'; badgeBg='#FBF3D9'; badgeColor='#5C4813'; }
+    else if(status==='long'){ badgeText='Not a triangle — c is too long'; badgeBg='#FAECE7'; badgeColor='#4A1B0C'; }
+    else { badgeText='Not a triangle — c is too short'; badgeBg='#FAECE7'; badgeColor='#4A1B0C'; }
+    statusBadge.textContent=badgeText;
+    statusBadge.style.background=badgeBg;
+    statusBadge.style.color=badgeColor;
+
+    ineqList.innerHTML =
+      ineqRow(a,b,c,'a','b','c',tol)+
+      ineqRow(a,c,b,'a','c','b',tol)+
+      ineqRow(b,c,a,'b','c','a',tol);
+
+    rangeRow.innerHTML='With a = '+fmt(a)+' and b = '+fmt(b)+', side c must satisfy <b>'+fmt(short)+' &lt; c &lt; '+fmt(reach)+'</b> to form a triangle.';
+
+    flipBtn.classList.toggle('active', !flipUpper);
+    flipBtn.style.opacity = Cexists ? '1' : '0.4';
+  }
+
+  document.querySelectorAll('.step-btn').forEach(function(btn){
+    btn.addEventListener('click',function(){
+      var side=btn.getAttribute('data-side');
+      var dir=parseInt(btn.getAttribute('data-dir'),10);
+      var inp = side==='a'?inputA:(side==='b'?inputB:inputC);
+      var val=parseFloat(inp.value); if(isNaN(val)) val=0;
+      val=Math.max(1,val+dir*5);
+      inp.value=Math.round(val);
+      update();
+    });
+  });
+
+  inputA.addEventListener('input',update);
+  inputB.addEventListener('input',update);
+  inputC.addEventListener('input',update);
+
+  flipBtn.addEventListener('click',function(){ flipUpper=!flipUpper; update(); });
+
+  function toSvgPoint(evt){
+    var rect=svg.getBoundingClientRect();
+    var vb=svg.viewBox.baseVal;
+    var x=(evt.clientX-rect.left)/rect.width*vb.width+vb.x;
+    var y=(evt.clientY-rect.top)/rect.height*vb.height+vb.y;
+    return {x:x,y:y};
+  }
+
+  var draggingC=false;
+  handleC.addEventListener('pointerdown',function(e){
+    draggingC=true;
+    if(e.target.setPointerCapture){ try{ e.target.setPointerCapture(e.pointerId); }catch(err){} }
+    e.preventDefault();
+  });
+  svg.addEventListener('pointermove',function(e){
+    if(!draggingC) return;
+    var p=toSvgPoint(e);
+    var mx=(p.x-currentTx)/currentScale, my=(p.y-currentTy)/currentScale;
+    var newA=Math.max(1,Math.hypot(mx-currentD,my));
+    var newB=Math.max(1,Math.hypot(mx,my));
+    inputA.value=Math.round(newA);
+    inputB.value=Math.round(newB);
+    flipUpper = my<=0;
+    update();
+  });
+  window.addEventListener('pointerup',function(){ draggingC=false; });
+
+  var infoToggle=document.getElementById('info-toggle-btn');
+  var infoDrawer=document.getElementById('info-drawer');
+  var infoBackdrop=document.getElementById('info-backdrop');
+  var infoClose=document.getElementById('info-close');
+  function openDrawer(){ infoDrawer.classList.add('open'); infoBackdrop.classList.add('open'); }
+  function closeDrawer(){ infoDrawer.classList.remove('open'); infoBackdrop.classList.remove('open'); }
+  infoToggle.addEventListener('click',function(){
+    if(infoDrawer.classList.contains('open')) closeDrawer(); else openDrawer();
+  });
+  infoClose.addEventListener('click',closeDrawer);
+  infoBackdrop.addEventListener('click',closeDrawer);
+  document.addEventListener('keydown',function(e){ if(e.key==='Escape') closeDrawer(); });
+
+  inputA.value=13; inputB.value=14; inputC.value=15;
+  update();
+})();
+</script>
+</body>
+</html>
