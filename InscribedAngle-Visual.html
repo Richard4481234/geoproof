@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>GeoProof — Inscribed Angle Theorem explorer</title>
+<style>
+  body{background:#f4f4f5;display:flex;justify-content:center;padding:40px 16px;font-family:sans-serif;}
+  .widget{width:680px;max-width:100%;}
+  .card{background:#ffffff;border:1px solid #e2e2e2;padding:1.25rem;}
+  .sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;}
+  #ia-svg{width:100%;height:auto;display:block;touch-action:none;}
+  .handle{cursor:grab;}
+  .handle:active{cursor:grabbing;}
+  .swatch{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:6px;vertical-align:middle;}
+  .toggle-btn{padding:6px 14px;border-radius:999px;border:1px solid #d8d8d8;background:#f4f4f5;color:#888888;font-size:13px;font-weight:500;cursor:pointer;}
+  .toggle-btn.active{background:#1a1a1a;color:#ffffff;border-color:#1a1a1a;}
+  .stage{position:relative;border-radius:12px;overflow:hidden;border:1px solid #e2e2e2;}
+  .stage .card{border:none;}
+  .info-toggle{position:absolute;top:14px;right:14px;z-index:30;background:#1a1a1a;color:#ffffff;border:none;border-radius:999px;padding:7px 14px;font-size:13px;font-weight:500;cursor:pointer;}
+  .info-toggle:hover{background:#333333;}
+  .info-backdrop{position:absolute;inset:0;background:rgba(0,0,0,0.22);opacity:0;visibility:hidden;transition:opacity .2s ease;z-index:25;}
+  .info-backdrop.open{opacity:1;visibility:visible;}
+  .info-drawer{position:absolute;top:0;right:0;height:100%;width:320px;max-width:88%;background:#ffffff;border-left:1px solid #e2e2e2;box-shadow:-8px 0 24px rgba(0,0,0,0.14);padding:22px 20px;overflow-y:auto;transform:translateX(100%);transition:transform .25s ease;z-index:28;box-sizing:border-box;}
+  .info-drawer.open{transform:translateX(0);}
+  .info-close{position:absolute;top:14px;right:14px;background:#f4f4f5;border:1px solid #e2e2e2;border-radius:50%;width:28px;height:28px;font-size:14px;cursor:pointer;color:#555555;}
+  .info-drawer h3{font-size:17px;margin:6px 0 12px;padding-right:30px;color:#1a1a1a;}
+  .info-drawer h4{font-size:12px;margin:18px 0 6px;color:#666666;text-transform:uppercase;letter-spacing:.04em;}
+  .info-drawer p{font-size:13.5px;line-height:1.55;color:#333333;margin:0 0 10px;}
+  .formula-box{background:#f4f4f5;border-radius:8px;padding:10px 12px;text-align:center;font-size:15px;font-weight:600;margin:10px 0;color:#1a1a1a;}
+</style>
+</head>
+<body>
+<div class="widget">
+<div style="margin-bottom:12px;"><a href="index.html" style="font-size:14px;color:#1a1a1a;text-decoration:none;">&larr; GeoProof</a></div>
+<div class="stage">
+<div class="card">
+<h2 class="sr-only">Drag points A and B around the circle to set an arc, and drag point P, the inscribed vertex, anywhere else on the circle. The gold wedge at the center is the central angle that opens onto the highlighted arc between A and B; the blue wedge at P is the inscribed angle looking at that same arc. The central angle is always exactly twice the inscribed angle. When the arc is a semicircle, the inscribed angle is exactly 90 degrees — Thales' theorem. An info button opens a drawer explaining the theorem.</h2>
+<svg id="ia-svg" viewBox="0 0 680 560" aria-hidden="true">
+  <circle id="main-circle" fill="none" stroke="#c8c8cc" stroke-width="2"></circle>
+  <polyline id="arc-highlight" fill="none" stroke="#D4537E" stroke-width="6" stroke-linecap="round" stroke-opacity="0.65"></polyline>
+  <polygon id="central-wedge" fill="#BA7517" fill-opacity="0.22" stroke="#BA7517" stroke-width="1.2" stroke-opacity="0.6"></polygon>
+  <polygon id="inscribed-wedge" fill="#378ADD" fill-opacity="0.22" stroke="#378ADD" stroke-width="1.2" stroke-opacity="0.6"></polygon>
+  <line id="radius-a" stroke="#BA7517" stroke-width="3" stroke-linecap="round"></line>
+  <line id="radius-b" stroke="#BA7517" stroke-width="3" stroke-linecap="round"></line>
+  <line id="chord-pa" stroke="#378ADD" stroke-width="3" stroke-linecap="round"></line>
+  <line id="chord-pb" stroke="#378ADD" stroke-width="3" stroke-linecap="round"></line>
+  <text id="central-label" text-anchor="middle" dominant-baseline="middle" fill="#7A4D0B" font-size="14" font-weight="600"></text>
+  <text id="inscribed-label" text-anchor="middle" dominant-baseline="middle" fill="#185FA5" font-size="14" font-weight="600"></text>
+  <circle id="center-dot" r="4" fill="#1a1a1a"></circle>
+  <text id="center-tag" text-anchor="middle" dominant-baseline="middle" fill="#666666" font-size="13" font-weight="600">O</text>
+  <text id="tag-A" text-anchor="middle" dominant-baseline="middle" fill="#1a1a1a" font-size="14" font-weight="700">A</text>
+  <text id="tag-B" text-anchor="middle" dominant-baseline="middle" fill="#1a1a1a" font-size="14" font-weight="700">B</text>
+  <text id="tag-P" text-anchor="middle" dominant-baseline="middle" fill="#1a1a1a" font-size="14" font-weight="700">P</text>
+  <circle id="handle-A" class="handle" r="11" fill="#ffffff" stroke="#1a1a1a" stroke-width="2"></circle>
+  <circle id="handle-B" class="handle" r="11" fill="#ffffff" stroke="#1a1a1a" stroke-width="2"></circle>
+  <circle id="handle-P" class="handle" r="11" fill="#ffffff" stroke="#378ADD" stroke-width="2.5"></circle>
+</svg>
+
+<div style="display:flex; justify-content:center; gap:10px; flex-wrap:wrap; margin-top:0.75rem;">
+  <button type="button" id="toggle-central" class="toggle-btn active">Central angle</button>
+  <button type="button" id="toggle-inscribed" class="toggle-btn active">Inscribed angle</button>
+  <button type="button" id="toggle-arc" class="toggle-btn active">Subtended arc</button>
+</div>
+
+<div style="display:flex; justify-content:center; margin-top:0.85rem;">
+  <span id="status-badge" style="display:inline-block; padding:4px 14px; border-radius:999px; font-size:14px; font-weight:500;"></span>
+</div>
+
+<div id="formula-symbolic" style="text-align:center; font-size:15px; font-weight:600; color:#1a1a1a; margin-top:1.1rem;">central angle = 2 × inscribed angle  (same arc)</div>
+
+<div id="rel-row" style="display:flex; align-items:center; justify-content:center; gap:8px; flex-wrap:wrap; margin-top:0.6rem; font-size:15px; color:#1a1a1a;"></div>
+
+<div id="summary-row" style="text-align:center; font-size:13px; color:#777777; margin-top:0.7rem;">Drag <b>P</b> anywhere along its arc — the inscribed angle never changes. Move <b>A</b> or <b>B</b> to resize the arc.</div>
+</div>
+
+<button type="button" id="info-toggle-btn" class="info-toggle">ⓘ About this theorem</button>
+<div id="info-backdrop" class="info-backdrop"></div>
+<aside id="info-drawer" class="info-drawer">
+  <button type="button" id="info-close" class="info-close" aria-label="Close">✕</button>
+  <h3>The Inscribed Angle Theorem</h3>
+  <p>Take a circle with center O, and a fixed arc between two points A and B. The <i>central</i> angle ∠AOB opens onto that arc from the center. The <i>inscribed</i> angle ∠APB opens onto the same arc from a point P elsewhere on the circle. The theorem says:</p>
+  <div class="formula-box">∠AOB = 2 × ∠APB</div>
+  <p>The central angle is always exactly twice any inscribed angle that subtends the same arc.</p>
+  <h4>Angles in the same arc are equal</h4>
+  <p>Because every inscribed angle on the same arc equals half of the one fixed central angle, they all equal each other — no matter where P sits on its arc. Drag P around and watch its angle stay put while you move it.</p>
+  <h4>Special case: Thales' theorem</h4>
+  <p>When A and B are diametrically opposite, the arc is a semicircle and the central angle is a straight 180°. The inscribed angle is then exactly 180° ÷ 2 = 90°. So any triangle drawn on a diameter, with its third point on the circle, is right-angled. Drag A and B until they line up through O to see it.</p>
+  <h4>When P crosses to the other arc</h4>
+  <p>Move P across A or B to the opposite arc and it now looks at the <i>other</i> arc, whose central angle is the reflex one (more than 180°). The doubling still holds — the inscribed angle simply becomes the supplement of the first, which is exactly why opposite angles of a cyclic quadrilateral add to 180°.</p>
+  <h4>Why it's true (sketch)</h4>
+  <p>Draw the radius from O to P. It splits the figure into two isosceles triangles (two sides are radii). The exterior-angle rule applied to each one shows the angle at O is twice the angle at P. Adding the two pieces gives the full result.</p>
+  <h4>A bit of history</h4>
+  <p>This appears as Proposition 20 in Book III of Euclid's <i>Elements</i> (c. 300 BCE). Its semicircle corollary is named for Thales of Miletus (c. 624–546 BCE), traditionally the first result said to be formally proved.</p>
+</aside>
+</div>
+</div>
+
+<script>
+(function(){
+  var svg = document.getElementById('ia-svg');
+  var center={x:340,y:280}, R=190;
+  var showCentral=true, showInscribed=true, showArc=true;
+
+  // initial positions (degrees on the circle)
+  var pts={
+    A: ptOnCircle(160, R),
+    B: ptOnCircle(20, R),
+    P: ptOnCircle(270, R)
+  };
+
+  function ptOnCircle(deg, radius){
+    var r=deg*Math.PI/180;
+    return {x:center.x+radius*Math.cos(r), y:center.y+radius*Math.sin(r)};
+  }
+  function angleOf(P){
+    return ((Math.atan2(P.y-center.y,P.x-center.x)*180/Math.PI)+360)%360;
+  }
+  function fmt(n){
+    var r=Math.round(n*10)/10;
+    return (Math.abs(r-Math.round(r))<1e-9)?Math.round(r).toLocaleString():r.toFixed(1);
+  }
+  function arcSamples(aDeg, measureDeg, ccw, radius){
+    var steps=Math.max(2,Math.round(measureDeg/4));
+    var arr=[];
+    for(var i=0;i<=steps;i++){
+      var ang=aDeg+(ccw?1:-1)*measureDeg*(i/steps);
+      arr.push(ptOnCircle(ang, radius));
+    }
+    return arr;
+  }
+  function ptsToStr(arr){return arr.map(function(p){return p.x.toFixed(1)+','+p.y.toFixed(1);}).join(' ');}
+
+  var mainCircle=document.getElementById('main-circle');
+  var arcHighlight=document.getElementById('arc-highlight');
+  var centralWedge=document.getElementById('central-wedge');
+  var inscribedWedge=document.getElementById('inscribed-wedge');
+  var radiusA=document.getElementById('radius-a');
+  var radiusB=document.getElementById('radius-b');
+  var chordPA=document.getElementById('chord-pa');
+  var chordPB=document.getElementById('chord-pb');
+  var centralLabel=document.getElementById('central-label');
+  var inscribedLabel=document.getElementById('inscribed-label');
+  var centerDot=document.getElementById('center-dot');
+  var centerTag=document.getElementById('center-tag');
+  var tagA=document.getElementById('tag-A');
+  var tagB=document.getElementById('tag-B');
+  var tagP=document.getElementById('tag-P');
+  var elA=document.getElementById('handle-A');
+  var elB=document.getElementById('handle-B');
+  var elP=document.getElementById('handle-P');
+  var statusBadge=document.getElementById('status-badge');
+  var relRow=document.getElementById('rel-row');
+  var toggleCentral=document.getElementById('toggle-central');
+  var toggleInscribed=document.getElementById('toggle-inscribed');
+  var toggleArc=document.getElementById('toggle-arc');
+
+  mainCircle.setAttribute('cx',center.x);
+  mainCircle.setAttribute('cy',center.y);
+  mainCircle.setAttribute('r',R);
+  centerDot.setAttribute('cx',center.x);
+  centerDot.setAttribute('cy',center.y);
+  centerTag.setAttribute('x',center.x);
+  centerTag.setAttribute('y',center.y+16);
+
+  function update(){
+    var A=pts.A, B=pts.B, P=pts.P;
+    var a=angleOf(A), b=angleOf(B), p=angleOf(P);
+
+    elA.setAttribute('cx',A.x); elA.setAttribute('cy',A.y);
+    elB.setAttribute('cx',B.x); elB.setAttribute('cy',B.y);
+    elP.setAttribute('cx',P.x); elP.setAttribute('cy',P.y);
+
+    var tA=ptOnCircle(a,R+20), tB=ptOnCircle(b,R+20), tP=ptOnCircle(p,R+20);
+    tagA.setAttribute('x',tA.x); tagA.setAttribute('y',tA.y);
+    tagB.setAttribute('x',tB.x); tagB.setAttribute('y',tB.y);
+    tagP.setAttribute('x',tP.x); tagP.setAttribute('y',tP.y);
+
+    // radii to A and B (central angle arms)
+    radiusA.setAttribute('x1',center.x); radiusA.setAttribute('y1',center.y);
+    radiusA.setAttribute('x2',A.x); radiusA.setAttribute('y2',A.y);
+    radiusB.setAttribute('x1',center.x); radiusB.setAttribute('y1',center.y);
+    radiusB.setAttribute('x2',B.x); radiusB.setAttribute('y2',B.y);
+
+    // chords from P (inscribed angle arms)
+    chordPA.setAttribute('x1',P.x); chordPA.setAttribute('y1',P.y);
+    chordPA.setAttribute('x2',A.x); chordPA.setAttribute('y2',A.y);
+    chordPB.setAttribute('x1',P.x); chordPB.setAttribute('y1',P.y);
+    chordPB.setAttribute('x2',B.x); chordPB.setAttribute('y2',B.y);
+
+    // inscribed angle at P (0..180)
+    var u={x:A.x-P.x,y:A.y-P.y}, v={x:B.x-P.x,y:B.y-P.y};
+    var lu=Math.hypot(u.x,u.y), lv=Math.hypot(v.x,v.y);
+    var cosP=(lu<1e-6||lv<1e-6)?1:(u.x*v.x+u.y*v.y)/(lu*lv);
+    cosP=Math.min(1,Math.max(-1,cosP));
+    var inscribed=Math.acos(cosP)*180/Math.PI;
+
+    // central angle = arc AB not containing P
+    var arcCCW=((b-a)%360+360)%360;
+    var pRel=((p-a)%360+360)%360;
+    var pInCCW = pRel>1e-9 && pRel<arcCCW-1e-9;
+    var ccw = !pInCCW;                       // sweep direction of arc NOT containing P
+    var central = pInCCW ? (360-arcCCW) : arcCCW;
+
+    // central wedge (pie slice at O) + highlighted arc on the circle
+    var rCentral=66;
+    var wedgePts=[center].concat(arcSamples(a, central, ccw, rCentral));
+    centralWedge.setAttribute('points',ptsToStr(wedgePts));
+    arcHighlight.setAttribute('points',ptsToStr(arcSamples(a, central, ccw, R)));
+
+    // inscribed wedge at P (short way between the two arms)
+    var uaDeg=Math.atan2(A.y-P.y,A.x-P.x)*180/Math.PI;
+    var ubDeg=Math.atan2(B.y-P.y,B.x-P.x)*180/Math.PI;
+    var diff=((ubDeg-uaDeg+540)%360)-180;    // [-180,180]
+    var rIns=30;
+    var insSteps=Math.max(2,Math.round(Math.abs(diff)/4));
+    var insArr=[P];
+    for(var i=0;i<=insSteps;i++){
+      var ang=(uaDeg+diff*(i/insSteps))*Math.PI/180;
+      insArr.push({x:P.x+rIns*Math.cos(ang), y:P.y+rIns*Math.sin(ang)});
+    }
+    inscribedWedge.setAttribute('points',ptsToStr(insArr));
+
+    // labels
+    var cBis=a+(ccw?1:-1)*central/2;
+    var cLabPos=ptOnCircle(cBis, rCentral+20);
+    centralLabel.setAttribute('x',cLabPos.x); centralLabel.setAttribute('y',cLabPos.y);
+    centralLabel.textContent=Math.round(central)+'°';
+
+    var iBis=(uaDeg+diff/2)*Math.PI/180;
+    inscribedLabel.setAttribute('x',P.x+(rIns+16)*Math.cos(iBis));
+    inscribedLabel.setAttribute('y',P.y+(rIns+16)*Math.sin(iBis));
+    inscribedLabel.textContent=Math.round(inscribed)+'°';
+
+    // visibility toggles
+    centralWedge.style.display=showCentral?'block':'none';
+    radiusA.style.display=showCentral?'block':'none';
+    radiusB.style.display=showCentral?'block':'none';
+    centralLabel.style.display=showCentral?'block':'none';
+    inscribedWedge.style.display=showInscribed?'block':'none';
+    inscribedLabel.style.display=showInscribed?'block':'none';
+    arcHighlight.style.display=showArc?'block':'none';
+
+    // badge: Thales special case when the arc is a semicircle
+    var isThales=Math.abs(central-180)<2.0;
+    if(isThales){
+      statusBadge.textContent='Semicircle → inscribed angle = 90° (Thales’ theorem)';
+      statusBadge.style.background='#E1F0FB'; statusBadge.style.color='#0E3F66';
+    } else {
+      statusBadge.textContent='Inscribed angle = ½ × central angle';
+      statusBadge.style.background='#EAF3DE'; statusBadge.style.color='#173404';
+    }
+
+    var mismatch=Math.abs(central-2*inscribed)>1.0;
+    relRow.innerHTML =
+      '<span><span class="swatch" style="background:#BA7517"></span>central ∠AOB = '+fmt(central)+'°</span>'+
+      '<b style="color:'+(mismatch?'#e24b4a':'#1d9e75')+';font-size:16px;">=</b>'+
+      '<span>2 × inscribed = 2 × '+fmt(inscribed)+'° = '+fmt(2*inscribed)+'°</span>'+
+      (mismatch
+        ? '<span style="color:#e24b4a;font-size:12.5px;">(degenerate — move the points apart)</span>'
+        : '<span style="color:#1d9e75;font-weight:700;">&check;</span>');
+  }
+
+  // dragging — constrain each handle to the circle
+  var dragging=null;
+  function toSvgPoint(evt){
+    var rect=svg.getBoundingClientRect();
+    var vb=svg.viewBox.baseVal;
+    var x=(evt.clientX-rect.left)/rect.width*vb.width+vb.x;
+    var y=(evt.clientY-rect.top)/rect.height*vb.height+vb.y;
+    return {x:x,y:y};
+  }
+  function onDown(key){
+    return function(e){
+      dragging=key;
+      if(e.target.setPointerCapture){ try{ e.target.setPointerCapture(e.pointerId); }catch(err){} }
+      e.preventDefault();
+    };
+  }
+  function onMove(e){
+    if(!dragging) return;
+    var pp=toSvgPoint(e);
+    var vx=pp.x-center.x, vy=pp.y-center.y;
+    var d=Math.hypot(vx,vy);
+    if(d<1e-6) return;
+    pts[dragging]={x:center.x+vx/d*R, y:center.y+vy/d*R};
+    update();
+  }
+  function onUp(){ dragging=null; }
+
+  elA.addEventListener('pointerdown',onDown('A'));
+  elB.addEventListener('pointerdown',onDown('B'));
+  elP.addEventListener('pointerdown',onDown('P'));
+  svg.addEventListener('pointermove',onMove);
+  window.addEventListener('pointerup',onUp);
+
+  toggleCentral.addEventListener('click',function(){
+    showCentral=!showCentral; toggleCentral.classList.toggle('active',showCentral); update();
+  });
+  toggleInscribed.addEventListener('click',function(){
+    showInscribed=!showInscribed; toggleInscribed.classList.toggle('active',showInscribed); update();
+  });
+  toggleArc.addEventListener('click',function(){
+    showArc=!showArc; toggleArc.classList.toggle('active',showArc); update();
+  });
+
+  var infoToggle=document.getElementById('info-toggle-btn');
+  var infoDrawer=document.getElementById('info-drawer');
+  var infoBackdrop=document.getElementById('info-backdrop');
+  var infoClose=document.getElementById('info-close');
+  function openDrawer(){ infoDrawer.classList.add('open'); infoBackdrop.classList.add('open'); }
+  function closeDrawer(){ infoDrawer.classList.remove('open'); infoBackdrop.classList.remove('open'); }
+  infoToggle.addEventListener('click',function(){
+    if(infoDrawer.classList.contains('open')) closeDrawer(); else openDrawer();
+  });
+  infoClose.addEventListener('click',closeDrawer);
+  infoBackdrop.addEventListener('click',closeDrawer);
+  document.addEventListener('keydown',function(e){ if(e.key==='Escape') closeDrawer(); });
+
+  update();
+})();
+</script>
+</body>
+</html>
