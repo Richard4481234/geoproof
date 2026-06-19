@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>GeoProof — Angle sum of polygons explorer</title>
+<style>
+  body{background:#f4f4f5;display:flex;justify-content:center;padding:40px 16px;font-family:sans-serif;}
+  .widget{width:680px;max-width:100%;}
+  .card{background:#ffffff;border:1px solid #e2e2e2;padding:1.25rem;}
+  .sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;}
+  #pas-svg{width:100%;height:auto;display:block;touch-action:none;}
+  .handle{cursor:grab;}
+  .handle:active{cursor:grabbing;}
+  .toggle-btn{padding:6px 14px;border-radius:999px;border:1px solid #d8d8d8;background:#f4f4f5;color:#888888;font-size:13px;font-weight:500;cursor:pointer;}
+  .toggle-btn.active{background:#1a1a1a;color:#ffffff;border-color:#1a1a1a;}
+  .stage{position:relative;border-radius:12px;overflow:hidden;border:1px solid #e2e2e2;}
+  .stage .card{border:none;}
+  .info-toggle{position:absolute;top:14px;right:14px;z-index:30;background:#1a1a1a;color:#ffffff;border:none;border-radius:999px;padding:7px 14px;font-size:13px;font-weight:500;cursor:pointer;}
+  .info-toggle:hover{background:#333333;}
+  .info-backdrop{position:absolute;inset:0;background:rgba(0,0,0,0.22);opacity:0;visibility:hidden;transition:opacity .2s ease;z-index:25;}
+  .info-backdrop.open{opacity:1;visibility:visible;}
+  .info-drawer{position:absolute;top:0;right:0;height:100%;width:320px;max-width:88%;background:#ffffff;border-left:1px solid #e2e2e2;box-shadow:-8px 0 24px rgba(0,0,0,0.14);padding:22px 20px;overflow-y:auto;transform:translateX(100%);transition:transform .25s ease;z-index:28;box-sizing:border-box;}
+  .info-drawer.open{transform:translateX(0);}
+  .info-close{position:absolute;top:14px;right:14px;background:#f4f4f5;border:1px solid #e2e2e2;border-radius:50%;width:28px;height:28px;font-size:14px;cursor:pointer;color:#555555;}
+  .info-drawer h3{font-size:17px;margin:6px 0 12px;padding-right:30px;color:#1a1a1a;}
+  .info-drawer h4{font-size:12px;margin:18px 0 6px;color:#666666;text-transform:uppercase;letter-spacing:.04em;}
+  .info-drawer p{font-size:13.5px;line-height:1.55;color:#333333;margin:0 0 10px;}
+  .formula-box{background:#f4f4f5;border-radius:8px;padding:10px 12px;text-align:center;font-size:15px;font-weight:600;margin:10px 0;color:#1a1a1a;}
+</style>
+</head>
+<body>
+<div class="widget">
+<div style="margin-bottom:12px;"><a href="index.html" style="font-size:14px;color:#1a1a1a;text-decoration:none;">&larr; GeoProof</a></div>
+<div class="stage">
+<div class="card">
+<h2 class="sr-only">Drag any vertex to reshape the polygon, or use the stepper to change how many sides it has. Each interior angle updates live, and the total always matches (number of sides minus 2) times 180 degrees. A triangulation toggle shows why, by fanning triangles out from one vertex. An info button opens a drawer explaining the theorem.</h2>
+<svg id="pas-svg" viewBox="0 0 680 560" aria-hidden="true">
+  <g id="tri-group"></g>
+  <g id="edges-group"></g>
+  <g id="labels-group"></g>
+  <g id="handles-group"></g>
+</svg>
+
+<div style="display:flex; justify-content:center; gap:10px; flex-wrap:wrap; margin-top:0.75rem;">
+  <button type="button" id="toggle-angles" class="toggle-btn active">Angle labels</button>
+  <button type="button" id="toggle-tri" class="toggle-btn active">Triangulation</button>
+</div>
+
+<div style="display:flex; align-items:center; justify-content:center; gap:14px; margin-top:0.85rem;">
+  <button type="button" id="dec-sides" class="toggle-btn" aria-label="Fewer sides">−</button>
+  <span id="sides-label" style="font-size:15px;font-weight:600;min-width:90px;text-align:center;color:#1a1a1a;">n = 5 sides</span>
+  <button type="button" id="inc-sides" class="toggle-btn" aria-label="More sides">+</button>
+</div>
+
+<div style="display:flex; justify-content:center; margin-top:0.85rem;">
+  <span id="poly-type-badge" style="display:inline-block; padding:4px 14px; border-radius:999px; font-size:14px; font-weight:500;"></span>
+</div>
+
+<div id="formula-symbolic" style="text-align:center; font-size:15px; font-weight:600; color:#1a1a1a; margin-top:1.1rem;"></div>
+
+<div id="sum-row" style="display:flex; align-items:center; justify-content:center; gap:8px; flex-wrap:wrap; margin-top:0.6rem; font-size:14.5px; color:#1a1a1a;"></div>
+</div>
+
+<button type="button" id="info-toggle-btn" class="info-toggle">ⓘ About this theorem</button>
+<div id="info-backdrop" class="info-backdrop"></div>
+<aside id="info-drawer" class="info-drawer">
+  <button type="button" id="info-close" class="info-close" aria-label="Close">✕</button>
+  <h3>Angle Sum of Polygons</h3>
+  <p>For any simple polygon (one whose sides don't cross), the interior angles always add up to:</p>
+  <div class="formula-box">Sum = (n − 2) × 180°</div>
+  <p>where n is the number of sides. A triangle (n=3) gives 180°, a quadrilateral (n=4) gives 360°, and so on.</p>
+  <h4>Why it works: triangulation</h4>
+  <p>Pick one vertex and draw a diagonal to every other vertex that isn't already next to it. That splits the polygon into exactly n − 2 triangles, and every triangle's angles sum to 180°. Add them all up and you get (n − 2) × 180° for the whole polygon. Toggle "Triangulation" above to see this fan of triangles.</p>
+  <h4>Quick checks</h4>
+  <p>Triangle: 1 × 180° = 180°. Quadrilateral: 2 × 180° = 360°. Hexagon: 4 × 180° = 720°.</p>
+  <h4>Convex vs. concave</h4>
+  <p>The formula holds for concave polygons too — a "caved-in" vertex just has an interior angle greater than 180°, and it still counts normally. Drag a vertex inward until the badge switches to "Concave."</p>
+  <h4>A related fact: exterior angles</h4>
+  <p>Walk all the way around the polygon and add up the exterior (turning) angles instead — those always sum to 360°, no matter how many sides there are. It's the companion theorem to this one.</p>
+  <h4>One thing to watch for</h4>
+  <p>This all assumes the sides never cross. Drag a vertex far enough to cross an edge and the measured sum will stop matching the formula — that's expected, and the tool will flag it.</p>
+  <h4>A bit of history</h4>
+  <p>Euclid's Elements (Book I, Proposition 32, around 300 BCE) proved the triangle case and extended it to general polygons by triangulation — essentially the same argument used here.</p>
+</aside>
+</div>
+</div>
+
+<script>
+(function(){
+  var svg = document.getElementById('pas-svg');
+  var minX=20,maxX=660,minY=20,maxY=540;
+  var center={x:340,y:280}, radius=180;
+  var n=5;
+  var pts=[];
+  var showAngles=true, showTri=true;
+  var palette=['#378ADD','#639922','#D4537E','#BA7517','#7F77DD','#1D9E75','#D85A30','#888780'];
+
+  var triGroup=document.getElementById('tri-group');
+  var edgesGroup=document.getElementById('edges-group');
+  var labelsGroup=document.getElementById('labels-group');
+  var handlesGroup=document.getElementById('handles-group');
+  var sidesLabel=document.getElementById('sides-label');
+  var polyBadge=document.getElementById('poly-type-badge');
+  var formulaSymbolic=document.getElementById('formula-symbolic');
+  var sumRow=document.getElementById('sum-row');
+  var toggleAngles=document.getElementById('toggle-angles');
+  var toggleTri=document.getElementById('toggle-tri');
+  var decBtn=document.getElementById('dec-sides');
+  var incBtn=document.getElementById('inc-sides');
+
+  function fmt(v){
+    var r=Math.round(v*10)/10;
+    return (Math.abs(r-Math.round(r))<1e-9)?Math.round(r).toLocaleString():r.toFixed(1);
+  }
+  function svgEl(tag,attrs){
+    var el=document.createElementNS('http://www.w3.org/2000/svg',tag);
+    for(var k in attrs){ el.setAttribute(k,attrs[k]); }
+    return el;
+  }
+  function clearChildren(el){ while(el.firstChild){ el.removeChild(el.firstChild); } }
+  function regularPolygon(count){
+    var arr=[];
+    for(var k=0;k<count;k++){
+      var theta=(-90+k*360/count)*Math.PI/180;
+      arr.push({x:center.x+radius*Math.cos(theta), y:center.y+radius*Math.sin(theta)});
+    }
+    return arr;
+  }
+
+  var edgeEls=[], handleEls=[], labelEls=[], diagonalEls=[], triFillEls=[], triLabelEls=[];
+  var dragging=null;
+
+  function onDown(idx){
+    return function(e){
+      dragging=idx;
+      if(e.target.setPointerCapture){ try{ e.target.setPointerCapture(e.pointerId); }catch(err){} }
+      e.preventDefault();
+    };
+  }
+  function toSvgPoint(evt){
+    var rect=svg.getBoundingClientRect();
+    var vb=svg.viewBox.baseVal;
+    var x=(evt.clientX-rect.left)/rect.width*vb.width+vb.x;
+    var y=(evt.clientY-rect.top)/rect.height*vb.height+vb.y;
+    return {x:x,y:y};
+  }
+  function onMove(e){
+    if(dragging===null) return;
+    var p=toSvgPoint(e);
+    pts[dragging]={
+      x:Math.min(maxX,Math.max(minX,p.x)),
+      y:Math.min(maxY,Math.max(minY,p.y))
+    };
+    update();
+  }
+  function onUp(){ dragging=null; }
+
+  function buildShape(newN){
+    n=newN;
+    pts=regularPolygon(n);
+    clearChildren(triGroup); clearChildren(edgesGroup); clearChildren(labelsGroup); clearChildren(handlesGroup);
+    edgeEls=[]; handleEls=[]; labelEls=[]; diagonalEls=[]; triFillEls=[]; triLabelEls=[];
+
+    for(var i=0;i<n;i++){
+      var edge=svgEl('line',{stroke:'#1a1a1a','stroke-width':4,'stroke-linecap':'round'});
+      edgesGroup.appendChild(edge); edgeEls.push(edge);
+
+      var label=svgEl('text',{'text-anchor':'middle','dominant-baseline':'middle',fill:'#444444','font-size':14,'font-weight':500});
+      labelsGroup.appendChild(label); labelEls.push(label);
+
+      var handle=svgEl('circle',{r:11,fill:'#ffffff',stroke:'#1a1a1a','stroke-width':2,'class':'handle'});
+      handlesGroup.appendChild(handle); handleEls.push(handle);
+      handle.addEventListener('pointerdown',onDown(i));
+    }
+
+    var numTri=n-2;
+    for(var t=0;t<numTri;t++){
+      var triFill=svgEl('polygon',{fill:palette[t%palette.length],'fill-opacity':0.18,stroke:palette[t%palette.length],'stroke-width':1,'stroke-opacity':0.5});
+      triGroup.appendChild(triFill); triFillEls.push(triFill);
+      var triLabel=svgEl('text',{'text-anchor':'middle','dominant-baseline':'middle',fill:'#1a1a1a','font-size':11,'font-weight':600,opacity:0.55});
+      triGroup.appendChild(triLabel); triLabelEls.push(triLabel);
+    }
+    var numDiag=n-3;
+    for(var d=0;d<numDiag;d++){
+      var diag=svgEl('line',{stroke:'#1a1a1a','stroke-width':1.3,'stroke-dasharray':'4,3','stroke-opacity':0.35});
+      triGroup.appendChild(diag); diagonalEls.push(diag);
+    }
+
+    sidesLabel.textContent='n = '+n+' sides';
+    update();
+  }
+
+  function update(){
+    var i;
+    for(i=0;i<n;i++){
+      handleEls[i].setAttribute('cx',pts[i].x); handleEls[i].setAttribute('cy',pts[i].y);
+      var j=(i+1)%n;
+      edgeEls[i].setAttribute('x1',pts[i].x); edgeEls[i].setAttribute('y1',pts[i].y);
+      edgeEls[i].setAttribute('x2',pts[j].x); edgeEls[i].setAttribute('y2',pts[j].y);
+    }
+
+    var turn=[];
+    for(i=0;i<n;i++){
+      var prev=pts[(i-1+n)%n], cur=pts[i], next=pts[(i+1)%n];
+      var inVec={x:cur.x-prev.x,y:cur.y-prev.y};
+      var outVec={x:next.x-cur.x,y:next.y-cur.y};
+      var cross=inVec.x*outVec.y-inVec.y*outVec.x;
+      var dot=inVec.x*outVec.x+inVec.y*outVec.y;
+      turn.push(Math.atan2(cross,dot)*180/Math.PI);
+    }
+    var sumTurn=turn.reduce(function(s,v){return s+v;},0);
+    var sign=sumTurn>=0?1:-1;
+    var interior=turn.map(function(t){ return 180-sign*t; });
+    var measuredSum=interior.reduce(function(s,v){return s+v;},0);
+    var expectedSum=(n-2)*180;
+
+    var cx=0,cy=0;
+    pts.forEach(function(p){ cx+=p.x; cy+=p.y; });
+    cx/=n; cy/=n;
+
+    for(i=0;i<n;i++){
+      var dir={x:cx-pts[i].x,y:cy-pts[i].y};
+      var dl=Math.hypot(dir.x,dir.y); if(dl<1e-6) dl=1;
+      var lp={x:pts[i].x+dir.x/dl*28, y:pts[i].y+dir.y/dl*28};
+      labelEls[i].setAttribute('x',lp.x); labelEls[i].setAttribute('y',lp.y);
+      labelEls[i].textContent=Math.round(interior[i])+'°';
+      labelEls[i].style.display=showAngles?'block':'none';
+    }
+
+    var t;
+    for(t=0;t<n-2;t++){
+      var P1=pts[0], P2=pts[t+1], P3=pts[t+2];
+      triFillEls[t].setAttribute('points', P1.x.toFixed(1)+','+P1.y.toFixed(1)+' '+P2.x.toFixed(1)+','+P2.y.toFixed(1)+' '+P3.x.toFixed(1)+','+P3.y.toFixed(1));
+      var tcx=(P1.x+P2.x+P3.x)/3, tcy=(P1.y+P2.y+P3.y)/3;
+      triLabelEls[t].setAttribute('x',tcx); triLabelEls[t].setAttribute('y',tcy);
+      triLabelEls[t].textContent='180°';
+    }
+    for(var d=0;d<n-3;d++){
+      var target=d+2;
+      diagonalEls[d].setAttribute('x1',pts[0].x); diagonalEls[d].setAttribute('y1',pts[0].y);
+      diagonalEls[d].setAttribute('x2',pts[target].x); diagonalEls[d].setAttribute('y2',pts[target].y);
+    }
+    triGroup.style.display=showTri?'block':'none';
+
+    var isConcave=interior.some(function(v){ return v>180.5; });
+    polyBadge.textContent=isConcave?'Concave polygon':'Convex polygon';
+    polyBadge.style.background=isConcave?'#FAECE7':'#EAF3DE';
+    polyBadge.style.color=isConcave?'#4A1B0C':'#173404';
+
+    formulaSymbolic.textContent=n+'-gon  →  '+(n-2)+' triangles × 180°  =  '+expectedSum+'°';
+
+    var mismatch=Math.abs(measuredSum-expectedSum)>1.0;
+    sumRow.innerHTML =
+      '<span>(n − 2) × 180° = '+expectedSum+'°</span>'+
+      '<b style="color:'+(mismatch?'#e24b4a':'#1d9e75')+';font-size:16px;">'+(mismatch?'≠':'=')+'</b>'+
+      '<span>measured sum = '+fmt(measuredSum)+'°</span>'+
+      (mismatch?'<span style="color:#e24b4a;font-size:12.5px;">(sides crossing — needs a simple polygon)</span>':'<span style="color:#1d9e75;font-weight:700;">&check;</span>');
+  }
+
+  toggleAngles.addEventListener('click',function(){
+    showAngles=!showAngles;
+    toggleAngles.classList.toggle('active',showAngles);
+    update();
+  });
+  toggleTri.addEventListener('click',function(){
+    showTri=!showTri;
+    toggleTri.classList.toggle('active',showTri);
+    update();
+  });
+  decBtn.addEventListener('click',function(){ if(n>3) buildShape(n-1); });
+  incBtn.addEventListener('click',function(){ if(n<10) buildShape(n+1); });
+
+  var infoToggle=document.getElementById('info-toggle-btn');
+  var infoDrawer=document.getElementById('info-drawer');
+  var infoBackdrop=document.getElementById('info-backdrop');
+  var infoClose=document.getElementById('info-close');
+  function openDrawer(){ infoDrawer.classList.add('open'); infoBackdrop.classList.add('open'); }
+  function closeDrawer(){ infoDrawer.classList.remove('open'); infoBackdrop.classList.remove('open'); }
+  infoToggle.addEventListener('click',function(){
+    if(infoDrawer.classList.contains('open')) closeDrawer(); else openDrawer();
+  });
+  infoClose.addEventListener('click',closeDrawer);
+  infoBackdrop.addEventListener('click',closeDrawer);
+  document.addEventListener('keydown',function(e){ if(e.key==='Escape') closeDrawer(); });
+
+  svg.addEventListener('pointermove',onMove);
+  window.addEventListener('pointerup',onUp);
+
+  buildShape(n);
+})();
+</script>
+</body>
+</html>

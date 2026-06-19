@@ -1,0 +1,441 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>GeoProof — Law of Cosines explorer</title>
+<style>
+  body{background:#f4f4f5;display:flex;justify-content:center;padding:40px 16px;font-family:sans-serif;}
+  .widget{width:680px;max-width:100%;}
+  .card{background:#ffffff;border:1px solid #e2e2e2;padding:1.25rem;}
+  .sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;}
+  #loc-svg{width:100%;height:auto;display:block;touch-action:none;}
+  .handle{cursor:grab;}
+  .handle:active{cursor:grabbing;}
+  .swatch{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:6px;vertical-align:middle;}
+  .side-input{width:64px;padding:4px 6px;border:1px solid #ccc;border-radius:6px;font-size:14px;text-align:center;}
+  .toggle-btn{padding:6px 14px;border-radius:999px;border:1px solid #d8d8d8;background:#f4f4f5;color:#888888;font-size:13px;font-weight:500;cursor:pointer;}
+  .toggle-btn.active{background:#1a1a1a;color:#ffffff;border-color:#1a1a1a;}
+  .ref-btn{padding:6px 16px;border-radius:999px;border:1.5px solid #d8d8d8;background:#ffffff;font-size:13px;font-weight:600;cursor:pointer;}
+  .stage{position:relative;border-radius:12px;overflow:hidden;border:1px solid #e2e2e2;}
+  .stage .card{border:none;}
+  .info-toggle{position:absolute;top:14px;right:14px;z-index:30;background:#1a1a1a;color:#ffffff;border:none;border-radius:999px;padding:7px 14px;font-size:13px;font-weight:500;cursor:pointer;}
+  .info-toggle:hover{background:#333333;}
+  .info-backdrop{position:absolute;inset:0;background:rgba(0,0,0,0.22);opacity:0;visibility:hidden;transition:opacity .2s ease;z-index:25;}
+  .info-backdrop.open{opacity:1;visibility:visible;}
+  .info-drawer{position:absolute;top:0;right:0;height:100%;width:320px;max-width:88%;background:#ffffff;border-left:1px solid #e2e2e2;box-shadow:-8px 0 24px rgba(0,0,0,0.14);padding:22px 20px;overflow-y:auto;transform:translateX(100%);transition:transform .25s ease;z-index:28;box-sizing:border-box;}
+  .info-drawer.open{transform:translateX(0);}
+  .info-close{position:absolute;top:14px;right:14px;background:#f4f4f5;border:1px solid #e2e2e2;border-radius:50%;width:28px;height:28px;font-size:14px;cursor:pointer;color:#555555;}
+  .info-drawer h3{font-size:17px;margin:6px 0 12px;padding-right:30px;color:#1a1a1a;}
+  .info-drawer h4{font-size:12px;margin:18px 0 6px;color:#666666;text-transform:uppercase;letter-spacing:.04em;}
+  .info-drawer p{font-size:13.5px;line-height:1.55;color:#333333;margin:0 0 10px;}
+  .formula-box{background:#f4f4f5;border-radius:8px;padding:10px 12px;text-align:center;font-size:15px;font-weight:600;margin:10px 0;color:#1a1a1a;}
+</style>
+</head>
+<body>
+<div class="widget">
+<div style="margin-bottom:12px;"><a href="index.html" style="font-size:14px;color:#1a1a1a;text-decoration:none;">&larr; GeoProof</a></div>
+<div class="stage">
+<div class="card">
+<h2 class="sr-only">Drag any of the three handles to reshape the triangle, or type exact side lengths for a, b, and c. Pick a reference angle A, B, or C to see the Law of Cosines formula for that vertex, comparing the sum of squares of the adjacent sides to the square of the opposite side, then see the exact correction term that makes them equal. An info button opens a drawer explaining the Law of Cosines.</h2>
+<svg id="loc-svg" viewBox="0 0 680 560" aria-hidden="true">
+  <line id="edge-a" stroke="#378ADD" stroke-width="5" stroke-linecap="round"></line>
+  <line id="edge-b" stroke="#639922" stroke-width="5" stroke-linecap="round"></line>
+  <line id="edge-c" stroke="#D4537E" stroke-width="5" stroke-linecap="round"></line>
+  <text id="len-a-label" text-anchor="middle" dominant-baseline="middle" fill="#042C53" font-size="14" font-weight="500"></text>
+  <text id="len-b-label" text-anchor="middle" dominant-baseline="middle" fill="#173404" font-size="14" font-weight="500"></text>
+  <text id="len-c-label" text-anchor="middle" dominant-baseline="middle" fill="#4B1528" font-size="14" font-weight="500"></text>
+  <polygon id="right-angle-mark" fill="none" stroke="#999999" stroke-width="2" style="display:none"></polygon>
+  <rect id="angle-highlight" x="0" y="0" width="0" height="0" rx="6" fill="#1a1a1a" style="display:none"></rect>
+  <text id="angle-A-label" text-anchor="middle" dominant-baseline="middle" fill="#444444" font-size="14" font-weight="500"></text>
+  <text id="angle-B-label" text-anchor="middle" dominant-baseline="middle" fill="#444444" font-size="14" font-weight="500"></text>
+  <text id="angle-C-label" text-anchor="middle" dominant-baseline="middle" fill="#444444" font-size="14" font-weight="500"></text>
+  <circle id="handle-A" class="handle" r="12" fill="#ffffff" stroke="#1a1a1a" stroke-width="2"></circle>
+  <circle id="handle-B" class="handle" r="12" fill="#ffffff" stroke="#1a1a1a" stroke-width="2"></circle>
+  <circle id="handle-C" class="handle" r="12" fill="#ffffff" stroke="#1a1a1a" stroke-width="2"></circle>
+</svg>
+
+<div style="display:flex; justify-content:center; gap:10px; flex-wrap:wrap; margin-top:0.75rem;">
+  <button type="button" id="toggle-angles" class="toggle-btn active">Angles</button>
+  <button type="button" id="toggle-sides" class="toggle-btn active">Side lengths</button>
+</div>
+
+<div style="display:flex; justify-content:center; margin-top:0.75rem;">
+  <span id="tri-type-badge" style="display:inline-block; padding:4px 14px; border-radius:999px; font-size:14px; font-weight:500;"></span>
+</div>
+
+<div style="display:flex; align-items:center; justify-content:center; gap:16px; flex-wrap:wrap; margin-top:1rem; font-size:14px; color:#1a1a1a;">
+  <label style="display:flex; align-items:center; gap:6px;"><span class="swatch" style="background:#378ADD"></span>a <input type="number" id="input-a" min="1" step="1" class="side-input"></label>
+  <label style="display:flex; align-items:center; gap:6px;"><span class="swatch" style="background:#639922"></span>b <input type="number" id="input-b" min="1" step="1" class="side-input"></label>
+  <label style="display:flex; align-items:center; gap:6px;"><span class="swatch" style="background:#D4537E"></span>c <input type="number" id="input-c" min="1" step="1" class="side-input"></label>
+</div>
+<div id="tri-error" style="display:none; text-align:center; color:#e24b4a; font-size:13px; margin-top:6px;">Not a valid triangle — try different lengths</div>
+
+<div style="text-align:center; font-size:12px; color:#888888; margin-top:1.1rem; text-transform:uppercase; letter-spacing:.04em;">Reference angle</div>
+<div style="display:flex; justify-content:center; gap:8px; margin-top:6px;">
+  <button type="button" id="ref-A" class="ref-btn" style="color:#185FA5;border-color:#378ADD;">∠A</button>
+  <button type="button" id="ref-B" class="ref-btn" style="color:#3B6D11;border-color:#639922;">∠B</button>
+  <button type="button" id="ref-C" class="ref-btn" style="color:#993556;border-color:#D4537E;">∠C</button>
+</div>
+
+<div id="formula-symbolic" style="text-align:center; font-size:15px; font-weight:600; color:#1a1a1a; margin-top:1rem;"></div>
+
+<div id="cmp-row" style="display:flex; align-items:center; justify-content:center; gap:10px; flex-wrap:wrap; margin-top:0.6rem; font-size:16px; color:#1a1a1a;"></div>
+
+<div style="text-align:center; font-size:12px; color:#888888; margin-top:0.9rem;">Law of Cosines corrects this with an exact term:</div>
+<div id="loc-row" style="display:flex; align-items:center; justify-content:center; gap:8px; flex-wrap:wrap; margin-top:0.4rem; font-size:15px; color:#1a1a1a;"></div>
+<div id="cos-detail" style="text-align:center; font-size:12.5px; color:#777777; margin-top:0.5rem;"></div>
+</div>
+
+<button type="button" id="info-toggle-btn" class="info-toggle">ⓘ About this theorem</button>
+<div id="info-backdrop" class="info-backdrop"></div>
+<aside id="info-drawer" class="info-drawer">
+  <button type="button" id="info-close" class="info-close" aria-label="Close">✕</button>
+  <h3>The Law of Cosines</h3>
+  <p>The Law of Cosines generalizes the Pythagorean theorem to <i>any</i> triangle, not just right triangles. For a triangle with sides a, b, c and angle C opposite side c:</p>
+  <div class="formula-box">c² = a² + b² − 2ab·cos(C)</div>
+  <p>The same relationship holds for any vertex: swap in that vertex's angle and the two sides touching it.</p>
+  <h4>Special case: right triangles</h4>
+  <p>When C = 90°, cos(C) = 0, so the correction term vanishes and the formula collapses exactly to a² + b² = c² — the Pythagorean theorem. Try dragging a vertex to a right angle and watch the correction term shrink to 0.</p>
+  <h4>Why the sign flips</h4>
+  <p>Cosine is positive for acute angles and negative for obtuse ones. So when the reference angle is acute, the correction subtracts a positive amount and a² + b² &gt; c². When it's obtuse, cos is negative, the correction adds, and a² + b² &lt; c². That's exactly the &gt;/&lt; you see in the comparison row above.</p>
+  <h4>Solving triangles</h4>
+  <p>Rearranged as cos(C) = (a² + b² − c²) / (2ab), this lets you find an unknown angle from three known sides (SSS) — it's literally how this tool reconstructs the triangle when you type in a, b, c. Given two sides and the angle between them (SAS), the original form solves directly for the missing side.</p>
+  <h4>A classic example</h4>
+  <p>a = 5, b = 7, c = 8: cos(C) = (25 + 49 − 64)/70 = 10/70 ≈ 0.143, so C ≈ 81.8°. Try typing those values in.</p>
+  <h4>A bit of history</h4>
+  <p>Euclid's <i>Elements</i> (Book II, Propositions 12–13) gave geometric versions of this rule for obtuse and acute triangles around 300 BCE — long before trigonometric cosine notation existed. The explicit trigonometric form is often credited to the 15th-century Persian astronomer Jamshīd al-Kāshī, and in French it's still called <i>Théorème d'Al-Kashi</i>.</p>
+</aside>
+</div>
+</div>
+
+<script>
+(function(){
+  var svg = document.getElementById('loc-svg');
+  var pts = { A:{x:260,y:200}, B:{x:440,y:360}, C:{x:260,y:360} };
+  var minX=20,maxX=660,minY=20,maxY=540;
+  var unitScale=1;
+  var showAngles=true, showSides=true;
+  var refVertex='C';
+  function sub(p,q){return {x:p.x-q.x,y:p.y-q.y};}
+  function add(p,q){return {x:p.x+q.x,y:p.y+q.y};}
+  function len(v){return Math.hypot(v.x,v.y);}
+  function rot90(v){return {x:-v.y,y:v.x};}
+  function squarePoly(P1,P2,P3){
+    var V=sub(P2,P1);
+    var perp=rot90(V);
+    var cross1=V.x*(P3.y-P1.y)-V.y*(P3.x-P1.x);
+    var cross2=V.x*perp.y-V.y*perp.x;
+    if(Math.sign(cross1)===Math.sign(cross2)){perp={x:-perp.x,y:-perp.y};}
+    var P4=add(P2,perp), P5=add(P1,perp);
+    return [P1,P2,P4,P5];
+  }
+  function fmt(n){
+    var r=Math.round(n*10)/10;
+    return (Math.abs(r-Math.round(r))<1e-9)?Math.round(r).toLocaleString():r.toFixed(1);
+  }
+  function ptsToStr(arr){return arr.map(function(p){return p.x.toFixed(1)+','+p.y.toFixed(1);}).join(' ');}
+  function angleDeg(P,Q,R){
+    var u=sub(Q,P), v=sub(R,P);
+    var lu=len(u), lv=len(v);
+    var cosA=(u.x*v.x+u.y*v.y)/(lu*lv);
+    cosA=Math.min(1,Math.max(-1,cosA));
+    return Math.acos(cosA)*180/Math.PI;
+  }
+  function bisectorPoint(P,Q,R,offset){
+    var u=sub(Q,P), v=sub(R,P);
+    var lu=len(u), lv=len(v);
+    var un={x:u.x/lu,y:u.y/lu}, vn={x:v.x/lv,y:v.y/lv};
+    var bis={x:un.x+vn.x,y:un.y+vn.y};
+    var lb=len(bis);
+    if(lb<1e-6){ bis=un; lb=1; }
+    return {x:P.x+bis.x/lb*offset, y:P.y+bis.y/lb*offset};
+  }
+  function midOffset(P1,P2,P3,offset){
+    var M={x:(P1.x+P2.x)/2,y:(P1.y+P2.y)/2};
+    var dir=sub(P3,M), dl=len(dir);
+    if(dl<1e-6) return M;
+    return {x:M.x+dir.x/dl*offset, y:M.y+dir.y/dl*offset};
+  }
+
+  var elA=document.getElementById('handle-A');
+  var elB=document.getElementById('handle-B');
+  var elC=document.getElementById('handle-C');
+  var edgeA=document.getElementById('edge-a');
+  var edgeB=document.getElementById('edge-b');
+  var edgeC=document.getElementById('edge-c');
+  var lenALabel=document.getElementById('len-a-label');
+  var lenBLabel=document.getElementById('len-b-label');
+  var lenCLabel=document.getElementById('len-c-label');
+  var rightMark=document.getElementById('right-angle-mark');
+  var angHighlight=document.getElementById('angle-highlight');
+  var angALabel=document.getElementById('angle-A-label');
+  var angBLabel=document.getElementById('angle-B-label');
+  var angCLabel=document.getElementById('angle-C-label');
+  var triBadge=document.getElementById('tri-type-badge');
+  var inputA=document.getElementById('input-a');
+  var inputB=document.getElementById('input-b');
+  var inputC=document.getElementById('input-c');
+  var triError=document.getElementById('tri-error');
+  var toggleAngles=document.getElementById('toggle-angles');
+  var toggleSides=document.getElementById('toggle-sides');
+  var refA=document.getElementById('ref-A');
+  var refB=document.getElementById('ref-B');
+  var refC=document.getElementById('ref-C');
+  var formulaSymbolic=document.getElementById('formula-symbolic');
+  var cmpRow=document.getElementById('cmp-row');
+  var locRow=document.getElementById('loc-row');
+  var cosDetail=document.getElementById('cos-detail');
+
+  var COLORS={a:'#378ADD',b:'#639922',c:'#D4537E'};
+  var TEXTCOLORS={a:'#042C53',b:'#173404',c:'#4B1528'};
+
+  function refButtons(){
+    [['A',refA],['B',refB],['C',refC]].forEach(function(pair){
+      var key=pair[0], btn=pair[1];
+      var letter=key.toLowerCase();
+      if(refVertex===key){
+        btn.style.background=COLORS[letter];
+        btn.style.color='#ffffff';
+      } else {
+        btn.style.background='#ffffff';
+        btn.style.color=TEXTCOLORS[letter];
+      }
+    });
+  }
+
+  function update(){
+    elA.setAttribute('cx',pts.A.x); elA.setAttribute('cy',pts.A.y);
+    elB.setAttribute('cx',pts.B.x); elB.setAttribute('cy',pts.B.y);
+    elC.setAttribute('cx',pts.C.x); elC.setAttribute('cy',pts.C.y);
+
+    edgeA.setAttribute('x1',pts.B.x); edgeA.setAttribute('y1',pts.B.y);
+    edgeA.setAttribute('x2',pts.C.x); edgeA.setAttribute('y2',pts.C.y);
+    edgeB.setAttribute('x1',pts.A.x); edgeB.setAttribute('y1',pts.A.y);
+    edgeB.setAttribute('x2',pts.C.x); edgeB.setAttribute('y2',pts.C.y);
+    edgeC.setAttribute('x1',pts.A.x); edgeC.setAttribute('y1',pts.A.y);
+    edgeC.setAttribute('x2',pts.B.x); edgeC.setAttribute('y2',pts.B.y);
+
+    var aPix=len(sub(pts.B,pts.C));
+    var bPix=len(sub(pts.A,pts.C));
+    var cPix=len(sub(pts.A,pts.B));
+    var a=aPix/unitScale, b=bPix/unitScale, c=cPix/unitScale;
+
+    var posLenA=midOffset(pts.C,pts.B,pts.A,18);
+    var posLenB=midOffset(pts.A,pts.C,pts.B,18);
+    var posLenC=midOffset(pts.B,pts.A,pts.C,18);
+    lenALabel.setAttribute('x',posLenA.x); lenALabel.setAttribute('y',posLenA.y);
+    lenBLabel.setAttribute('x',posLenB.x); lenBLabel.setAttribute('y',posLenB.y);
+    lenCLabel.setAttribute('x',posLenC.x); lenCLabel.setAttribute('y',posLenC.y);
+    lenALabel.textContent='a = '+fmt(a);
+    lenBLabel.textContent='b = '+fmt(b);
+    lenCLabel.textContent='c = '+fmt(c);
+    lenALabel.style.display=showSides?'block':'none';
+    lenBLabel.style.display=showSides?'block':'none';
+    lenCLabel.style.display=showSides?'block':'none';
+
+    if(document.activeElement!==inputA) inputA.value=Math.round(a);
+    if(document.activeElement!==inputB) inputB.value=Math.round(b);
+    if(document.activeElement!==inputC) inputC.value=Math.round(c);
+
+    var angA=angleDeg(pts.A,pts.B,pts.C);
+    var angB=angleDeg(pts.B,pts.A,pts.C);
+    var angC=angleDeg(pts.C,pts.A,pts.B);
+
+    var posA=bisectorPoint(pts.A,pts.B,pts.C,32);
+    var posB=bisectorPoint(pts.B,pts.A,pts.C,32);
+    var posC=bisectorPoint(pts.C,pts.A,pts.B,32);
+
+    angALabel.setAttribute('x',posA.x); angALabel.setAttribute('y',posA.y);
+    angBLabel.setAttribute('x',posB.x); angBLabel.setAttribute('y',posB.y);
+    angCLabel.setAttribute('x',posC.x); angCLabel.setAttribute('y',posC.y);
+    angALabel.textContent=Math.round(angA)+'°';
+    angBLabel.textContent=Math.round(angB)+'°';
+    angCLabel.textContent=Math.round(angC)+'°';
+    angALabel.style.display=showAngles?'block':'none';
+    angBLabel.style.display=showAngles?'block':'none';
+    angCLabel.style.display=showAngles?'block':'none';
+
+    angALabel.setAttribute('fill', refVertex==='A'?'#ffffff':'#444444');
+    angBLabel.setAttribute('fill', refVertex==='B'?'#ffffff':'#444444');
+    angCLabel.setAttribute('fill', refVertex==='C'?'#ffffff':'#444444');
+    angALabel.setAttribute('font-weight', refVertex==='A'?'700':'500');
+    angBLabel.setAttribute('font-weight', refVertex==='B'?'700':'500');
+    angCLabel.setAttribute('font-weight', refVertex==='C'?'700':'500');
+
+    if(showAngles){
+      var hlPos = refVertex==='A'?posA:(refVertex==='B'?posB:posC);
+      angHighlight.setAttribute('x', hlPos.x-17);
+      angHighlight.setAttribute('y', hlPos.y-12);
+      angHighlight.setAttribute('width', 34);
+      angHighlight.setAttribute('height', 24);
+      angHighlight.style.display='block';
+    } else {
+      angHighlight.style.display='none';
+    }
+
+    var maxAngle=Math.max(angA,angB,angC);
+    var triType, badgeBg, badgeText;
+    if(Math.abs(maxAngle-90)<1.5){
+      triType='Right triangle'; badgeBg='#EAF3DE'; badgeText='#173404';
+    } else if(maxAngle>90){
+      triType='Obtuse triangle'; badgeBg='#FAECE7'; badgeText='#4A1B0C';
+    } else {
+      triType='Acute triangle'; badgeBg='#E1F5EE'; badgeText='#04342C';
+    }
+    triBadge.textContent=triType;
+    triBadge.style.background=badgeBg;
+    triBadge.style.color=badgeText;
+
+    var isRightC=Math.abs(angC-90)<1.0;
+    if(isRightC && showAngles){
+      var u=sub(pts.A,pts.C), v=sub(pts.B,pts.C);
+      var ul=len(u), vl=len(v);
+      var un={x:u.x/ul*16,y:u.y/ul*16}, vn={x:v.x/vl*16,y:v.y/vl*16};
+      var p1=pts.C, p2=add(pts.C,un), p3=add(add(pts.C,un),vn), p4=add(pts.C,vn);
+      rightMark.setAttribute('points',ptsToStr([p1,p2,p3,p4]));
+      rightMark.style.display='block';
+    } else {
+      rightMark.style.display='none';
+    }
+
+    var letters={A:{opp:'a',adj1:'b',adj2:'c'},B:{opp:'b',adj1:'a',adj2:'c'},C:{opp:'c',adj1:'a',adj2:'b'}};
+    var map=letters[refVertex];
+    var sides={a:a,b:b,c:c};
+    var angles={A:angA,B:angB,C:angC};
+    var oppVal=sides[map.opp], adj1Val=sides[map.adj1], adj2Val=sides[map.adj2];
+    var angleVal=angles[refVertex];
+    var cosVal=Math.cos(angleVal*Math.PI/180);
+    var correction=2*adj1Val*adj2Val*cosVal;
+    var rhs=adj1Val*adj1Val+adj2Val*adj2Val-correction;
+    var oppSq=oppVal*oppVal;
+
+    formulaSymbolic.innerHTML=map.opp+'² = '+map.adj1+'² + '+map.adj2+'² &minus; 2'+map.adj1+map.adj2+'&middot;cos('+refVertex+')';
+
+    var isRightRef=Math.abs(angleVal-90)<1.0;
+    var cmpSign = isRightRef ? '=' : (angleVal<90 ? '>' : '<');
+    var cmpColor = isRightRef ? '#1d9e75' : '#1a1a1a';
+    cmpRow.innerHTML =
+      '<span><span class="swatch" style="background:'+COLORS[map.adj1]+'"></span>'+map.adj1+'&sup2; = '+fmt(adj1Val*adj1Val)+'</span>'+
+      '<span style="color:#888888;">+</span>'+
+      '<span><span class="swatch" style="background:'+COLORS[map.adj2]+'"></span>'+map.adj2+'&sup2; = '+fmt(adj2Val*adj2Val)+'</span>'+
+      '<b style="font-size:20px;color:'+cmpColor+';min-width:14px;display:inline-block;text-align:center;">'+cmpSign+'</b>'+
+      '<span><span class="swatch" style="background:'+COLORS[map.opp]+'"></span>'+map.opp+'&sup2; = '+fmt(oppSq)+'</span>';
+
+    locRow.innerHTML =
+      '<span>'+map.adj1+'&sup2; + '+map.adj2+'&sup2; = '+fmt(adj1Val*adj1Val+adj2Val*adj2Val)+'</span>'+
+      '<span style="color:#888888;">&minus;</span>'+
+      '<span>2'+map.adj1+map.adj2+'cos('+refVertex+') = '+fmt(correction)+'</span>'+
+      '<b style="color:#1d9e75;font-size:18px;">=</b>'+
+      '<span>'+map.opp+'&sup2; = '+fmt(oppSq)+'</span>'+
+      '<span style="color:#1d9e75;font-weight:700;">&check;</span>';
+
+    cosDetail.textContent='cos('+refVertex+') = '+(Math.round(cosVal*1000)/1000)+'  ('+refVertex+' = '+Math.round(angleVal)+'°)';
+
+    refButtons();
+  }
+
+  function setTriangleFromSides(aVal,bVal,cVal){
+    var cosC=(aVal*aVal+bVal*bVal-cVal*cVal)/(2*aVal*bVal);
+    cosC=Math.min(1,Math.max(-1,cosC));
+    var angleCrad=Math.acos(cosC);
+    var C0={x:0,y:0}, B0={x:aVal,y:0};
+    var A0={x:bVal*Math.cos(angleCrad), y:-bVal*Math.sin(angleCrad)};
+    var sqA0=squarePoly(C0,B0,A0), sqB0=squarePoly(A0,C0,B0), sqC0=squarePoly(B0,A0,C0);
+    var allPts=[A0,B0,C0].concat(sqA0,sqB0,sqC0);
+    var bbMinX=Math.min.apply(null,allPts.map(function(p){return p.x;}));
+    var bbMaxX=Math.max.apply(null,allPts.map(function(p){return p.x;}));
+    var bbMinY=Math.min.apply(null,allPts.map(function(p){return p.y;}));
+    var bbMaxY=Math.max.apply(null,allPts.map(function(p){return p.y;}));
+    var bboxW=Math.max(bbMaxX-bbMinX,1e-6), bboxH=Math.max(bbMaxY-bbMinY,1e-6);
+    var margin=24;
+    var scale=Math.min((680-2*margin)/bboxW, (560-2*margin)/bboxH);
+    var cx=(bbMinX+bbMaxX)/2, cy=(bbMinY+bbMaxY)/2;
+    var tx=340-cx*scale, ty=280-cy*scale;
+    function tf(P){ return {x:P.x*scale+tx, y:P.y*scale+ty}; }
+    pts.A=tf(A0); pts.B=tf(B0); pts.C=tf(C0);
+    unitScale=scale;
+    update();
+  }
+
+  function onSideInput(){
+    var aVal=parseFloat(inputA.value), bVal=parseFloat(inputB.value), cVal=parseFloat(inputC.value);
+    if(isNaN(aVal)||isNaN(bVal)||isNaN(cVal)||!(aVal>0&&bVal>0&&cVal>0)){
+      triError.style.display='block';
+      return;
+    }
+    if(!(aVal+bVal>cVal && aVal+cVal>bVal && bVal+cVal>aVal)){
+      triError.style.display='block';
+      return;
+    }
+    triError.style.display='none';
+    setTriangleFromSides(aVal,bVal,cVal);
+  }
+  inputA.addEventListener('input',onSideInput);
+  inputB.addEventListener('input',onSideInput);
+  inputC.addEventListener('input',onSideInput);
+
+  toggleAngles.addEventListener('click',function(){
+    showAngles=!showAngles;
+    toggleAngles.classList.toggle('active',showAngles);
+    update();
+  });
+  toggleSides.addEventListener('click',function(){
+    showSides=!showSides;
+    toggleSides.classList.toggle('active',showSides);
+    update();
+  });
+  refA.addEventListener('click',function(){ refVertex='A'; update(); });
+  refB.addEventListener('click',function(){ refVertex='B'; update(); });
+  refC.addEventListener('click',function(){ refVertex='C'; update(); });
+
+  var infoToggle=document.getElementById('info-toggle-btn');
+  var infoDrawer=document.getElementById('info-drawer');
+  var infoBackdrop=document.getElementById('info-backdrop');
+  var infoClose=document.getElementById('info-close');
+  function openDrawer(){ infoDrawer.classList.add('open'); infoBackdrop.classList.add('open'); }
+  function closeDrawer(){ infoDrawer.classList.remove('open'); infoBackdrop.classList.remove('open'); }
+  infoToggle.addEventListener('click',function(){
+    if(infoDrawer.classList.contains('open')) closeDrawer(); else openDrawer();
+  });
+  infoClose.addEventListener('click',closeDrawer);
+  infoBackdrop.addEventListener('click',closeDrawer);
+  document.addEventListener('keydown',function(e){ if(e.key==='Escape') closeDrawer(); });
+
+  function toSvgPoint(evt){
+    var rect=svg.getBoundingClientRect();
+    var vb=svg.viewBox.baseVal;
+    var x=(evt.clientX-rect.left)/rect.width*vb.width+vb.x;
+    var y=(evt.clientY-rect.top)/rect.height*vb.height+vb.y;
+    return {x:x,y:y};
+  }
+
+  var dragging=null;
+  function onDown(key){
+    return function(e){
+      dragging=key;
+      if(e.target.setPointerCapture){ try{ e.target.setPointerCapture(e.pointerId); }catch(err){} }
+      e.preventDefault();
+    };
+  }
+  function onMove(e){
+    if(!dragging) return;
+    var p=toSvgPoint(e);
+    pts[dragging]={
+      x:Math.min(maxX,Math.max(minX,p.x)),
+      y:Math.min(maxY,Math.max(minY,p.y))
+    };
+    update();
+  }
+  function onUp(){ dragging=null; }
+
+  elA.addEventListener('pointerdown',onDown('A'));
+  elB.addEventListener('pointerdown',onDown('B'));
+  elC.addEventListener('pointerdown',onDown('C'));
+  svg.addEventListener('pointermove',onMove);
+  window.addEventListener('pointerup',onUp);
+
+  update();
+})();
+</script>
+</body>
+</html>
