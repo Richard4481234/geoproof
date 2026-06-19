@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>GeoProof — Viviani's Theorem explorer</title>
+<style>
+  body{background:#f4f4f5;display:flex;justify-content:center;padding:40px 16px;font-family:sans-serif;}
+  .widget{width:680px;max-width:100%;}
+  .card{background:#ffffff;border:1px solid #e2e2e2;padding:1.25rem;}
+  .sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;}
+  #vv-svg{width:100%;height:auto;display:block;touch-action:none;}
+  .handle{cursor:grab;}
+  .handle:active{cursor:grabbing;}
+  .swatch{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:6px;vertical-align:middle;}
+  .toggle-btn{padding:6px 14px;border-radius:999px;border:1px solid #d8d8d8;background:#f4f4f5;color:#888888;font-size:13px;font-weight:500;cursor:pointer;}
+  .toggle-btn.active{background:#1a1a1a;color:#ffffff;border-color:#1a1a1a;}
+  .stage{position:relative;border-radius:12px;overflow:hidden;border:1px solid #e2e2e2;}
+  .stage .card{border:none;}
+  .stack-bar{display:flex;width:100%;max-width:420px;margin:10px auto 0;height:26px;border-radius:7px;overflow:hidden;border:1px solid #e2e2e2;}
+  .stack-seg{height:100%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;color:#ffffff;overflow:hidden;white-space:nowrap;}
+  .info-toggle{position:absolute;top:14px;right:14px;z-index:30;background:#1a1a1a;color:#ffffff;border:none;border-radius:999px;padding:7px 14px;font-size:13px;font-weight:500;cursor:pointer;}
+  .info-toggle:hover{background:#333333;}
+  .info-backdrop{position:absolute;inset:0;background:rgba(0,0,0,0.22);opacity:0;visibility:hidden;transition:opacity .2s ease;z-index:25;}
+  .info-backdrop.open{opacity:1;visibility:visible;}
+  .info-drawer{position:absolute;top:0;right:0;height:100%;width:320px;max-width:88%;background:#ffffff;border-left:1px solid #e2e2e2;box-shadow:-8px 0 24px rgba(0,0,0,0.14);padding:22px 20px;overflow-y:auto;transform:translateX(100%);transition:transform .25s ease;z-index:28;box-sizing:border-box;}
+  .info-drawer.open{transform:translateX(0);}
+  .info-close{position:absolute;top:14px;right:14px;background:#f4f4f5;border:1px solid #e2e2e2;border-radius:50%;width:28px;height:28px;font-size:14px;cursor:pointer;color:#555555;}
+  .info-drawer h3{font-size:17px;margin:6px 0 12px;padding-right:30px;color:#1a1a1a;}
+  .info-drawer h4{font-size:12px;margin:18px 0 6px;color:#666666;text-transform:uppercase;letter-spacing:.04em;}
+  .info-drawer p{font-size:13.5px;line-height:1.55;color:#333333;margin:0 0 10px;}
+  .formula-box{background:#f4f4f5;border-radius:8px;padding:10px 12px;text-align:center;font-size:14px;font-weight:600;margin:10px 0;color:#1a1a1a;}
+</style>
+</head>
+<body>
+<div class="widget">
+<div style="margin-bottom:12px;"><a href="index.html" style="font-size:14px;color:#1a1a1a;text-decoration:none;">&larr; GeoProof</a></div>
+<div class="stage">
+<div class="card">
+<h2 class="sr-only">An equilateral triangle is shown. Drag the point P anywhere inside it. From P, a perpendicular segment is drawn to each of the three sides. Viviani's theorem says the three perpendicular lengths always add up to the same total — the triangle's altitude — no matter where P sits. The three lengths and their constant total are shown live, and a stacked bar shows them filling exactly one altitude's worth. An info button opens a drawer explaining the theorem.</h2>
+<svg id="vv-svg" viewBox="0 0 680 560" aria-hidden="true">
+  <polygon id="tri-poly" fill="#1D9E75" fill-opacity="0.06" stroke="#1a1a1a" stroke-width="2.5"></polygon>
+  <line id="alt-ref" stroke="#999999" stroke-width="1.5" stroke-dasharray="5,4" style="display:none"></line>
+  <line id="perp-a" stroke="#378ADD" stroke-width="3" stroke-linecap="round"></line>
+  <line id="perp-b" stroke="#639922" stroke-width="3" stroke-linecap="round"></line>
+  <line id="perp-c" stroke="#D4537E" stroke-width="3" stroke-linecap="round"></line>
+  <circle id="foot-a" r="4" fill="#378ADD"></circle>
+  <circle id="foot-b" r="4" fill="#639922"></circle>
+  <circle id="foot-c" r="4" fill="#D4537E"></circle>
+  <text id="lab-a" text-anchor="middle" dominant-baseline="middle" fill="#185FA5" font-size="12.5" font-weight="600"></text>
+  <text id="lab-b" text-anchor="middle" dominant-baseline="middle" fill="#3B6D11" font-size="12.5" font-weight="600"></text>
+  <text id="lab-c" text-anchor="middle" dominant-baseline="middle" fill="#993556" font-size="12.5" font-weight="600"></text>
+  <text id="tag-A" text-anchor="middle" dominant-baseline="middle" fill="#1a1a1a" font-size="14" font-weight="700">A</text>
+  <text id="tag-B" text-anchor="middle" dominant-baseline="middle" fill="#1a1a1a" font-size="14" font-weight="700">B</text>
+  <text id="tag-C" text-anchor="middle" dominant-baseline="middle" fill="#1a1a1a" font-size="14" font-weight="700">C</text>
+  <circle id="handle-P" class="handle" r="12" fill="#ffffff" stroke="#1a1a1a" stroke-width="2.5"></circle>
+  <text id="tag-P" text-anchor="middle" dominant-baseline="middle" fill="#1a1a1a" font-size="14" font-weight="700">P</text>
+</svg>
+
+<div style="display:flex; justify-content:center; gap:10px; flex-wrap:wrap; margin-top:0.75rem;">
+  <button type="button" id="toggle-perp" class="toggle-btn active">Perpendiculars</button>
+  <button type="button" id="toggle-alt" class="toggle-btn">Altitude</button>
+  <button type="button" id="toggle-labels" class="toggle-btn active">Distance labels</button>
+</div>
+
+<div style="display:flex; justify-content:center; margin-top:0.85rem;">
+  <span id="status-badge" style="display:inline-block; padding:4px 14px; border-radius:999px; font-size:14px; font-weight:500;"></span>
+</div>
+
+<div id="formula-symbolic" style="text-align:center; font-size:15px; font-weight:600; color:#1a1a1a; margin-top:1.1rem;">d₁ + d₂ + d₃ = altitude h</div>
+
+<div id="sum-row" style="display:flex; align-items:center; justify-content:center; gap:8px; flex-wrap:wrap; margin-top:0.6rem; font-size:15px; color:#1a1a1a;"></div>
+<div id="stack-bar" class="stack-bar"></div>
+<div style="text-align:center; font-size:12px; color:#888888; margin-top:5px;">The three colored lengths always fill exactly one altitude — drag P to see them trade off.</div>
+</div>
+
+<button type="button" id="info-toggle-btn" class="info-toggle">ⓘ About this theorem</button>
+<div id="info-backdrop" class="info-backdrop"></div>
+<aside id="info-drawer" class="info-drawer">
+  <button type="button" id="info-close" class="info-close" aria-label="Close">✕</button>
+  <h3>Viviani's Theorem</h3>
+  <p>In an equilateral triangle, take any point P inside it and measure the perpendicular distance from P to each of the three sides. Those three distances always add up to the same total — the triangle's altitude (height) — wherever P happens to be:</p>
+  <div class="formula-box">d₁ + d₂ + d₃ = h</div>
+  <p>Slide P toward a side and that side's distance shrinks while the other two grow by exactly as much, keeping the sum fixed.</p>
+  <h4>Why it's true</h4>
+  <p>Join P to the three vertices, splitting the triangle into three smaller triangles, one sitting on each side. Each side has the same length s, so the three areas are ½·s·d₁, ½·s·d₂, ½·s·d₃. Together they fill the whole triangle, whose area is ½·s·h. Dividing by ½·s gives d₁ + d₂ + d₃ = h.</p>
+  <h4>At special points</h4>
+  <p>At the very center the three distances are equal, each one-third of the altitude. At a vertex two distances vanish and the third becomes the full altitude. On an edge, that edge's distance is zero and the other two still total h.</p>
+  <h4>It needs an equilateral triangle</h4>
+  <p>The clean version relies on all three sides being equal so the common factor ½·s cancels. For a general triangle the weighted sum of distances (each times its side length) is what stays constant instead.</p>
+  <h4>A bit of history</h4>
+  <p>It's named for Vincenzo Viviani (1622–1703), an Italian mathematician and a student of Galileo.</p>
+</aside>
+</div>
+</div>
+
+<script>
+(function(){
+  var svg=document.getElementById('vv-svg');
+  var center={x:340,y:300}, R=190;
+  var rot=0;
+  // equilateral vertices: A top, B bottom-left, C bottom-right
+  function vert(adeg){ var a=adeg*Math.PI/180+rot; return {x:center.x+R*Math.cos(a), y:center.y+R*Math.sin(a)}; }
+  var A=vert(-90), B=vert(150), C=vert(30);
+  var sideLen=Math.hypot(B.x-C.x,B.y-C.y);
+  var hPix=sideLen*Math.sqrt(3)/2;
+  var UNIT=hPix/10;           // so the altitude reads as exactly 10 units
+  var P={x:center.x,y:center.y};
+  var showPerp=true, showAlt=false, showLabels=true;
+
+  function sub(p,q){return {x:p.x-q.x,y:p.y-q.y};}
+  function len(v){return Math.hypot(v.x,v.y);}
+  function fmt(n){
+    var r=Math.round(n*10)/10;
+    return (Math.abs(r-Math.round(r))<1e-9)?Math.round(r).toLocaleString():r.toFixed(1);
+  }
+  function footOnLine(Pp,V1,V2){
+    var dx=V2.x-V1.x, dy=V2.y-V1.y;
+    var t=((Pp.x-V1.x)*dx+(Pp.y-V1.y)*dy)/(dx*dx+dy*dy);
+    return {x:V1.x+t*dx, y:V1.y+t*dy};
+  }
+  function clampInside(Pp){
+    // barycentric coords wrt A,B,C; clamp negatives to keep P inside/on boundary
+    var v0=sub(B,A), v1=sub(C,A), v2=sub(Pp,A);
+    var d00=v0.x*v0.x+v0.y*v0.y, d01=v0.x*v1.x+v0.y*v1.y, d11=v1.x*v1.x+v1.y*v1.y;
+    var d20=v2.x*v0.x+v2.y*v0.y, d21=v2.x*v1.x+v2.y*v1.y;
+    var den=d00*d11-d01*d01;
+    var vB=(d11*d20-d01*d21)/den;   // weight for B
+    var wC=(d00*d21-d01*d20)/den;   // weight for C
+    var uA=1-vB-wC;
+    uA=Math.max(0,uA); vB=Math.max(0,vB); wC=Math.max(0,wC);
+    var s=uA+vB+wC; uA/=s; vB/=s; wC/=s;
+    return {x:uA*A.x+vB*B.x+wC*C.x, y:uA*A.y+vB*B.y+wC*C.y};
+  }
+
+  var triPoly=document.getElementById('tri-poly');
+  var altRef=document.getElementById('alt-ref');
+  var perpA=document.getElementById('perp-a');
+  var perpB=document.getElementById('perp-b');
+  var perpC=document.getElementById('perp-c');
+  var footA=document.getElementById('foot-a');
+  var footB=document.getElementById('foot-b');
+  var footC=document.getElementById('foot-c');
+  var labA=document.getElementById('lab-a');
+  var labB=document.getElementById('lab-b');
+  var labC=document.getElementById('lab-c');
+  var tagA=document.getElementById('tag-A');
+  var tagB=document.getElementById('tag-B');
+  var tagC=document.getElementById('tag-C');
+  var handleP=document.getElementById('handle-P');
+  var tagP=document.getElementById('tag-P');
+  var statusBadge=document.getElementById('status-badge');
+  var sumRow=document.getElementById('sum-row');
+  var stackBar=document.getElementById('stack-bar');
+  var togglePerp=document.getElementById('toggle-perp');
+  var toggleAlt=document.getElementById('toggle-alt');
+  var toggleLabels=document.getElementById('toggle-labels');
+
+  triPoly.setAttribute('points', A.x+','+A.y+' '+B.x+','+B.y+' '+C.x+','+C.y);
+  tagA.setAttribute('x',A.x); tagA.setAttribute('y',A.y-18);
+  tagB.setAttribute('x',B.x-16); tagB.setAttribute('y',B.y+14);
+  tagC.setAttribute('x',C.x+16); tagC.setAttribute('y',C.y+14);
+  // altitude reference: from A perpendicular to BC (foot = midpoint of BC for equilateral)
+  var midBC={x:(B.x+C.x)/2,y:(B.y+C.y)/2};
+  altRef.setAttribute('x1',A.x); altRef.setAttribute('y1',A.y);
+  altRef.setAttribute('x2',midBC.x); altRef.setAttribute('y2',midBC.y);
+
+  function setLine(el,p,q){ el.setAttribute('x1',p.x); el.setAttribute('y1',p.y); el.setAttribute('x2',q.x); el.setAttribute('y2',q.y); }
+  function mid(p,q){return {x:(p.x+q.x)/2,y:(p.y+q.y)/2};}
+  function disp(el,on){ el.style.display=on?'block':'none'; }
+
+  function update(){
+    handleP.setAttribute('cx',P.x); handleP.setAttribute('cy',P.y);
+    tagP.setAttribute('x',P.x+16); tagP.setAttribute('y',P.y-12);
+
+    var fA=footOnLine(P,B,C);   // side a = BC
+    var fB=footOnLine(P,C,A);   // side b = CA
+    var fC=footOnLine(P,A,B);   // side c = AB
+    setLine(perpA,P,fA); setLine(perpB,P,fB); setLine(perpC,P,fC);
+    footA.setAttribute('cx',fA.x); footA.setAttribute('cy',fA.y);
+    footB.setAttribute('cx',fB.x); footB.setAttribute('cy',fB.y);
+    footC.setAttribute('cx',fC.x); footC.setAttribute('cy',fC.y);
+
+    var dA=len(sub(P,fA))/UNIT, dB=len(sub(P,fB))/UNIT, dC=len(sub(P,fC))/UNIT;
+
+    var mA=mid(P,fA), mB=mid(P,fB), mC=mid(P,fC);
+    labA.setAttribute('x',mA.x+10); labA.setAttribute('y',mA.y); labA.textContent='d₁='+fmt(dA);
+    labB.setAttribute('x',mB.x-10); labB.setAttribute('y',mB.y); labB.textContent='d₂='+fmt(dB);
+    labC.setAttribute('x',mC.x-10); labC.setAttribute('y',mC.y); labC.textContent='d₃='+fmt(dC);
+
+    disp(perpA,showPerp); disp(perpB,showPerp); disp(perpC,showPerp);
+    disp(footA,showPerp); disp(footB,showPerp); disp(footC,showPerp);
+    disp(labA,showPerp&&showLabels); disp(labB,showPerp&&showLabels); disp(labC,showPerp&&showLabels);
+    disp(altRef,showAlt);
+
+    var sum=dA+dB+dC, h=hPix/UNIT;
+    var mismatch=Math.abs(sum-h)>0.05;
+
+    statusBadge.textContent='Sum stays constant = altitude';
+    statusBadge.style.background='#E1F5EE'; statusBadge.style.color='#04342C';
+
+    sumRow.innerHTML =
+      '<span><span class="swatch" style="background:#378ADD"></span>'+fmt(dA)+'</span><span style="color:#888;">+</span>'+
+      '<span><span class="swatch" style="background:#639922"></span>'+fmt(dB)+'</span><span style="color:#888;">+</span>'+
+      '<span><span class="swatch" style="background:#D4537E"></span>'+fmt(dC)+'</span>'+
+      '<b style="color:'+(mismatch?'#e24b4a':'#1d9e75')+';font-size:18px;">=</b>'+
+      '<span><b>'+fmt(sum)+'</b> = altitude h = '+fmt(h)+'</span>'+
+      (mismatch?'':'<span style="color:#1d9e75;font-weight:700;">&check;</span>');
+
+    var pA=Math.max(0,dA/h*100), pB=Math.max(0,dB/h*100), pC=Math.max(0,dC/h*100);
+    stackBar.innerHTML =
+      '<div class="stack-seg" style="width:'+pA+'%;background:#378ADD">'+(pA>10?'d₁':'')+'</div>'+
+      '<div class="stack-seg" style="width:'+pB+'%;background:#639922">'+(pB>10?'d₂':'')+'</div>'+
+      '<div class="stack-seg" style="width:'+pC+'%;background:#D4537E">'+(pC>10?'d₃':'')+'</div>';
+  }
+
+  var dragging=false;
+  function toSvgPoint(evt){
+    var rect=svg.getBoundingClientRect();
+    var vb=svg.viewBox.baseVal;
+    return { x:(evt.clientX-rect.left)/rect.width*vb.width+vb.x, y:(evt.clientY-rect.top)/rect.height*vb.height+vb.y };
+  }
+  handleP.addEventListener('pointerdown',function(e){
+    dragging=true;
+    if(e.target.setPointerCapture){ try{ e.target.setPointerCapture(e.pointerId); }catch(err){} }
+    e.preventDefault();
+  });
+  svg.addEventListener('pointermove',function(e){
+    if(!dragging) return;
+    P=clampInside(toSvgPoint(e));
+    update();
+  });
+  window.addEventListener('pointerup',function(){ dragging=false; });
+
+  togglePerp.addEventListener('click',function(){ showPerp=!showPerp; togglePerp.classList.toggle('active',showPerp); update(); });
+  toggleAlt.addEventListener('click',function(){ showAlt=!showAlt; toggleAlt.classList.toggle('active',showAlt); update(); });
+  toggleLabels.addEventListener('click',function(){ showLabels=!showLabels; toggleLabels.classList.toggle('active',showLabels); update(); });
+
+  var infoToggle=document.getElementById('info-toggle-btn');
+  var infoDrawer=document.getElementById('info-drawer');
+  var infoBackdrop=document.getElementById('info-backdrop');
+  var infoClose=document.getElementById('info-close');
+  function openDrawer(){ infoDrawer.classList.add('open'); infoBackdrop.classList.add('open'); }
+  function closeDrawer(){ infoDrawer.classList.remove('open'); infoBackdrop.classList.remove('open'); }
+  infoToggle.addEventListener('click',function(){
+    if(infoDrawer.classList.contains('open')) closeDrawer(); else openDrawer();
+  });
+  infoClose.addEventListener('click',closeDrawer);
+  infoBackdrop.addEventListener('click',closeDrawer);
+  document.addEventListener('keydown',function(e){ if(e.key==='Escape') closeDrawer(); });
+
+  update();
+})();
+</script>
+</body>
+</html>
