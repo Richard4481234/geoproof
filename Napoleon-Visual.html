@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>GeoProof — Napoleon's Theorem explorer</title>
+<style>
+  body{background:#f4f4f5;display:flex;justify-content:center;padding:40px 16px;font-family:sans-serif;}
+  .widget{width:680px;max-width:100%;}
+  .card{background:#ffffff;border:1px solid #e2e2e2;padding:1.25rem;}
+  .sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;}
+  #np-svg{width:100%;height:auto;display:block;touch-action:none;}
+  .handle{cursor:grab;}
+  .handle:active{cursor:grabbing;}
+  .swatch{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:6px;vertical-align:middle;}
+  .toggle-btn{padding:6px 14px;border-radius:999px;border:1px solid #d8d8d8;background:#f4f4f5;color:#888888;font-size:13px;font-weight:500;cursor:pointer;}
+  .toggle-btn.active{background:#1a1a1a;color:#ffffff;border-color:#1a1a1a;}
+  .stage{position:relative;border-radius:12px;overflow:hidden;border:1px solid #e2e2e2;}
+  .stage .card{border:none;}
+  .info-toggle{position:absolute;top:14px;right:14px;z-index:30;background:#1a1a1a;color:#ffffff;border:none;border-radius:999px;padding:7px 14px;font-size:13px;font-weight:500;cursor:pointer;}
+  .info-toggle:hover{background:#333333;}
+  .info-backdrop{position:absolute;inset:0;background:rgba(0,0,0,0.22);opacity:0;visibility:hidden;transition:opacity .2s ease;z-index:25;}
+  .info-backdrop.open{opacity:1;visibility:visible;}
+  .info-drawer{position:absolute;top:0;right:0;height:100%;width:320px;max-width:88%;background:#ffffff;border-left:1px solid #e2e2e2;box-shadow:-8px 0 24px rgba(0,0,0,0.14);padding:22px 20px;overflow-y:auto;transform:translateX(100%);transition:transform .25s ease;z-index:28;box-sizing:border-box;}
+  .info-drawer.open{transform:translateX(0);}
+  .info-close{position:absolute;top:14px;right:14px;background:#f4f4f5;border:1px solid #e2e2e2;border-radius:50%;width:28px;height:28px;font-size:14px;cursor:pointer;color:#555555;}
+  .info-drawer h3{font-size:17px;margin:6px 0 12px;padding-right:30px;color:#1a1a1a;}
+  .info-drawer h4{font-size:12px;margin:18px 0 6px;color:#666666;text-transform:uppercase;letter-spacing:.04em;}
+  .info-drawer p{font-size:13.5px;line-height:1.55;color:#333333;margin:0 0 10px;}
+  .formula-box{background:#f4f4f5;border-radius:8px;padding:10px 12px;text-align:center;font-size:13.5px;font-weight:600;margin:10px 0;color:#1a1a1a;}
+</style>
+</head>
+<body>
+<div class="widget">
+<div style="margin-bottom:12px;"><a href="index.html" style="font-size:14px;color:#1a1a1a;text-decoration:none;">&larr; GeoProof</a></div>
+<div class="stage">
+<div class="card">
+<h2 class="sr-only">Start from any triangle ABC and drag its vertices. On each side an equilateral triangle is built pointing outward, and the center of each of those equilateral triangles is marked. Napoleon's theorem says these three centers always form an equilateral triangle, no matter what shape the original triangle has. The three side lengths of that Napoleon triangle are shown and stay equal. Toggles show or hide the erected equilateral triangles and switch to the inward construction, which is also equilateral. An info button opens a drawer explaining the theorem.</h2>
+<svg id="np-svg" viewBox="0 0 680 560" aria-hidden="true">
+  <g id="erected-group"></g>
+  <polygon id="napoleon" fill="#8B5FBF" fill-opacity="0.14" stroke="#8B5FBF" stroke-width="2.5"></polygon>
+  <polygon id="tri-poly" fill="none" stroke="#1a1a1a" stroke-width="2.5"></polygon>
+  <text id="lab-1" text-anchor="middle" dominant-baseline="middle" fill="#5B3886" font-size="12.5" font-weight="600"></text>
+  <text id="lab-2" text-anchor="middle" dominant-baseline="middle" fill="#5B3886" font-size="12.5" font-weight="600"></text>
+  <text id="lab-3" text-anchor="middle" dominant-baseline="middle" fill="#5B3886" font-size="12.5" font-weight="600"></text>
+  <circle id="dot-N1" r="4.5" fill="#5B3886"></circle>
+  <circle id="dot-N2" r="4.5" fill="#5B3886"></circle>
+  <circle id="dot-N3" r="4.5" fill="#5B3886"></circle>
+  <text id="tag-A" text-anchor="middle" dominant-baseline="middle" fill="#1a1a1a" font-size="14" font-weight="700">A</text>
+  <text id="tag-B" text-anchor="middle" dominant-baseline="middle" fill="#1a1a1a" font-size="14" font-weight="700">B</text>
+  <text id="tag-C" text-anchor="middle" dominant-baseline="middle" fill="#1a1a1a" font-size="14" font-weight="700">C</text>
+  <circle id="handle-A" class="handle" r="12" fill="#ffffff" stroke="#1a1a1a" stroke-width="2"></circle>
+  <circle id="handle-B" class="handle" r="12" fill="#ffffff" stroke="#1a1a1a" stroke-width="2"></circle>
+  <circle id="handle-C" class="handle" r="12" fill="#ffffff" stroke="#1a1a1a" stroke-width="2"></circle>
+</svg>
+
+<div style="display:flex; justify-content:center; gap:10px; flex-wrap:wrap; margin-top:0.75rem;">
+  <button type="button" id="toggle-erected" class="toggle-btn active">Erected triangles</button>
+  <button type="button" id="toggle-labels" class="toggle-btn active">Side labels</button>
+  <button type="button" id="toggle-dir" class="toggle-btn">Build inward</button>
+</div>
+
+<div style="display:flex; justify-content:center; margin-top:0.85rem;">
+  <span id="status-badge" style="display:inline-block; padding:4px 14px; border-radius:999px; font-size:14px; font-weight:500;"></span>
+</div>
+
+<div id="formula-symbolic" style="text-align:center; font-size:14px; font-weight:600; color:#1a1a1a; margin-top:1.1rem;">The three centers form an equilateral triangle</div>
+
+<div id="side-row" style="display:flex; align-items:center; justify-content:center; gap:10px; flex-wrap:wrap; margin-top:0.6rem; font-size:15px; color:#1a1a1a;"></div>
+<div id="detail-row" style="text-align:center; font-size:12.5px; color:#777777; margin-top:0.55rem;"></div>
+</div>
+
+<button type="button" id="info-toggle-btn" class="info-toggle">ⓘ About this theorem</button>
+<div id="info-backdrop" class="info-backdrop"></div>
+<aside id="info-drawer" class="info-drawer">
+  <button type="button" id="info-close" class="info-close" aria-label="Close">✕</button>
+  <h3>Napoleon's Theorem</h3>
+  <p>Take any triangle at all. On each of its three sides, build an equilateral triangle pointing outward. Mark the center of each one. Then:</p>
+  <div class="formula-box">the three centers form an equilateral triangle</div>
+  <p>This <i>outer Napoleon triangle</i> is perfectly equilateral no matter how lopsided the original triangle is — drag the vertices and watch its three sides stay equal.</p>
+  <h4>Inner version too</h4>
+  <p>If you instead build the equilateral triangles pointing inward, their centers also form an equilateral triangle — the <i>inner</i> Napoleon triangle. Switch the "Build inward" toggle to see it.</p>
+  <h4>A bonus relationship</h4>
+  <p>Both Napoleon triangles share the same center as the original triangle's centroid. And the difference between the outer and inner Napoleon triangles' areas equals the area of the original triangle.</p>
+  <h4>Why "center"?</h4>
+  <p>For an equilateral triangle the centroid, circumcenter, and incenter all coincide, so "the center" is unambiguous — it sits one-third of the way up from each side, at distance side ÷ (2√3) from the midpoint.</p>
+  <h4>A bit of history</h4>
+  <p>The result is traditionally attributed to Napoleon Bonaparte, who was a keen amateur mathematician, though historians doubt he actually discovered it. It first appears in print in the early 19th century.</p>
+</aside>
+</div>
+</div>
+
+<script>
+(function(){
+  var svg=document.getElementById('np-svg');
+  var pts={ A:{x:300,y:130}, B:{x:170,y:430}, C:{x:520,y:400} };
+  var minX=70,maxX=610,minY=80,maxY=470;
+  var UNIT=30;
+  var showErected=true, showLabels=true, inward=false;
+
+  function sub(p,q){return {x:p.x-q.x,y:p.y-q.y};}
+  function add(p,q){return {x:p.x+q.x,y:p.y+q.y};}
+  function len(v){return Math.hypot(v.x,v.y);}
+  function mid(p,q){return {x:(p.x+q.x)/2,y:(p.y+q.y)/2};}
+  function fmt(n){ var r=Math.round(n*10)/10; return (Math.abs(r-Math.round(r))<1e-9)?Math.round(r).toString():r.toFixed(1); }
+  function svgEl(tag,attrs){ var el=document.createElementNS('http://www.w3.org/2000/svg',tag); for(var k in attrs){el.setAttribute(k,attrs[k]);} return el; }
+  function clearKids(el){ while(el.firstChild) el.removeChild(el.firstChild); }
+
+  // apex of equilateral triangle on side S1->S2, on the far side from Opp (outward) unless inward
+  function equilApex(S1,S2,Opp,inwardFlag){
+    var m=mid(S1,S2), d=sub(S2,S1), L=len(d), perp={x:-d.y/L,y:d.x/L};
+    if(perp.x*(Opp.x-m.x)+perp.y*(Opp.y-m.y) > 0){ perp={x:-perp.x,y:-perp.y}; } // away from Opp = outward
+    if(inwardFlag){ perp={x:-perp.x,y:-perp.y}; }
+    var h=L*Math.sqrt(3)/2;
+    return {apex:{x:m.x+perp.x*h, y:m.y+perp.y*h}, mid:m, perp:perp, L:L, h:h};
+  }
+  function equilCentroid(S1,S2,Opp,inwardFlag){
+    var e=equilApex(S1,S2,Opp,inwardFlag);
+    return {x:e.mid.x+e.perp.x*(e.L/(2*Math.sqrt(3))), y:e.mid.y+e.perp.y*(e.L/(2*Math.sqrt(3))), apex:e.apex, s1:S1, s2:S2};
+  }
+
+  var erectedGroup=document.getElementById('erected-group');
+  var napoleon=document.getElementById('napoleon');
+  var triPoly=document.getElementById('tri-poly');
+  var lab1=document.getElementById('lab-1');
+  var lab2=document.getElementById('lab-2');
+  var lab3=document.getElementById('lab-3');
+  var dotN1=document.getElementById('dot-N1');
+  var dotN2=document.getElementById('dot-N2');
+  var dotN3=document.getElementById('dot-N3');
+  var tagA=document.getElementById('tag-A');
+  var tagB=document.getElementById('tag-B');
+  var tagC=document.getElementById('tag-C');
+  var hA=document.getElementById('handle-A');
+  var hB=document.getElementById('handle-B');
+  var hC=document.getElementById('handle-C');
+  var statusBadge=document.getElementById('status-badge');
+  var sideRow=document.getElementById('side-row');
+  var detailRow=document.getElementById('detail-row');
+  var toggleErected=document.getElementById('toggle-erected');
+  var toggleLabels=document.getElementById('toggle-labels');
+  var toggleDir=document.getElementById('toggle-dir');
+
+  function disp(el,on){ el.style.display=on?'block':'none'; }
+
+  function update(){
+    var A=pts.A,B=pts.B,C=pts.C;
+    hA.setAttribute('cx',A.x); hA.setAttribute('cy',A.y);
+    hB.setAttribute('cx',B.x); hB.setAttribute('cy',B.y);
+    hC.setAttribute('cx',C.x); hC.setAttribute('cy',C.y);
+    triPoly.setAttribute('points', A.x+','+A.y+' '+B.x+','+B.y+' '+C.x+','+C.y);
+
+    // equilateral on each side + centroids
+    var eAB=equilCentroid(A,B,C,inward);  // N on side AB (opp C)
+    var eBC=equilCentroid(B,C,A,inward);  // N on side BC (opp A)
+    var eCA=equilCentroid(C,A,B,inward);  // N on side CA (opp B)
+    var N1=eAB, N2=eBC, N3=eCA;
+
+    clearKids(erectedGroup);
+    if(showErected){
+      [eAB,eBC,eCA].forEach(function(e){
+        erectedGroup.appendChild(svgEl('polygon',{points:e.s1.x+','+e.s1.y+' '+e.s2.x+','+e.s2.y+' '+e.apex.x+','+e.apex.y, fill:'#BA7517','fill-opacity':0.10, stroke:'#BA7517','stroke-width':1.3,'stroke-opacity':0.5}));
+      });
+    }
+
+    napoleon.setAttribute('points', N1.x+','+N1.y+' '+N2.x+','+N2.y+' '+N3.x+','+N3.y);
+
+    dotN1.setAttribute('cx',N1.x); dotN1.setAttribute('cy',N1.y);
+    dotN2.setAttribute('cx',N2.x); dotN2.setAttribute('cy',N2.y);
+    dotN3.setAttribute('cx',N3.x); dotN3.setAttribute('cy',N3.y);
+
+    var cen={x:(A.x+B.x+C.x)/3,y:(A.y+B.y+C.y)/3};
+    function tagAt(el,P){ var d=sub(P,cen),l=len(d)||1; el.setAttribute('x',P.x+d.x/l*22); el.setAttribute('y',P.y+d.y/l*22); }
+    tagAt(tagA,A); tagAt(tagB,B); tagAt(tagC,C);
+
+    var s12=len(sub(N1,N2))/UNIT, s23=len(sub(N2,N3))/UNIT, s31=len(sub(N3,N1))/UNIT;
+    var ncen={x:(N1.x+N2.x+N3.x)/3,y:(N1.y+N2.y+N3.y)/3};
+    function sideLbl(el,P,Q,val){ var m=mid(P,Q); var d=sub(m,ncen),l=len(d)||1; el.setAttribute('x',m.x+d.x/l*14); el.setAttribute('y',m.y+d.y/l*14); el.textContent=fmt(val); }
+    sideLbl(lab1,N1,N2,s12); sideLbl(lab2,N2,N3,s23); sideLbl(lab3,N3,N1,s31);
+    disp(lab1,showLabels); disp(lab2,showLabels); disp(lab3,showLabels);
+
+    var avg=(s12+s23+s31)/3, spread=Math.max(Math.abs(s12-avg),Math.abs(s23-avg),Math.abs(s31-avg));
+    var ok=spread<0.05*Math.max(1,avg);
+    statusBadge.textContent=(inward?'Inner':'Outer')+' Napoleon triangle is equilateral';
+    statusBadge.style.background='#EDE6F6'; statusBadge.style.color='#3F2A5C';
+
+    sideRow.innerHTML =
+      '<span><span class="swatch" style="background:#8B5FBF"></span>'+fmt(s12)+'</span><span style="color:#888;">=</span>'+
+      '<span><span class="swatch" style="background:#8B5FBF"></span>'+fmt(s23)+'</span><span style="color:#888;">=</span>'+
+      '<span><span class="swatch" style="background:#8B5FBF"></span>'+fmt(s31)+'</span>'+
+      (ok?'<span style="color:#1d9e75;font-weight:700;">&check; equilateral</span>':'');
+
+    detailRow.textContent='Each center sits at distance side ÷ (2√3) from its side’s midpoint; all three Napoleon sides are equal.';
+  }
+
+  var dragging=null;
+  function toSvgPoint(evt){
+    var rect=svg.getBoundingClientRect();
+    var vb=svg.viewBox.baseVal;
+    return { x:(evt.clientX-rect.left)/rect.width*vb.width+vb.x, y:(evt.clientY-rect.top)/rect.height*vb.height+vb.y };
+  }
+  function onDown(key){
+    return function(e){
+      dragging=key;
+      if(e.target.setPointerCapture){ try{ e.target.setPointerCapture(e.pointerId); }catch(err){} }
+      e.preventDefault();
+    };
+  }
+  function onMove(e){
+    if(!dragging) return;
+    var p=toSvgPoint(e);
+    pts[dragging]={x:Math.min(maxX,Math.max(minX,p.x)), y:Math.min(maxY,Math.max(minY,p.y))};
+    update();
+  }
+  function onUp(){ dragging=null; }
+  hA.addEventListener('pointerdown',onDown('A'));
+  hB.addEventListener('pointerdown',onDown('B'));
+  hC.addEventListener('pointerdown',onDown('C'));
+  svg.addEventListener('pointermove',onMove);
+  window.addEventListener('pointerup',onUp);
+
+  toggleErected.addEventListener('click',function(){ showErected=!showErected; toggleErected.classList.toggle('active',showErected); update(); });
+  toggleLabels.addEventListener('click',function(){ showLabels=!showLabels; toggleLabels.classList.toggle('active',showLabels); update(); });
+  toggleDir.addEventListener('click',function(){ inward=!inward; toggleDir.classList.toggle('active',inward); toggleDir.textContent=inward?'Build outward':'Build inward'; update(); });
+
+  var infoToggle=document.getElementById('info-toggle-btn');
+  var infoDrawer=document.getElementById('info-drawer');
+  var infoBackdrop=document.getElementById('info-backdrop');
+  var infoClose=document.getElementById('info-close');
+  function openDrawer(){ infoDrawer.classList.add('open'); infoBackdrop.classList.add('open'); }
+  function closeDrawer(){ infoDrawer.classList.remove('open'); infoBackdrop.classList.remove('open'); }
+  infoToggle.addEventListener('click',function(){
+    if(infoDrawer.classList.contains('open')) closeDrawer(); else openDrawer();
+  });
+  infoClose.addEventListener('click',closeDrawer);
+  infoBackdrop.addEventListener('click',closeDrawer);
+  document.addEventListener('keydown',function(e){ if(e.key==='Escape') closeDrawer(); });
+
+  update();
+})();
+</script>
+</body>
+</html>

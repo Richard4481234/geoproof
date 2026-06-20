@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>GeoProof — Intersecting Secants Angle explorer</title>
+<style>
+  body{background:#f4f4f5;display:flex;justify-content:center;padding:40px 16px;font-family:sans-serif;}
+  .widget{width:680px;max-width:100%;}
+  .card{background:#ffffff;border:1px solid #e2e2e2;padding:1.25rem;}
+  .sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;}
+  #sc-svg{width:100%;height:auto;display:block;touch-action:none;}
+  .handle{cursor:grab;}
+  .handle:active{cursor:grabbing;}
+  .swatch{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:6px;vertical-align:middle;}
+  .toggle-btn{padding:6px 14px;border-radius:999px;border:1px solid #d8d8d8;background:#f4f4f5;color:#888888;font-size:13px;font-weight:500;cursor:pointer;}
+  .toggle-btn.active{background:#1a1a1a;color:#ffffff;border-color:#1a1a1a;}
+  .stage{position:relative;border-radius:12px;overflow:hidden;border:1px solid #e2e2e2;}
+  .stage .card{border:none;}
+  .info-toggle{position:absolute;top:14px;right:14px;z-index:30;background:#1a1a1a;color:#ffffff;border:none;border-radius:999px;padding:7px 14px;font-size:13px;font-weight:500;cursor:pointer;}
+  .info-toggle:hover{background:#333333;}
+  .info-backdrop{position:absolute;inset:0;background:rgba(0,0,0,0.22);opacity:0;visibility:hidden;transition:opacity .2s ease;z-index:25;}
+  .info-backdrop.open{opacity:1;visibility:visible;}
+  .info-drawer{position:absolute;top:0;right:0;height:100%;width:320px;max-width:88%;background:#ffffff;border-left:1px solid #e2e2e2;box-shadow:-8px 0 24px rgba(0,0,0,0.14);padding:22px 20px;overflow-y:auto;transform:translateX(100%);transition:transform .25s ease;z-index:28;box-sizing:border-box;}
+  .info-drawer.open{transform:translateX(0);}
+  .info-close{position:absolute;top:14px;right:14px;background:#f4f4f5;border:1px solid #e2e2e2;border-radius:50%;width:28px;height:28px;font-size:14px;cursor:pointer;color:#555555;}
+  .info-drawer h3{font-size:17px;margin:6px 0 12px;padding-right:30px;color:#1a1a1a;}
+  .info-drawer h4{font-size:12px;margin:18px 0 6px;color:#666666;text-transform:uppercase;letter-spacing:.04em;}
+  .info-drawer p{font-size:13.5px;line-height:1.55;color:#333333;margin:0 0 10px;}
+  .formula-box{background:#f4f4f5;border-radius:8px;padding:10px 12px;text-align:center;font-size:13.5px;font-weight:600;margin:10px 0;color:#1a1a1a;}
+</style>
+</head>
+<body>
+<div class="widget">
+<div style="margin-bottom:12px;"><a href="index.html" style="font-size:14px;color:#1a1a1a;text-decoration:none;">&larr; GeoProof</a></div>
+<div class="stage">
+<div class="card">
+<h2 class="sr-only">From an external point P, two secant lines are drawn to a circle. Each crosses the circle twice: the first secant at near point A and far point B, the second at near point C and far point D. The two secants cut off two arcs — a far arc between B and D, and a near arc between A and C. Drag P or the two aim points on the circle. The angle at P equals half the difference of those two arcs: half of the far arc minus the near arc. The angle and both arcs are shown live. An info button opens a drawer explaining the theorem.</h2>
+<svg id="sc-svg" viewBox="0 0 680 560" aria-hidden="true">
+  <circle id="main-circle" fill="none" stroke="#c8c8cc" stroke-width="2"></circle>
+  <polyline id="arc-far" fill="none" stroke="#D4537E" stroke-width="6" stroke-linecap="round" stroke-opacity="0.6"></polyline>
+  <polyline id="arc-near" fill="none" stroke="#378ADD" stroke-width="6" stroke-linecap="round" stroke-opacity="0.6"></polyline>
+  <line id="secant-1" stroke="#1a1a1a" stroke-width="2.5" stroke-linecap="round"></line>
+  <line id="secant-2" stroke="#1a1a1a" stroke-width="2.5" stroke-linecap="round"></line>
+  <polygon id="wedge-p" fill="#BA7517" fill-opacity="0.25" stroke="#BA7517" stroke-width="1" stroke-opacity="0.6"></polygon>
+  <text id="lab-p" text-anchor="middle" dominant-baseline="middle" fill="#7A4D0B" font-size="13" font-weight="600"></text>
+  <text id="lab-far" text-anchor="middle" dominant-baseline="middle" fill="#993556" font-size="12.5" font-weight="600"></text>
+  <text id="lab-near" text-anchor="middle" dominant-baseline="middle" fill="#185FA5" font-size="12.5" font-weight="600"></text>
+  <g id="pts-tags"></g>
+  <circle id="dot-A" r="4" fill="#378ADD"></circle>
+  <circle id="dot-C" r="4" fill="#378ADD"></circle>
+  <circle id="dot-B" r="4" fill="#D4537E"></circle>
+  <circle id="dot-D" r="4" fill="#D4537E"></circle>
+  <text id="tag-A" text-anchor="middle" dominant-baseline="middle" fill="#185FA5" font-size="12.5" font-weight="700">A</text>
+  <text id="tag-B" text-anchor="middle" dominant-baseline="middle" fill="#993556" font-size="12.5" font-weight="700">B</text>
+  <text id="tag-C" text-anchor="middle" dominant-baseline="middle" fill="#185FA5" font-size="12.5" font-weight="700">C</text>
+  <text id="tag-D" text-anchor="middle" dominant-baseline="middle" fill="#993556" font-size="12.5" font-weight="700">D</text>
+  <circle id="handle-Q1" class="handle" r="10" fill="#ffffff" stroke="#1a1a1a" stroke-width="2"></circle>
+  <circle id="handle-Q2" class="handle" r="10" fill="#ffffff" stroke="#1a1a1a" stroke-width="2"></circle>
+  <circle id="handle-P" class="handle" r="12" fill="#ffffff" stroke="#BA7517" stroke-width="2.5"></circle>
+  <text id="tag-P" text-anchor="middle" dominant-baseline="middle" fill="#7A4D0B" font-size="14" font-weight="700">P</text>
+</svg>
+
+<div style="display:flex; justify-content:center; gap:10px; flex-wrap:wrap; margin-top:0.75rem;">
+  <button type="button" id="toggle-angle" class="toggle-btn active">Angle at P</button>
+  <button type="button" id="toggle-arcs" class="toggle-btn active">Intercepted arcs</button>
+  <button type="button" id="toggle-labels" class="toggle-btn active">Point labels</button>
+</div>
+
+<div style="display:flex; justify-content:center; margin-top:0.85rem;">
+  <span id="status-badge" style="display:inline-block; padding:4px 14px; border-radius:999px; font-size:14px; font-weight:500;"></span>
+</div>
+
+<div id="formula-symbolic" style="text-align:center; font-size:14.5px; font-weight:600; color:#1a1a1a; margin-top:1.1rem;">angle at P = ½ · (far arc − near arc)</div>
+
+<div id="eq-row" style="display:flex; align-items:center; justify-content:center; gap:10px; flex-wrap:wrap; margin-top:0.6rem; font-size:15px; color:#1a1a1a;"></div>
+<div style="text-align:center; font-size:13px; color:#777777; margin-top:0.6rem;">Drag P farther out and the angle shrinks; slide it onto the circle and the two arcs meet — the angle becomes an inscribed angle.</div>
+</div>
+
+<button type="button" id="info-toggle-btn" class="info-toggle">ⓘ About this theorem</button>
+<div id="info-backdrop" class="info-backdrop"></div>
+<aside id="info-drawer" class="info-drawer">
+  <button type="button" id="info-close" class="info-close" aria-label="Close">✕</button>
+  <h3>Intersecting Secants Angle</h3>
+  <p>From a point P outside a circle, draw two secants. The first meets the circle at A (near) and B (far); the second at C (near) and D (far). The two secants cut off two arcs: a far arc BD and a near arc AC. The angle at P is half their difference:</p>
+  <div class="formula-box">∠P = ½ · (arc BD − arc AC)</div>
+  <p>Only the difference matters — slide both secants and as long as the two arcs change together, the angle holds.</p>
+  <h4>One family, three cases</h4>
+  <p>This is the "two arcs" rule for an angle whose vertex is outside the circle. When the vertex is on the circle, the near arc shrinks to zero and you get the inscribed-angle / tangent-chord rule (½ of one arc). When the vertex is inside, the rule becomes half the <i>sum</i> of the two arcs instead.</p>
+  <h4>Secants, tangents, or a mix</h4>
+  <p>The same formula covers two tangents, or a tangent and a secant, from the external point — a tangent is just the limit where a secant's two points merge, so its "arc" is measured to the single point of contact.</p>
+  <h4>Why half the difference</h4>
+  <p>Join one far point to the near points to make a triangle; the inscribed-angle theorem turns the two circle angles into half-arcs, and the triangle's exterior-angle rule subtracts them — leaving half the difference of the arcs at P.</p>
+  <h4>A bit of history</h4>
+  <p>These circle-angle relationships are part of the classical Euclidean theory of the circle (Euclid's <i>Elements</i>, Book III), formalized over two millennia ago.</p>
+</aside>
+</div>
+</div>
+
+<script>
+(function(){
+  var svg=document.getElementById('sc-svg');
+  var center={x:300,y:290}, R=150;
+  var Q1ang=318, Q2ang=222;     // aim points on the circle
+  var P={x:560,y:290};          // external point
+  var showAngle=true, showArcs=true, showLabels=true;
+
+  function sub(p,q){return {x:p.x-q.x,y:p.y-q.y};}
+  function len(v){return Math.hypot(v.x,v.y);}
+  function ptOn(aDeg,radius){var r=aDeg*Math.PI/180; return {x:center.x+(radius||R)*Math.cos(r), y:center.y+(radius||R)*Math.sin(r)};}
+  function angOf(p){return ((Math.atan2(p.y-center.y,p.x-center.x)*180/Math.PI)+360)%360;}
+  function angBetween(u,v){var c=(u.x*v.x+u.y*v.y)/(len(u)*len(v));c=Math.min(1,Math.max(-1,c));return Math.acos(c)*180/Math.PI;}
+  function fmt(n){var r=Math.round(n*10)/10; return (Math.abs(r-Math.round(r))<1e-9)?Math.round(r).toString():r.toFixed(1);}
+  function ptsToStr(arr){return arr.map(function(p){return p.x.toFixed(1)+','+p.y.toFixed(1);}).join(' ');}
+  function arcSamples(aDeg,measureDeg,ccw,radius){
+    var steps=Math.max(2,Math.round(measureDeg/4)), arr=[];
+    for(var i=0;i<=steps;i++){ arr.push(ptOn(aDeg+(ccw?1:-1)*measureDeg*(i/steps),radius)); }
+    return arr;
+  }
+  function arcExcluding(aX,aY,ex){
+    var ccw=((aY-aX)%360+360)%360;
+    var inside=ex.some(function(e){var r=((e-aX)%360+360)%360; return r>0.01 && r<ccw-0.01;});
+    return {measure: inside?360-ccw:ccw, ccw: !inside};
+  }
+  function lineCircle(P0,Q,O,R){
+    var d=sub(Q,P0), f=sub(P0,O);
+    var a=d.x*d.x+d.y*d.y, b=2*(f.x*d.x+f.y*d.y), c=f.x*f.x+f.y*f.y-R*R;
+    var disc=b*b-4*a*c; if(disc<0) return [];
+    disc=Math.sqrt(disc);
+    var t1=(-b-disc)/(2*a), t2=(-b+disc)/(2*a);
+    return [{x:P0.x+t1*d.x,y:P0.y+t1*d.y,t:t1},{x:P0.x+t2*d.x,y:P0.y+t2*d.y,t:t2}];
+  }
+  function wedge(V,dirA,dirB,radius){
+    var diff=((dirB-dirA+540)%360)-180;
+    var steps=Math.max(2,Math.round(Math.abs(diff)/4)), arr=[V];
+    for(var i=0;i<=steps;i++){ var a=(dirA+diff*(i/steps))*Math.PI/180; arr.push({x:V.x+radius*Math.cos(a),y:V.y+radius*Math.sin(a)}); }
+    return {pts:arr, bis:(dirA+diff/2)*Math.PI/180};
+  }
+
+  var mainCircle=document.getElementById('main-circle');
+  var arcFar=document.getElementById('arc-far');
+  var arcNear=document.getElementById('arc-near');
+  var sec1=document.getElementById('secant-1');
+  var sec2=document.getElementById('secant-2');
+  var wedgeP=document.getElementById('wedge-p');
+  var labP=document.getElementById('lab-p');
+  var labFar=document.getElementById('lab-far');
+  var labNear=document.getElementById('lab-near');
+  var dotA=document.getElementById('dot-A');
+  var dotB=document.getElementById('dot-B');
+  var dotC=document.getElementById('dot-C');
+  var dotD=document.getElementById('dot-D');
+  var tagA=document.getElementById('tag-A');
+  var tagB=document.getElementById('tag-B');
+  var tagC=document.getElementById('tag-C');
+  var tagD=document.getElementById('tag-D');
+  var hQ1=document.getElementById('handle-Q1');
+  var hQ2=document.getElementById('handle-Q2');
+  var hP=document.getElementById('handle-P');
+  var tagP=document.getElementById('tag-P');
+  var statusBadge=document.getElementById('status-badge');
+  var eqRow=document.getElementById('eq-row');
+  var toggleAngle=document.getElementById('toggle-angle');
+  var toggleArcs=document.getElementById('toggle-arcs');
+  var toggleLabels=document.getElementById('toggle-labels');
+
+  mainCircle.setAttribute('cx',center.x); mainCircle.setAttribute('cy',center.y); mainCircle.setAttribute('r',R);
+
+  function setLine(el,p,q){ el.setAttribute('x1',p.x); el.setAttribute('y1',p.y); el.setAttribute('x2',q.x); el.setAttribute('y2',q.y); }
+  function disp(el,on){ el.style.display=on?'block':'none'; }
+
+  function update(){
+    hP.setAttribute('cx',P.x); hP.setAttribute('cy',P.y);
+    tagP.setAttribute('x',P.x+(P.x>center.x?16:-16)); tagP.setAttribute('y',P.y-14);
+    var Q1=ptOn(Q1ang), Q2=ptOn(Q2ang);
+    hQ1.setAttribute('cx',Q1.x); hQ1.setAttribute('cy',Q1.y);
+    hQ2.setAttribute('cx',Q2.x); hQ2.setAttribute('cy',Q2.y);
+
+    var outside=len(sub(P,center))>R+1;
+    var s1=lineCircle(P,Q1,center,R), s2=lineCircle(P,Q2,center,R);
+    if(!outside || s1.length<2 || s2.length<2){
+      [arcFar,arcNear,wedgeP,labP,labFar,labNear,dotA,dotB,dotC,dotD,tagA,tagB,tagC,tagD,sec1,sec2].forEach(function(el){el.style.display='none';});
+      statusBadge.textContent='Move P outside the circle (two secants)';
+      statusBadge.style.background='#FAECE7'; statusBadge.style.color='#4A1B0C';
+      eqRow.innerHTML=''; return;
+    }
+    sec1.style.display='block'; sec2.style.display='block';
+    s1.sort(function(a,b){return a.t-b.t;}); s2.sort(function(a,b){return a.t-b.t;});
+    var A=s1[0],B=s1[1],C=s2[0],D=s2[1];   // A,C near; B,D far
+
+    setLine(sec1,P,B); setLine(sec2,P,D);
+
+    dotA.style.display='block'; dotB.style.display='block'; dotC.style.display='block'; dotD.style.display='block';
+    dotA.setAttribute('cx',A.x); dotA.setAttribute('cy',A.y);
+    dotB.setAttribute('cx',B.x); dotB.setAttribute('cy',B.y);
+    dotC.setAttribute('cx',C.x); dotC.setAttribute('cy',C.y);
+    dotD.setAttribute('cx',D.x); dotD.setAttribute('cy',D.y);
+    function tagAt(el,pt){ var d=sub(pt,center),l=len(d)||1; el.setAttribute('x',pt.x+d.x/l*16); el.setAttribute('y',pt.y+d.y/l*16); }
+    tagAt(tagA,A); tagAt(tagB,B); tagAt(tagC,C); tagAt(tagD,D);
+    [tagA,tagB,tagC,tagD].forEach(function(el){ disp(el,showLabels); });
+
+    var aA=angOf(A),aB=angOf(B),aC=angOf(C),aD=angOf(D);
+    var nearArc=arcExcluding(aA,aC,[aB,aD]);
+    var farArc=arcExcluding(aB,aD,[aA,aC]);
+
+    arcNear.setAttribute('points',ptsToStr(arcSamples(aA,nearArc.measure,nearArc.ccw,R)));
+    arcFar.setAttribute('points',ptsToStr(arcSamples(aB,farArc.measure,farArc.ccw,R)));
+    disp(arcFar,showArcs); disp(arcNear,showArcs);
+
+    var midNear=arcSamples(aA,nearArc.measure/1,nearArc.ccw,R+16);
+    // round the arcs once, and derive everything shown from those same numbers
+    var nearR=Math.round(nearArc.measure), farR=Math.round(farArc.measure);
+    var shown=(farR-nearR)/2;   // self-consistent with the displayed arc integers
+    var mN=ptOn(aA+(nearArc.ccw?1:-1)*nearArc.measure/2, R+18);
+    var mF=ptOn(aB+(farArc.ccw?1:-1)*farArc.measure/2, R+18);
+    labNear.setAttribute('x',mN.x); labNear.setAttribute('y',mN.y); labNear.textContent='near '+nearR+'°';
+    labFar.setAttribute('x',mF.x); labFar.setAttribute('y',mF.y); labFar.textContent='far '+farR+'°';
+    disp(labNear,showArcs); disp(labFar,showArcs);
+
+    var angleP=angBetween(sub(B,P),sub(D,P));   // true measured angle (sanity check)
+    var w=wedge(P,Math.atan2(B.y-P.y,B.x-P.x)*180/Math.PI,Math.atan2(D.y-P.y,D.x-P.x)*180/Math.PI,34);
+    wedgeP.setAttribute('points',ptsToStr(w.pts));
+    labP.setAttribute('x',P.x+50*Math.cos(w.bis)); labP.setAttribute('y',P.y+50*Math.sin(w.bis));
+    labP.textContent=fmt(shown)+'°';
+    disp(wedgeP,showAngle); disp(labP,showAngle);
+
+    var mismatch=Math.abs(shown-angleP)>1.0;   // only flags a genuine error, not rounding
+    statusBadge.textContent='External angle = ½ (far − near)';
+    statusBadge.style.background='#FBF3D9'; statusBadge.style.color='#5C4813';
+
+    eqRow.innerHTML =
+      '<span><span class="swatch" style="background:#BA7517"></span>∠P = '+fmt(shown)+'°</span>'+
+      '<b style="color:'+(mismatch?'#e24b4a':'#1d9e75')+';font-size:18px;">=</b>'+
+      '<span>½ · ( <span class="swatch" style="background:#D4537E"></span>'+farR+'° − <span class="swatch" style="background:#378ADD"></span>'+nearR+'° ) = '+fmt(shown)+'°</span>'+
+      (mismatch?'':'<span style="color:#1d9e75;font-weight:700;">&check;</span>');
+  }
+
+  var dragging=null;
+  function toSvgPoint(evt){
+    var rect=svg.getBoundingClientRect();
+    var vb=svg.viewBox.baseVal;
+    return { x:(evt.clientX-rect.left)/rect.width*vb.width+vb.x, y:(evt.clientY-rect.top)/rect.height*vb.height+vb.y };
+  }
+  function onDown(key){
+    return function(e){
+      dragging=key;
+      if(e.target.setPointerCapture){ try{ e.target.setPointerCapture(e.pointerId); }catch(err){} }
+      e.preventDefault();
+    };
+  }
+  function onMove(e){
+    if(!dragging) return;
+    var p=toSvgPoint(e);
+    if(dragging==='P'){
+      p={x:Math.min(660,Math.max(20,p.x)), y:Math.min(540,Math.max(20,p.y))};
+      P=p;
+    } else {
+      var v=sub(p,center); if(len(v)<1e-6) return;
+      var a=((Math.atan2(v.y,v.x)*180/Math.PI)+360)%360;
+      if(dragging==='Q1') Q1ang=a; else Q2ang=a;
+    }
+    update();
+  }
+  function onUp(){ dragging=null; }
+  hP.addEventListener('pointerdown',onDown('P'));
+  hQ1.addEventListener('pointerdown',onDown('Q1'));
+  hQ2.addEventListener('pointerdown',onDown('Q2'));
+  svg.addEventListener('pointermove',onMove);
+  window.addEventListener('pointerup',onUp);
+
+  toggleAngle.addEventListener('click',function(){ showAngle=!showAngle; toggleAngle.classList.toggle('active',showAngle); update(); });
+  toggleArcs.addEventListener('click',function(){ showArcs=!showArcs; toggleArcs.classList.toggle('active',showArcs); update(); });
+  toggleLabels.addEventListener('click',function(){ showLabels=!showLabels; toggleLabels.classList.toggle('active',showLabels); update(); });
+
+  var infoToggle=document.getElementById('info-toggle-btn');
+  var infoDrawer=document.getElementById('info-drawer');
+  var infoBackdrop=document.getElementById('info-backdrop');
+  var infoClose=document.getElementById('info-close');
+  function openDrawer(){ infoDrawer.classList.add('open'); infoBackdrop.classList.add('open'); }
+  function closeDrawer(){ infoDrawer.classList.remove('open'); infoBackdrop.classList.remove('open'); }
+  infoToggle.addEventListener('click',function(){
+    if(infoDrawer.classList.contains('open')) closeDrawer(); else openDrawer();
+  });
+  infoClose.addEventListener('click',closeDrawer);
+  infoBackdrop.addEventListener('click',closeDrawer);
+  document.addEventListener('keydown',function(e){ if(e.key==='Escape') closeDrawer(); });
+
+  update();
+})();
+</script>
+</body>
+</html>

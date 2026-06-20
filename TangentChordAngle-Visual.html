@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>GeoProof — Tangent–Chord Angle explorer</title>
+<style>
+  body{background:#f4f4f5;display:flex;justify-content:center;padding:40px 16px;font-family:sans-serif;}
+  .widget{width:680px;max-width:100%;}
+  .card{background:#ffffff;border:1px solid #e2e2e2;padding:1.25rem;}
+  .sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;}
+  #tc-svg{width:100%;height:auto;display:block;touch-action:none;}
+  .handle{cursor:grab;}
+  .handle:active{cursor:grabbing;}
+  .swatch{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:6px;vertical-align:middle;}
+  .toggle-btn{padding:6px 14px;border-radius:999px;border:1px solid #d8d8d8;background:#f4f4f5;color:#888888;font-size:13px;font-weight:500;cursor:pointer;}
+  .toggle-btn.active{background:#1a1a1a;color:#ffffff;border-color:#1a1a1a;}
+  .stage{position:relative;border-radius:12px;overflow:hidden;border:1px solid #e2e2e2;}
+  .stage .card{border:none;}
+  .info-toggle{position:absolute;top:14px;right:14px;z-index:30;background:#1a1a1a;color:#ffffff;border:none;border-radius:999px;padding:7px 14px;font-size:13px;font-weight:500;cursor:pointer;}
+  .info-toggle:hover{background:#333333;}
+  .info-backdrop{position:absolute;inset:0;background:rgba(0,0,0,0.22);opacity:0;visibility:hidden;transition:opacity .2s ease;z-index:25;}
+  .info-backdrop.open{opacity:1;visibility:visible;}
+  .info-drawer{position:absolute;top:0;right:0;height:100%;width:320px;max-width:88%;background:#ffffff;border-left:1px solid #e2e2e2;box-shadow:-8px 0 24px rgba(0,0,0,0.14);padding:22px 20px;overflow-y:auto;transform:translateX(100%);transition:transform .25s ease;z-index:28;box-sizing:border-box;}
+  .info-drawer.open{transform:translateX(0);}
+  .info-close{position:absolute;top:14px;right:14px;background:#f4f4f5;border:1px solid #e2e2e2;border-radius:50%;width:28px;height:28px;font-size:14px;cursor:pointer;color:#555555;}
+  .info-drawer h3{font-size:17px;margin:6px 0 12px;padding-right:30px;color:#1a1a1a;}
+  .info-drawer h4{font-size:12px;margin:18px 0 6px;color:#666666;text-transform:uppercase;letter-spacing:.04em;}
+  .info-drawer p{font-size:13.5px;line-height:1.55;color:#333333;margin:0 0 10px;}
+  .formula-box{background:#f4f4f5;border-radius:8px;padding:10px 12px;text-align:center;font-size:14px;font-weight:600;margin:10px 0;color:#1a1a1a;}
+</style>
+</head>
+<body>
+<div class="widget">
+<div style="margin-bottom:12px;"><a href="index.html" style="font-size:14px;color:#1a1a1a;text-decoration:none;">&larr; GeoProof</a></div>
+<div class="stage">
+<div class="card">
+<h2 class="sr-only">A circle has a tangent line touching it at point T, and a chord drawn from T to a point B on the circle. The angle between the tangent and the chord is highlighted at T. A third point A sits on the far arc, and the chords AT and AB make an inscribed angle at A subtending the same chord TB. The tangent–chord angle equals that inscribed angle — both equal half the intercepted arc. Drag T, B, or A around the circle to see the two angles stay equal. An info button opens a drawer explaining the theorem.</h2>
+<svg id="tc-svg" viewBox="0 0 680 560" aria-hidden="true">
+  <circle id="main-circle" fill="none" stroke="#c8c8cc" stroke-width="2"></circle>
+  <polyline id="arc-highlight" fill="none" stroke="#BA7517" stroke-width="6" stroke-linecap="round" stroke-opacity="0.55"></polyline>
+  <line id="tangent" stroke="#1a1a1a" stroke-width="2.5" stroke-linecap="round"></line>
+  <line id="chord-tb" stroke="#D4537E" stroke-width="3" stroke-linecap="round"></line>
+  <line id="chord-at" stroke="#378ADD" stroke-width="3" stroke-linecap="round"></line>
+  <line id="chord-ab" stroke="#378ADD" stroke-width="3" stroke-linecap="round"></line>
+  <polygon id="wedge-tc" fill="#BA7517" fill-opacity="0.25" stroke="#BA7517" stroke-width="1" stroke-opacity="0.6"></polygon>
+  <polygon id="wedge-in" fill="#378ADD" fill-opacity="0.25" stroke="#378ADD" stroke-width="1" stroke-opacity="0.6"></polygon>
+  <text id="lab-tc" text-anchor="middle" dominant-baseline="middle" fill="#7A4D0B" font-size="13" font-weight="600"></text>
+  <text id="lab-in" text-anchor="middle" dominant-baseline="middle" fill="#185FA5" font-size="13" font-weight="600"></text>
+  <text id="tag-T" text-anchor="middle" dominant-baseline="middle" fill="#993556" font-size="14" font-weight="700">T</text>
+  <text id="tag-B" text-anchor="middle" dominant-baseline="middle" fill="#993556" font-size="14" font-weight="700">B</text>
+  <text id="tag-A" text-anchor="middle" dominant-baseline="middle" fill="#185FA5" font-size="14" font-weight="700">A</text>
+  <circle id="dot-O" r="3" fill="#bbbbbb"></circle>
+  <circle id="handle-T" class="handle" r="11" fill="#ffffff" stroke="#993556" stroke-width="2.5"></circle>
+  <circle id="handle-B" class="handle" r="11" fill="#ffffff" stroke="#993556" stroke-width="2.5"></circle>
+  <circle id="handle-A" class="handle" r="11" fill="#ffffff" stroke="#378ADD" stroke-width="2.5"></circle>
+</svg>
+
+<div style="display:flex; justify-content:center; gap:10px; flex-wrap:wrap; margin-top:0.75rem;">
+  <button type="button" id="toggle-tc" class="toggle-btn active">Tangent–chord angle</button>
+  <button type="button" id="toggle-in" class="toggle-btn active">Inscribed angle</button>
+  <button type="button" id="toggle-arc" class="toggle-btn active">Intercepted arc</button>
+</div>
+
+<div style="display:flex; justify-content:center; margin-top:0.85rem;">
+  <span id="status-badge" style="display:inline-block; padding:4px 14px; border-radius:999px; font-size:14px; font-weight:500;"></span>
+</div>
+
+<div id="formula-symbolic" style="text-align:center; font-size:14.5px; font-weight:600; color:#1a1a1a; margin-top:1.1rem;">tangent–chord angle = inscribed angle = ½ × arc TB</div>
+
+<div id="eq-row" style="display:flex; align-items:center; justify-content:center; gap:10px; flex-wrap:wrap; margin-top:0.6rem; font-size:15px; color:#1a1a1a;"></div>
+<div style="text-align:center; font-size:13px; color:#777777; margin-top:0.6rem;">Drag A around its arc — the inscribed angle stays equal to the tangent–chord angle. Cross A to the other arc and both become the supplementary pair.</div>
+</div>
+
+<button type="button" id="info-toggle-btn" class="info-toggle">ⓘ About this theorem</button>
+<div id="info-backdrop" class="info-backdrop"></div>
+<aside id="info-drawer" class="info-drawer">
+  <button type="button" id="info-close" class="info-close" aria-label="Close">✕</button>
+  <h3>The Tangent–Chord Angle</h3>
+  <p>Draw a tangent to a circle at a point T, and a chord TB from the point of tangency. The angle between the tangent and the chord equals the inscribed angle that the same chord TB subtends from the opposite arc:</p>
+  <div class="formula-box">∠(tangent, TB) = ∠TAB</div>
+  <p>This is often called the <i>alternate segment theorem</i>: the tangent–chord angle equals any inscribed angle in the alternate segment of the circle.</p>
+  <h4>Both equal half the arc</h4>
+  <p>Each of these angles is exactly half the arc TB it cuts off. That is why they match — and why the inscribed angle stays constant as you slide A along its arc, just like in the inscribed-angle theorem.</p>
+  <h4>Why the tangent gives half the arc</h4>
+  <p>Think of the inscribed angle from a point that slides all the way up to T itself: in the limit, the chord to that point becomes the tangent line. So the tangent direction behaves like "the chord from T to T," and the angle it makes with TB is still half the arc.</p>
+  <h4>The two angles at T</h4>
+  <p>The tangent line has two sides, giving two tangent–chord angles that add up to 180°. Each one equals the inscribed angle in its own alternate segment. Drag A across the chord to the other arc and watch which angle it matches.</p>
+  <h4>A bit of history</h4>
+  <p>It appears in Euclid's <i>Elements</i>, Book III, Proposition 32 (c. 300 BCE), as part of the classical theory of circles and tangents.</p>
+</aside>
+</div>
+</div>
+
+<script>
+(function(){
+  var svg=document.getElementById('tc-svg');
+  var center={x:340,y:290}, R=180;
+  var ang={T:202,B:340,A:90};
+  var showTC=true, showIn=true, showArc=true;
+
+  function sub(p,q){return {x:p.x-q.x,y:p.y-q.y};}
+  function len(v){return Math.hypot(v.x,v.y);}
+  function ptOn(aDeg,radius){var r=aDeg*Math.PI/180; return {x:center.x+(radius||R)*Math.cos(r), y:center.y+(radius||R)*Math.sin(r)};}
+  function angleOf(p){return ((Math.atan2(p.y-center.y,p.x-center.x)*180/Math.PI)+360)%360;}
+  function angBetween(u,v){var c=(u.x*v.x+u.y*v.y)/(len(u)*len(v));c=Math.min(1,Math.max(-1,c));return Math.acos(c)*180/Math.PI;}
+  function ptsToStr(arr){return arr.map(function(p){return p.x.toFixed(1)+','+p.y.toFixed(1);}).join(' ');}
+  function arcSamples(aDeg,measureDeg,ccw,radius){
+    var steps=Math.max(2,Math.round(measureDeg/4)), arr=[];
+    for(var i=0;i<=steps;i++){ arr.push(ptOn(aDeg+(ccw?1:-1)*measureDeg*(i/steps),radius)); }
+    return arr;
+  }
+  function wedge(P,dirA,dirB,radius){
+    // wedge at P sweeping the short way from dirA to dirB (angles in degrees)
+    var diff=((dirB-dirA+540)%360)-180;
+    var steps=Math.max(2,Math.round(Math.abs(diff)/4));
+    var arr=[P];
+    for(var i=0;i<=steps;i++){ var a=(dirA+diff*(i/steps))*Math.PI/180; arr.push({x:P.x+radius*Math.cos(a),y:P.y+radius*Math.sin(a)}); }
+    return {pts:arr, bis:(dirA+diff/2)*Math.PI/180, mag:Math.abs(diff)};
+  }
+
+  var mainCircle=document.getElementById('main-circle');
+  var arcHi=document.getElementById('arc-highlight');
+  var tangent=document.getElementById('tangent');
+  var chordTB=document.getElementById('chord-tb');
+  var chordAT=document.getElementById('chord-at');
+  var chordAB=document.getElementById('chord-ab');
+  var wedgeTC=document.getElementById('wedge-tc');
+  var wedgeIN=document.getElementById('wedge-in');
+  var labTC=document.getElementById('lab-tc');
+  var labIN=document.getElementById('lab-in');
+  var tagT=document.getElementById('tag-T');
+  var tagB=document.getElementById('tag-B');
+  var tagA=document.getElementById('tag-A');
+  var dotO=document.getElementById('dot-O');
+  var hT=document.getElementById('handle-T');
+  var hB=document.getElementById('handle-B');
+  var hA=document.getElementById('handle-A');
+  var statusBadge=document.getElementById('status-badge');
+  var eqRow=document.getElementById('eq-row');
+  var toggleTC=document.getElementById('toggle-tc');
+  var toggleIN=document.getElementById('toggle-in');
+  var toggleArc=document.getElementById('toggle-arc');
+
+  mainCircle.setAttribute('cx',center.x); mainCircle.setAttribute('cy',center.y); mainCircle.setAttribute('r',R);
+  dotO.setAttribute('cx',center.x); dotO.setAttribute('cy',center.y);
+
+  function setLine(el,p,q){ el.setAttribute('x1',p.x); el.setAttribute('y1',p.y); el.setAttribute('x2',q.x); el.setAttribute('y2',q.y); }
+  function disp(el,on){ el.style.display=on?'block':'none'; }
+
+  function update(){
+    var T=ptOn(ang.T), B=ptOn(ang.B), A=ptOn(ang.A);
+    hT.setAttribute('cx',T.x); hT.setAttribute('cy',T.y);
+    hB.setAttribute('cx',B.x); hB.setAttribute('cy',B.y);
+    hA.setAttribute('cx',A.x); hA.setAttribute('cy',A.y);
+    var oT=ptOn(ang.T,R+20),oB=ptOn(ang.B,R+20),oA=ptOn(ang.A,R+20);
+    tagT.setAttribute('x',oT.x); tagT.setAttribute('y',oT.y);
+    tagB.setAttribute('x',oB.x); tagB.setAttribute('y',oB.y);
+    tagA.setAttribute('x',oA.x); tagA.setAttribute('y',oA.y);
+
+    // tangent line at T (perpendicular to OT)
+    var ot=sub(T,center), otl=len(ot)||1; var u={x:ot.x/otl,y:ot.y/otl};
+    var tdir={x:-u.y,y:u.x};
+    var tA={x:T.x-tdir.x*150,y:T.y-tdir.y*150}, tB2={x:T.x+tdir.x*150,y:T.y+tdir.y*150};
+    setLine(tangent,tA,tB2);
+
+    setLine(chordTB,T,B);
+    setLine(chordAT,A,T);
+    setLine(chordAB,A,B);
+
+    // inscribed angle at A subtending TB
+    var inscribed=angBetween(sub(T,A),sub(B,A));
+
+    // arc TB NOT containing A (the intercepted arc), as central measure
+    var a=ang.T, b=ang.B, p=ang.A;
+    var arcCCW=((b-a)%360+360)%360, pRel=((p-a)%360+360)%360;
+    var pInCCW=pRel>1e-9&&pRel<arcCCW-1e-9;
+    var ccw=!pInCCW, arcMeasure=pInCCW?(360-arcCCW):arcCCW;
+
+    // highlight intercepted arc
+    arcHi.setAttribute('points',ptsToStr(arcSamples(a,arcMeasure,ccw,R)));
+    disp(arcHi,showArc);
+
+    // tangent-chord angle: pick the tangent ray whose angle with chord TB equals 'inscribed'
+    var chordDir=Math.atan2(B.y-T.y,B.x-T.x)*180/Math.PI;
+    var d1=Math.atan2(tdir.y,tdir.x)*180/Math.PI, d2=d1+180;
+    var w1=wedge(T,chordDir,d1,30), w2=wedge(T,chordDir,d2,30);
+    var pick=(Math.abs(w1.mag-inscribed)<=Math.abs(w2.mag-inscribed))?w1:w2;
+
+    wedgeTC.setAttribute('points',ptsToStr(pick.pts));
+    var tcMag=pick.mag;
+    labTC.setAttribute('x',T.x+44*Math.cos(pick.bis)); labTC.setAttribute('y',T.y+44*Math.sin(pick.bis));
+    labTC.textContent=Math.round(tcMag)+'°';
+    disp(wedgeTC,showTC); disp(labTC,showTC);
+
+    // inscribed wedge at A
+    var wIn=wedge(A,Math.atan2(T.y-A.y,T.x-A.x)*180/Math.PI,Math.atan2(B.y-A.y,B.x-A.x)*180/Math.PI,28);
+    wedgeIN.setAttribute('points',ptsToStr(wIn.pts));
+    labIN.setAttribute('x',A.x+42*Math.cos(wIn.bis)); labIN.setAttribute('y',A.y+42*Math.sin(wIn.bis));
+    labIN.textContent=Math.round(inscribed)+'°';
+    disp(wedgeIN,showIn); disp(labIN,showIn);
+
+    var mismatch=Math.abs(tcMag-inscribed)>1.2;
+    statusBadge.textContent=mismatch?'Move the points apart':'Alternate segment: angles match';
+    statusBadge.style.background='#FBF3D9'; statusBadge.style.color='#5C4813';
+
+    eqRow.innerHTML =
+      '<span><span class="swatch" style="background:#BA7517"></span>tangent–chord = '+Math.round(tcMag)+'°</span>'+
+      '<b style="color:'+(mismatch?'#e24b4a':'#1d9e75')+';font-size:18px;">=</b>'+
+      '<span><span class="swatch" style="background:#378ADD"></span>inscribed ∠TAB = '+Math.round(inscribed)+'°</span>'+
+      '<span style="color:#888;">=</span>'+
+      '<span>½ · arc TB ('+Math.round(arcMeasure)+'°)</span>'+
+      (mismatch?'':'<span style="color:#1d9e75;font-weight:700;">&check;</span>');
+  }
+
+  var dragging=null;
+  function toSvgPoint(evt){
+    var rect=svg.getBoundingClientRect();
+    var vb=svg.viewBox.baseVal;
+    return { x:(evt.clientX-rect.left)/rect.width*vb.width+vb.x, y:(evt.clientY-rect.top)/rect.height*vb.height+vb.y };
+  }
+  function onDown(key){
+    return function(e){
+      dragging=key;
+      if(e.target.setPointerCapture){ try{ e.target.setPointerCapture(e.pointerId); }catch(err){} }
+      e.preventDefault();
+    };
+  }
+  function onMove(e){
+    if(!dragging) return;
+    var p=toSvgPoint(e), v=sub(p,center);
+    if(len(v)<1e-6) return;
+    ang[dragging]=((Math.atan2(v.y,v.x)*180/Math.PI)+360)%360;
+    update();
+  }
+  function onUp(){ dragging=null; }
+  hT.addEventListener('pointerdown',onDown('T'));
+  hB.addEventListener('pointerdown',onDown('B'));
+  hA.addEventListener('pointerdown',onDown('A'));
+  svg.addEventListener('pointermove',onMove);
+  window.addEventListener('pointerup',onUp);
+
+  toggleTC.addEventListener('click',function(){ showTC=!showTC; toggleTC.classList.toggle('active',showTC); update(); });
+  toggleIN.addEventListener('click',function(){ showIn=!showIn; toggleIN.classList.toggle('active',showIn); update(); });
+  toggleArc.addEventListener('click',function(){ showArc=!showArc; toggleArc.classList.toggle('active',showArc); update(); });
+
+  var infoToggle=document.getElementById('info-toggle-btn');
+  var infoDrawer=document.getElementById('info-drawer');
+  var infoBackdrop=document.getElementById('info-backdrop');
+  var infoClose=document.getElementById('info-close');
+  function openDrawer(){ infoDrawer.classList.add('open'); infoBackdrop.classList.add('open'); }
+  function closeDrawer(){ infoDrawer.classList.remove('open'); infoBackdrop.classList.remove('open'); }
+  infoToggle.addEventListener('click',function(){
+    if(infoDrawer.classList.contains('open')) closeDrawer(); else openDrawer();
+  });
+  infoClose.addEventListener('click',closeDrawer);
+  infoBackdrop.addEventListener('click',closeDrawer);
+  document.addEventListener('keydown',function(e){ if(e.key==='Escape') closeDrawer(); });
+
+  update();
+})();
+</script>
+</body>
+</html>

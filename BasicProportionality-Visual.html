@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>GeoProof — Basic Proportionality (Side-Splitter) explorer</title>
+<style>
+  body{background:#f4f4f5;display:flex;justify-content:center;padding:40px 16px;font-family:sans-serif;}
+  .widget{width:680px;max-width:100%;}
+  .card{background:#ffffff;border:1px solid #e2e2e2;padding:1.25rem;}
+  .sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;}
+  #bp-svg{width:100%;height:auto;display:block;touch-action:none;}
+  .handle{cursor:grab;}
+  .handle:active{cursor:grabbing;}
+  .swatch{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:6px;vertical-align:middle;}
+  .toggle-btn{padding:6px 14px;border-radius:999px;border:1px solid #d8d8d8;background:#f4f4f5;color:#888888;font-size:13px;font-weight:500;cursor:pointer;}
+  .toggle-btn.active{background:#1a1a1a;color:#ffffff;border-color:#1a1a1a;}
+  .stage{position:relative;border-radius:12px;overflow:hidden;border:1px solid #e2e2e2;}
+  .stage .card{border:none;}
+  .info-toggle{position:absolute;top:14px;right:14px;z-index:30;background:#1a1a1a;color:#ffffff;border:none;border-radius:999px;padding:7px 14px;font-size:13px;font-weight:500;cursor:pointer;}
+  .info-toggle:hover{background:#333333;}
+  .info-backdrop{position:absolute;inset:0;background:rgba(0,0,0,0.22);opacity:0;visibility:hidden;transition:opacity .2s ease;z-index:25;}
+  .info-backdrop.open{opacity:1;visibility:visible;}
+  .info-drawer{position:absolute;top:0;right:0;height:100%;width:320px;max-width:88%;background:#ffffff;border-left:1px solid #e2e2e2;box-shadow:-8px 0 24px rgba(0,0,0,0.14);padding:22px 20px;overflow-y:auto;transform:translateX(100%);transition:transform .25s ease;z-index:28;box-sizing:border-box;}
+  .info-drawer.open{transform:translateX(0);}
+  .info-close{position:absolute;top:14px;right:14px;background:#f4f4f5;border:1px solid #e2e2e2;border-radius:50%;width:28px;height:28px;font-size:14px;cursor:pointer;color:#555555;}
+  .info-drawer h3{font-size:17px;margin:6px 0 12px;padding-right:30px;color:#1a1a1a;}
+  .info-drawer h4{font-size:12px;margin:18px 0 6px;color:#666666;text-transform:uppercase;letter-spacing:.04em;}
+  .info-drawer p{font-size:13.5px;line-height:1.55;color:#333333;margin:0 0 10px;}
+  .formula-box{background:#f4f4f5;border-radius:8px;padding:10px 12px;text-align:center;font-size:13.5px;font-weight:600;margin:10px 0;color:#1a1a1a;}
+</style>
+</head>
+<body>
+<div class="widget">
+<div style="margin-bottom:12px;"><a href="index.html" style="font-size:14px;color:#1a1a1a;text-decoration:none;">&larr; GeoProof</a></div>
+<div class="stage">
+<div class="card">
+<h2 class="sr-only">A triangle ABC has a line DE drawn parallel to its base BC, cutting side AB at D and side AC at E. Drag the round handle up or down to slide the parallel line, or drag any triangle vertex. Because DE is parallel to BC, it splits the two sides in equal ratios: AD over DB equals AE over EC. The cut-off segment DE is also the same fraction of BC as AD is of AB. The segment lengths and the equal ratios are shown live on the figure and below it. An info button opens a drawer explaining the theorem.</h2>
+<svg id="bp-svg" viewBox="0 0 680 560" aria-hidden="true">
+  <polygon id="tri-poly" fill="#1a1a1a" fill-opacity="0.03" stroke="#1a1a1a" stroke-width="2.5"></polygon>
+  <polygon id="top-tri" fill="#8B5FBF" fill-opacity="0.10" stroke="none"></polygon>
+  <line id="seg-de" stroke="#8B5FBF" stroke-width="3.5" stroke-linecap="round"></line>
+  <line id="side-ab-upper" stroke="#378ADD" stroke-width="4" stroke-linecap="round"></line>
+  <line id="side-ab-lower" stroke="#185FA5" stroke-width="4" stroke-linecap="round"></line>
+  <line id="side-ac-upper" stroke="#639922" stroke-width="4" stroke-linecap="round"></line>
+  <line id="side-ac-lower" stroke="#3B6D11" stroke-width="4" stroke-linecap="round"></line>
+  <g id="par-marks"></g>
+  <text id="lab-ad" text-anchor="middle" dominant-baseline="middle" fill="#185FA5" font-size="12.5" font-weight="600"></text>
+  <text id="lab-db" text-anchor="middle" dominant-baseline="middle" fill="#185FA5" font-size="12.5" font-weight="600"></text>
+  <text id="lab-ae" text-anchor="middle" dominant-baseline="middle" fill="#3B6D11" font-size="12.5" font-weight="600"></text>
+  <text id="lab-ec" text-anchor="middle" dominant-baseline="middle" fill="#3B6D11" font-size="12.5" font-weight="600"></text>
+  <text id="tag-A" text-anchor="middle" dominant-baseline="middle" fill="#1a1a1a" font-size="14" font-weight="700">A</text>
+  <text id="tag-B" text-anchor="middle" dominant-baseline="middle" fill="#1a1a1a" font-size="14" font-weight="700">B</text>
+  <text id="tag-C" text-anchor="middle" dominant-baseline="middle" fill="#1a1a1a" font-size="14" font-weight="700">C</text>
+  <text id="tag-D" text-anchor="middle" dominant-baseline="middle" fill="#5B3886" font-size="13" font-weight="700">D</text>
+  <text id="tag-E" text-anchor="middle" dominant-baseline="middle" fill="#5B3886" font-size="13" font-weight="700">E</text>
+  <circle id="dot-D" r="4.5" fill="#5B3886"></circle>
+  <circle id="dot-E" r="4.5" fill="#5B3886"></circle>
+  <circle id="handle-A" class="handle" r="12" fill="#ffffff" stroke="#1a1a1a" stroke-width="2"></circle>
+  <circle id="handle-B" class="handle" r="12" fill="#ffffff" stroke="#1a1a1a" stroke-width="2"></circle>
+  <circle id="handle-C" class="handle" r="12" fill="#ffffff" stroke="#1a1a1a" stroke-width="2"></circle>
+  <circle id="handle-slider" class="handle" r="11" fill="#ffffff" stroke="#8B5FBF" stroke-width="3"></circle>
+</svg>
+
+<div style="display:flex; justify-content:center; gap:10px; flex-wrap:wrap; margin-top:0.75rem;">
+  <button type="button" id="toggle-top" class="toggle-btn active">Similar top triangle</button>
+  <button type="button" id="toggle-labels" class="toggle-btn active">Segment labels</button>
+</div>
+
+<div style="display:flex; justify-content:center; margin-top:0.85rem;">
+  <span id="status-badge" style="display:inline-block; padding:4px 14px; border-radius:999px; font-size:14px; font-weight:500;"></span>
+</div>
+
+<div id="formula-symbolic" style="text-align:center; font-size:14.5px; font-weight:600; color:#1a1a1a; margin-top:1.1rem;">DE ∥ BC  ⟹  AD / DB = AE / EC</div>
+
+<div id="ratio-row" style="display:flex; align-items:center; justify-content:center; gap:14px; flex-wrap:wrap; margin-top:0.6rem; font-size:15px; color:#1a1a1a;"></div>
+<div id="detail-row" style="text-align:center; font-size:12.5px; color:#777777; margin-top:0.55rem;"></div>
+<div style="text-align:center; font-size:13px; color:#777777; margin-top:0.55rem;">Slide the purple handle to move the parallel line. The two ratios stay equal at every height.</div>
+</div>
+
+<button type="button" id="info-toggle-btn" class="info-toggle">ⓘ About this theorem</button>
+<div id="info-backdrop" class="info-backdrop"></div>
+<aside id="info-drawer" class="info-drawer">
+  <button type="button" id="info-close" class="info-close" aria-label="Close">✕</button>
+  <h3>Basic Proportionality Theorem</h3>
+  <p>Also called the <i>side-splitter theorem</i> or Thales' intercept theorem. If a line is drawn parallel to one side of a triangle and cuts the other two sides, it divides those two sides in the same ratio:</p>
+  <div class="formula-box">DE ∥ BC ⟹ AD / DB = AE / EC</div>
+  <p>Equivalently, each small piece is the same fraction of its whole side, and the cut-off segment DE is that same fraction of BC: DE / BC = AD / AB = AE / AC.</p>
+  <h4>Why it works: similar triangles</h4>
+  <p>Because DE ∥ BC, triangle ADE has the same angles as triangle ABC, so the two triangles are similar. Similar triangles have all their corresponding sides in one common ratio — and that shared ratio is exactly AD/AB, which forces the side splits to match.</p>
+  <h4>The converse is also true</h4>
+  <p>If a line cuts two sides of a triangle in equal ratios, then it must be parallel to the third side. So the equal-ratio condition and parallelism are equivalent — a handy way to prove lines parallel.</p>
+  <h4>Where it's used</h4>
+  <p>It is the foundation of similar-triangle geometry and scale drawings, and it justifies constructions that divide a segment into equal parts. The angle bisector theorem is a close cousin.</p>
+  <h4>A bit of history</h4>
+  <p>Tradition credits Thales of Miletus (c. 624–546 BCE) with using proportional intercepts to measure the height of the Great Pyramid from its shadow — an early, practical use of this idea.</p>
+</aside>
+</div>
+</div>
+
+<script>
+(function(){
+  var svg=document.getElementById('bp-svg');
+  var pts={ A:{x:340,y:96}, B:{x:150,y:450}, C:{x:540,y:450} };
+  var t=0.45;
+  var minX=24,maxX=656,minY=24,maxY=536;
+  var UNIT=30;
+  var showTop=true, showLabels=true;
+
+  function sub(p,q){return {x:p.x-q.x,y:p.y-q.y};}
+  function add(p,q){return {x:p.x+q.x,y:p.y+q.y};}
+  function len(v){return Math.hypot(v.x,v.y);}
+  function lerp(P,Q,s){return {x:P.x+(Q.x-P.x)*s,y:P.y+(Q.y-P.y)*s};}
+  function mid(p,q){return {x:(p.x+q.x)/2,y:(p.y+q.y)/2};}
+  function fmt(n){ var r=Math.round(n*100)/100; return (Math.abs(r-Math.round(r))<1e-9)?Math.round(r).toString():r.toFixed(2); }
+  function fmt1(n){ var r=Math.round(n*10)/10; return (Math.abs(r-Math.round(r))<1e-9)?Math.round(r).toString():r.toFixed(1); }
+  function svgEl(tag,attrs){ var el=document.createElementNS('http://www.w3.org/2000/svg',tag); for(var k in attrs){el.setAttribute(k,attrs[k]);} return el; }
+  function clearKids(el){ while(el.firstChild) el.removeChild(el.firstChild); }
+
+  var triPoly=document.getElementById('tri-poly');
+  var topTri=document.getElementById('top-tri');
+  var segDE=document.getElementById('seg-de');
+  var abU=document.getElementById('side-ab-upper');
+  var abL=document.getElementById('side-ab-lower');
+  var acU=document.getElementById('side-ac-upper');
+  var acL=document.getElementById('side-ac-lower');
+  var parMarks=document.getElementById('par-marks');
+  var labAD=document.getElementById('lab-ad');
+  var labDB=document.getElementById('lab-db');
+  var labAE=document.getElementById('lab-ae');
+  var labEC=document.getElementById('lab-ec');
+  var tagA=document.getElementById('tag-A');
+  var tagB=document.getElementById('tag-B');
+  var tagC=document.getElementById('tag-C');
+  var tagD=document.getElementById('tag-D');
+  var tagE=document.getElementById('tag-E');
+  var dotD=document.getElementById('dot-D');
+  var dotE=document.getElementById('dot-E');
+  var hA=document.getElementById('handle-A');
+  var hB=document.getElementById('handle-B');
+  var hC=document.getElementById('handle-C');
+  var hSlider=document.getElementById('handle-slider');
+  var statusBadge=document.getElementById('status-badge');
+  var ratioRow=document.getElementById('ratio-row');
+  var detailRow=document.getElementById('detail-row');
+  var toggleTop=document.getElementById('toggle-top');
+  var toggleLabels=document.getElementById('toggle-labels');
+
+  function setLine(el,p,q){ el.setAttribute('x1',p.x); el.setAttribute('y1',p.y); el.setAttribute('x2',q.x); el.setAttribute('y2',q.y); }
+  function disp(el,on){ el.style.display=on?'block':'none'; }
+
+  function parMark(P,Q,dir){
+    // a small double-slash mark at the midpoint of segment PQ to denote parallelism
+    var m=mid(P,Q), d=sub(Q,P), l=len(d)||1; var u={x:d.x/l,y:d.y/l}; var perp={x:-u.y,y:u.x};
+    for(var k=-1;k<=1;k+=2){
+      var c={x:m.x+u.x*k*4, y:m.y+u.y*k*4};
+      parMarks.appendChild(svgEl('line',{x1:c.x-perp.x*5-u.x*3, y1:c.y-perp.y*5-u.y*3, x2:c.x+perp.x*5+u.x*3, y2:c.y+perp.y*5+u.y*3, stroke:'#8B5FBF','stroke-width':2,'stroke-linecap':'round'}));
+    }
+  }
+
+  function update(){
+    var A=pts.A,B=pts.B,C=pts.C;
+    hA.setAttribute('cx',A.x); hA.setAttribute('cy',A.y);
+    hB.setAttribute('cx',B.x); hB.setAttribute('cy',B.y);
+    hC.setAttribute('cx',C.x); hC.setAttribute('cy',C.y);
+    triPoly.setAttribute('points', A.x+','+A.y+' '+B.x+','+B.y+' '+C.x+','+C.y);
+
+    var D=lerp(A,B,t), E=lerp(A,C,t);
+
+    // similar top triangle ADE
+    topTri.setAttribute('points', A.x+','+A.y+' '+D.x+','+D.y+' '+E.x+','+E.y);
+    disp(topTri,showTop);
+
+    // colored side halves
+    setLine(abU,A,D); setLine(abL,D,B);
+    setLine(acU,A,E); setLine(acL,E,C);
+    setLine(segDE,D,E);
+
+    dotD.setAttribute('cx',D.x); dotD.setAttribute('cy',D.y);
+    dotE.setAttribute('cx',E.x); dotE.setAttribute('cy',E.y);
+
+    // slider handle sits at the midpoint of DE (moves along A -> midpoint(B,C))
+    var mDE=mid(D,E);
+    hSlider.setAttribute('cx',mDE.x); hSlider.setAttribute('cy',mDE.y);
+
+    // parallel marks on DE and BC
+    clearKids(parMarks);
+    parMark(D,E); parMark(B,C);
+
+    // tags
+    var cen={x:(A.x+B.x+C.x)/3,y:(A.y+B.y+C.y)/3};
+    function tagAt(el,P,off){ var d=sub(P,cen),l=len(d)||1; el.setAttribute('x',P.x+d.x/l*(off||22)); el.setAttribute('y',P.y+d.y/l*(off||22)); }
+    tagAt(tagA,A,22); tagAt(tagB,B,22); tagAt(tagC,C,22);
+    tagD.setAttribute('x',D.x-16); tagD.setAttribute('y',D.y);
+    tagE.setAttribute('x',E.x+16); tagE.setAttribute('y',E.y);
+
+    // segment length labels, offset outward from the triangle
+    var AD=len(sub(D,A))/UNIT, DB=len(sub(B,D))/UNIT, AE=len(sub(E,A))/UNIT, EC=len(sub(C,E))/UNIT;
+    function segLbl(el,P,Q,val,side){
+      var m=mid(P,Q), d=sub(Q,P), l=len(d)||1, perp={x:-d.y/l,y:d.x/l};
+      // push to the outer side (away from centroid)
+      var toC=sub(cen,m); if(perp.x*toC.x+perp.y*toC.y>0){ perp.x=-perp.x; perp.y=-perp.y; }
+      el.setAttribute('x',m.x+perp.x*14); el.setAttribute('y',m.y+perp.y*14); el.textContent=fmt1(val);
+    }
+    segLbl(labAD,A,D,AD); segLbl(labDB,D,B,DB); segLbl(labAE,A,E,AE); segLbl(labEC,E,C,EC);
+    disp(labAD,showLabels); disp(labDB,showLabels); disp(labAE,showLabels); disp(labEC,showLabels);
+
+    var r1=AD/DB, r2=AE/EC;
+    var deRatio=len(sub(E,D))/len(sub(C,B));
+    statusBadge.textContent='DE ∥ BC — sides split in equal ratios';
+    statusBadge.style.background='#EDE6F6'; statusBadge.style.color='#3F2A5C';
+
+    var ok=Math.abs(r1-r2)<0.02*Math.max(1,r1);
+    ratioRow.innerHTML =
+      '<span><span class="swatch" style="background:#378ADD"></span>AD/DB = '+fmt1(AD)+'/'+fmt1(DB)+' = '+fmt(r1)+'</span>'+
+      '<b style="color:'+(ok?'#1d9e75':'#e24b4a')+';font-size:18px;">=</b>'+
+      '<span><span class="swatch" style="background:#639922"></span>AE/EC = '+fmt1(AE)+'/'+fmt1(EC)+' = '+fmt(r2)+'</span>'+
+      (ok?'<span style="color:#1d9e75;font-weight:700;">&check;</span>':'');
+
+    detailRow.innerHTML='DE / BC = '+fmt(deRatio)+'  =  AD / AB = '+fmt(t)+'   (triangle ADE ~ triangle ABC at scale '+fmt(t)+')';
+  }
+
+  var dragging=null;
+  function toSvgPoint(evt){
+    var rect=svg.getBoundingClientRect();
+    var vb=svg.viewBox.baseVal;
+    return { x:(evt.clientX-rect.left)/rect.width*vb.width+vb.x, y:(evt.clientY-rect.top)/rect.height*vb.height+vb.y };
+  }
+  function onDown(key){
+    return function(e){
+      dragging=key;
+      if(e.target.setPointerCapture){ try{ e.target.setPointerCapture(e.pointerId); }catch(err){} }
+      e.preventDefault();
+    };
+  }
+  function onMove(e){
+    if(!dragging) return;
+    var p=toSvgPoint(e);
+    if(dragging==='slider'){
+      // project pointer onto A -> midpoint(B,C); t = fraction along
+      var M=mid(pts.B,pts.C), AM=sub(M,pts.A), l2=AM.x*AM.x+AM.y*AM.y||1;
+      var tt=((p.x-pts.A.x)*AM.x+(p.y-pts.A.y)*AM.y)/l2;
+      t=Math.min(0.92,Math.max(0.08,tt));
+    } else {
+      pts[dragging]={x:Math.min(maxX,Math.max(minX,p.x)), y:Math.min(maxY,Math.max(minY,p.y))};
+    }
+    update();
+  }
+  function onUp(){ dragging=null; }
+  hA.addEventListener('pointerdown',onDown('A'));
+  hB.addEventListener('pointerdown',onDown('B'));
+  hC.addEventListener('pointerdown',onDown('C'));
+  hSlider.addEventListener('pointerdown',onDown('slider'));
+  svg.addEventListener('pointermove',onMove);
+  window.addEventListener('pointerup',onUp);
+
+  toggleTop.addEventListener('click',function(){ showTop=!showTop; toggleTop.classList.toggle('active',showTop); update(); });
+  toggleLabels.addEventListener('click',function(){ showLabels=!showLabels; toggleLabels.classList.toggle('active',showLabels); update(); });
+
+  var infoToggle=document.getElementById('info-toggle-btn');
+  var infoDrawer=document.getElementById('info-drawer');
+  var infoBackdrop=document.getElementById('info-backdrop');
+  var infoClose=document.getElementById('info-close');
+  function openDrawer(){ infoDrawer.classList.add('open'); infoBackdrop.classList.add('open'); }
+  function closeDrawer(){ infoDrawer.classList.remove('open'); infoBackdrop.classList.remove('open'); }
+  infoToggle.addEventListener('click',function(){
+    if(infoDrawer.classList.contains('open')) closeDrawer(); else openDrawer();
+  });
+  infoClose.addEventListener('click',closeDrawer);
+  infoBackdrop.addEventListener('click',closeDrawer);
+  document.addEventListener('keydown',function(e){ if(e.key==='Escape') closeDrawer(); });
+
+  update();
+})();
+</script>
+</body>
+</html>

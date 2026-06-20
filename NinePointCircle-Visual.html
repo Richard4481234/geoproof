@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>GeoProof — Nine-Point Circle explorer</title>
+<style>
+  body{background:#f4f4f5;display:flex;justify-content:center;padding:40px 16px;font-family:sans-serif;}
+  .widget{width:680px;max-width:100%;}
+  .card{background:#ffffff;border:1px solid #e2e2e2;padding:1.25rem;}
+  .sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;}
+  #np-svg{width:100%;height:auto;display:block;touch-action:none;}
+  .handle{cursor:grab;}
+  .handle:active{cursor:grabbing;}
+  .swatch{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:6px;vertical-align:middle;}
+  .toggle-btn{padding:6px 14px;border-radius:999px;border:1px solid #d8d8d8;background:#f4f4f5;color:#888888;font-size:13px;font-weight:500;cursor:pointer;}
+  .toggle-btn.active{background:#1a1a1a;color:#ffffff;border-color:#1a1a1a;}
+  .stage{position:relative;border-radius:12px;overflow:hidden;border:1px solid #e2e2e2;}
+  .stage .card{border:none;}
+  .legend{display:flex;justify-content:center;gap:16px;flex-wrap:wrap;margin-top:0.8rem;font-size:13px;color:#444444;}
+  .info-toggle{position:absolute;top:14px;right:14px;z-index:30;background:#1a1a1a;color:#ffffff;border:none;border-radius:999px;padding:7px 14px;font-size:13px;font-weight:500;cursor:pointer;}
+  .info-toggle:hover{background:#333333;}
+  .info-backdrop{position:absolute;inset:0;background:rgba(0,0,0,0.22);opacity:0;visibility:hidden;transition:opacity .2s ease;z-index:25;}
+  .info-backdrop.open{opacity:1;visibility:visible;}
+  .info-drawer{position:absolute;top:0;right:0;height:100%;width:320px;max-width:88%;background:#ffffff;border-left:1px solid #e2e2e2;box-shadow:-8px 0 24px rgba(0,0,0,0.14);padding:22px 20px;overflow-y:auto;transform:translateX(100%);transition:transform .25s ease;z-index:28;box-sizing:border-box;}
+  .info-drawer.open{transform:translateX(0);}
+  .info-close{position:absolute;top:14px;right:14px;background:#f4f4f5;border:1px solid #e2e2e2;border-radius:50%;width:28px;height:28px;font-size:14px;cursor:pointer;color:#555555;}
+  .info-drawer h3{font-size:17px;margin:6px 0 12px;padding-right:30px;color:#1a1a1a;}
+  .info-drawer h4{font-size:12px;margin:18px 0 6px;color:#666666;text-transform:uppercase;letter-spacing:.04em;}
+  .info-drawer p{font-size:13.5px;line-height:1.55;color:#333333;margin:0 0 10px;}
+  .formula-box{background:#f4f4f5;border-radius:8px;padding:10px 12px;text-align:center;font-size:14px;font-weight:600;margin:10px 0;color:#1a1a1a;}
+</style>
+</head>
+<body>
+<div class="widget">
+<div style="margin-bottom:12px;"><a href="index.html" style="font-size:14px;color:#1a1a1a;text-decoration:none;">&larr; GeoProof</a></div>
+<div class="stage">
+<div class="card">
+<h2 class="sr-only">A triangle ABC is shown; drag any vertex. Nine special points are marked: the three midpoints of the sides, the three feet of the altitudes, and the three midpoints between the orthocenter and each vertex. Remarkably, all nine lie on a single circle — the nine-point circle — whose radius is exactly half the triangle's circumscribed-circle radius. The circle and its center N are drawn, and a check confirms all nine points lie on it. Toggle buttons show or hide each group of three points. An info button opens a drawer explaining the theorem.</h2>
+<svg id="np-svg" viewBox="0 0 680 560" aria-hidden="true">
+  <circle id="npc" fill="#8B5FBF" fill-opacity="0.05" stroke="#8B5FBF" stroke-width="2"></circle>
+  <polygon id="tri-poly" fill="none" stroke="#1a1a1a" stroke-width="2.5"></polygon>
+  <g id="alt-group"></g>
+  <g id="pts-group"></g>
+  <circle id="dot-N" r="4" fill="#5B3886"></circle>
+  <text id="tag-N" text-anchor="middle" dominant-baseline="middle" fill="#5B3886" font-size="13" font-weight="700">N</text>
+  <text id="tag-A" text-anchor="middle" dominant-baseline="middle" fill="#1a1a1a" font-size="14" font-weight="700">A</text>
+  <text id="tag-B" text-anchor="middle" dominant-baseline="middle" fill="#1a1a1a" font-size="14" font-weight="700">B</text>
+  <text id="tag-C" text-anchor="middle" dominant-baseline="middle" fill="#1a1a1a" font-size="14" font-weight="700">C</text>
+  <circle id="handle-A" class="handle" r="12" fill="#ffffff" stroke="#1a1a1a" stroke-width="2"></circle>
+  <circle id="handle-B" class="handle" r="12" fill="#ffffff" stroke="#1a1a1a" stroke-width="2"></circle>
+  <circle id="handle-C" class="handle" r="12" fill="#ffffff" stroke="#1a1a1a" stroke-width="2"></circle>
+</svg>
+
+<div style="display:flex; justify-content:center; gap:10px; flex-wrap:wrap; margin-top:0.75rem;">
+  <button type="button" id="toggle-mid" class="toggle-btn active">Side midpoints</button>
+  <button type="button" id="toggle-feet" class="toggle-btn active">Altitude feet</button>
+  <button type="button" id="toggle-euler" class="toggle-btn active">Orthocenter midpoints</button>
+  <button type="button" id="toggle-alt" class="toggle-btn">Altitudes</button>
+</div>
+
+<div class="legend">
+  <span><span class="swatch" style="background:#378ADD"></span>side midpoints</span>
+  <span><span class="swatch" style="background:#D4537E"></span>altitude feet</span>
+  <span><span class="swatch" style="background:#639922"></span>orthocenter midpoints</span>
+</div>
+
+<div style="display:flex; justify-content:center; margin-top:0.85rem;">
+  <span id="status-badge" style="display:inline-block; padding:4px 14px; border-radius:999px; font-size:14px; font-weight:500;"></span>
+</div>
+
+<div id="formula-symbolic" style="text-align:center; font-size:14px; font-weight:600; color:#1a1a1a; margin-top:1.1rem;">9 points · 1 circle · radius = ½ × circumradius</div>
+
+<div id="detail-row" style="text-align:center; font-size:13px; color:#555555; margin-top:0.5rem;"></div>
+<div style="text-align:center; font-size:13px; color:#777777; margin-top:0.6rem;">Drag a vertex — even into an obtuse triangle (where the orthocenter and some feet move outside) — and all nine points stay on the circle.</div>
+</div>
+
+<button type="button" id="info-toggle-btn" class="info-toggle">ⓘ About this theorem</button>
+<div id="info-backdrop" class="info-backdrop"></div>
+<aside id="info-drawer" class="info-drawer">
+  <button type="button" id="info-close" class="info-close" aria-label="Close">✕</button>
+  <h3>The Nine-Point Circle</h3>
+  <p>Every triangle has a special circle that passes through nine notable points all at once:</p>
+  <div class="formula-box">3 side midpoints + 3 altitude feet + 3 orthocenter–vertex midpoints</div>
+  <p>The "altitude feet" are where each altitude meets the opposite side; the last three are the midpoints of the segments joining the orthocenter H (where the altitudes meet) to each vertex.</p>
+  <h4>Its size and place</h4>
+  <p>The nine-point circle's radius is exactly half the circumradius R (the radius of the circle through A, B, C). Its center N is the midpoint of the segment from the circumcenter O to the orthocenter H — and it sits on the Euler line, along with O, H, and the centroid.</p>
+  <h4>Why these nine?</h4>
+  <p>The side midpoints and the orthocenter–vertex midpoints are related by a half-size scaling centered at H, which maps the circumcircle to the nine-point circle; the altitude feet land on it because each sees a relevant segment at a right angle. Three different-looking triples turn out to share one circle.</p>
+  <h4>Try the obtuse case</h4>
+  <p>Drag a vertex until a corner angle exceeds 90°. The orthocenter and two of the altitude feet leave the triangle — yet every one of the nine points remains exactly on the circle.</p>
+  <h4>A bit of history</h4>
+  <p>Often credited to Karl Wilhelm Feuerbach, who in 1822 proved the circle is also tangent to the triangle's incircle and excircles — so it is sometimes called the Feuerbach circle.</p>
+</aside>
+</div>
+</div>
+
+<script>
+(function(){
+  var svg=document.getElementById('np-svg');
+  var pts={ A:{x:330,y:108}, B:{x:150,y:430}, C:{x:540,y:400} };
+  var minX=24,maxX=656,minY=24,maxY=536;
+  var UNIT=30;
+  var showMid=true, showFeet=true, showEuler=true, showAlt=false;
+
+  function sub(p,q){return {x:p.x-q.x,y:p.y-q.y};}
+  function len(v){return Math.hypot(v.x,v.y);}
+  function mid(p,q){return {x:(p.x+q.x)/2,y:(p.y+q.y)/2};}
+  function fmt(n){ var r=Math.round(n*10)/10; return (Math.abs(r-Math.round(r))<1e-9)?Math.round(r).toString():r.toFixed(1); }
+  function circumcenter(A,B,C){
+    var D=2*(A.x*(B.y-C.y)+B.x*(C.y-A.y)+C.x*(A.y-B.y));
+    if(Math.abs(D)<1e-9) return null;
+    var ux=((A.x*A.x+A.y*A.y)*(B.y-C.y)+(B.x*B.x+B.y*B.y)*(C.y-A.y)+(C.x*C.x+C.y*C.y)*(A.y-B.y))/D;
+    var uy=((A.x*A.x+A.y*A.y)*(C.x-B.x)+(B.x*B.x+B.y*B.y)*(A.x-C.x)+(C.x*C.x+C.y*C.y)*(B.x-A.x))/D;
+    return {x:ux,y:uy};
+  }
+  function foot(P,V1,V2){
+    var d=sub(V2,V1), t=((P.x-V1.x)*d.x+(P.y-V1.y)*d.y)/(d.x*d.x+d.y*d.y);
+    return {x:V1.x+t*d.x, y:V1.y+t*d.y};
+  }
+  function svgEl(tag,attrs){ var el=document.createElementNS('http://www.w3.org/2000/svg',tag); for(var k in attrs){el.setAttribute(k,attrs[k]);} return el; }
+  function clearKids(el){ while(el.firstChild) el.removeChild(el.firstChild); }
+
+  var npc=document.getElementById('npc');
+  var triPoly=document.getElementById('tri-poly');
+  var altGroup=document.getElementById('alt-group');
+  var ptsGroup=document.getElementById('pts-group');
+  var dotN=document.getElementById('dot-N');
+  var tagN=document.getElementById('tag-N');
+  var tagA=document.getElementById('tag-A');
+  var tagB=document.getElementById('tag-B');
+  var tagC=document.getElementById('tag-C');
+  var hA=document.getElementById('handle-A');
+  var hB=document.getElementById('handle-B');
+  var hC=document.getElementById('handle-C');
+  var statusBadge=document.getElementById('status-badge');
+  var detailRow=document.getElementById('detail-row');
+  var toggleMid=document.getElementById('toggle-mid');
+  var toggleFeet=document.getElementById('toggle-feet');
+  var toggleEuler=document.getElementById('toggle-euler');
+  var toggleAlt=document.getElementById('toggle-alt');
+
+  function update(){
+    var A=pts.A,B=pts.B,C=pts.C;
+    hA.setAttribute('cx',A.x); hA.setAttribute('cy',A.y);
+    hB.setAttribute('cx',B.x); hB.setAttribute('cy',B.y);
+    hC.setAttribute('cx',C.x); hC.setAttribute('cy',C.y);
+    triPoly.setAttribute('points', A.x+','+A.y+' '+B.x+','+B.y+' '+C.x+','+C.y);
+
+    var cen={x:(A.x+B.x+C.x)/3,y:(A.y+B.y+C.y)/3};
+    function outTag(V){ var d=sub(V,cen),l=len(d)||1; return {x:V.x+d.x/l*22,y:V.y+d.y/l*22}; }
+    var tA=outTag(A),tB=outTag(B),tC=outTag(C);
+    tagA.setAttribute('x',tA.x); tagA.setAttribute('y',tA.y);
+    tagB.setAttribute('x',tB.x); tagB.setAttribute('y',tB.y);
+    tagC.setAttribute('x',tC.x); tagC.setAttribute('y',tC.y);
+
+    var O=circumcenter(A,B,C);
+    var N=circumcenter(mid(B,C),mid(C,A),mid(A,B));
+    clearKids(ptsGroup); clearKids(altGroup);
+    if(!O||!N){
+      npc.style.display='none'; dotN.style.display='none'; tagN.style.display='none';
+      statusBadge.textContent='Degenerate triangle — drag a vertex out';
+      statusBadge.style.background='#FAECE7'; statusBadge.style.color='#4A1B0C';
+      detailRow.textContent='';
+      return;
+    }
+    var R=len(sub(O,A));
+    var H={x:A.x+B.x+C.x-2*O.x, y:A.y+B.y+C.y-2*O.y};
+
+    var MA=mid(B,C),MB=mid(C,A),MC=mid(A,B);
+    var FA=foot(A,B,C),FB=foot(B,C,A),FC=foot(C,A,B);
+    var EA=mid(H,A),EB=mid(H,B),EC=mid(H,C);
+    var r=len(sub(N,MA));
+
+    npc.style.display='block';
+    npc.setAttribute('cx',N.x); npc.setAttribute('cy',N.y); npc.setAttribute('r',r);
+    dotN.style.display='block'; tagN.style.display='block';
+    dotN.setAttribute('cx',N.x); dotN.setAttribute('cy',N.y);
+    tagN.setAttribute('x',N.x+12); tagN.setAttribute('y',N.y-10);
+
+    // altitudes (faint) from each vertex to its foot
+    if(showAlt){
+      [[A,FA],[B,FB],[C,FC]].forEach(function(pair){
+        altGroup.appendChild(svgEl('line',{x1:pair[0].x,y1:pair[0].y,x2:pair[1].x,y2:pair[1].y,stroke:'#bbbbbb','stroke-width':1.3,'stroke-dasharray':'4,4'}));
+      });
+    }
+
+    function drawPts(arr,color){
+      arr.forEach(function(p){
+        ptsGroup.appendChild(svgEl('circle',{cx:p.x,cy:p.y,r:5,fill:color,stroke:'#ffffff','stroke-width':1.5}));
+      });
+    }
+    if(showMid) drawPts([MA,MB,MC],'#378ADD');
+    if(showFeet) drawPts([FA,FB,FC],'#D4537E');
+    if(showEuler) drawPts([EA,EB,EC],'#639922');
+
+    // verify all nine are on the circle
+    var nine=[MA,MB,MC,FA,FB,FC,EA,EB,EC];
+    var maxErr=0;
+    nine.forEach(function(p){ maxErr=Math.max(maxErr,Math.abs(len(sub(N,p))-r)); });
+    var ok=maxErr<0.5;
+
+    statusBadge.textContent=ok?'All 9 points lie on the circle':'…';
+    statusBadge.style.background='#EDE6F6'; statusBadge.style.color='#3F2A5C';
+
+    detailRow.innerHTML='nine-point radius = <b>'+fmt(r/UNIT)+'</b>  =  ½ × circumradius ('+fmt(R/UNIT)+')'+
+      '<span style="color:#1d9e75;font-weight:700;"> &check;</span>';
+  }
+
+  var dragging=null;
+  function toSvgPoint(evt){
+    var rect=svg.getBoundingClientRect();
+    var vb=svg.viewBox.baseVal;
+    return { x:(evt.clientX-rect.left)/rect.width*vb.width+vb.x, y:(evt.clientY-rect.top)/rect.height*vb.height+vb.y };
+  }
+  function onDown(key){
+    return function(e){
+      dragging=key;
+      if(e.target.setPointerCapture){ try{ e.target.setPointerCapture(e.pointerId); }catch(err){} }
+      e.preventDefault();
+    };
+  }
+  function onMove(e){
+    if(!dragging) return;
+    var p=toSvgPoint(e);
+    pts[dragging]={x:Math.min(maxX,Math.max(minX,p.x)), y:Math.min(maxY,Math.max(minY,p.y))};
+    update();
+  }
+  function onUp(){ dragging=null; }
+  hA.addEventListener('pointerdown',onDown('A'));
+  hB.addEventListener('pointerdown',onDown('B'));
+  hC.addEventListener('pointerdown',onDown('C'));
+  svg.addEventListener('pointermove',onMove);
+  window.addEventListener('pointerup',onUp);
+
+  toggleMid.addEventListener('click',function(){ showMid=!showMid; toggleMid.classList.toggle('active',showMid); update(); });
+  toggleFeet.addEventListener('click',function(){ showFeet=!showFeet; toggleFeet.classList.toggle('active',showFeet); update(); });
+  toggleEuler.addEventListener('click',function(){ showEuler=!showEuler; toggleEuler.classList.toggle('active',showEuler); update(); });
+  toggleAlt.addEventListener('click',function(){ showAlt=!showAlt; toggleAlt.classList.toggle('active',showAlt); update(); });
+
+  var infoToggle=document.getElementById('info-toggle-btn');
+  var infoDrawer=document.getElementById('info-drawer');
+  var infoBackdrop=document.getElementById('info-backdrop');
+  var infoClose=document.getElementById('info-close');
+  function openDrawer(){ infoDrawer.classList.add('open'); infoBackdrop.classList.add('open'); }
+  function closeDrawer(){ infoDrawer.classList.remove('open'); infoBackdrop.classList.remove('open'); }
+  infoToggle.addEventListener('click',function(){
+    if(infoDrawer.classList.contains('open')) closeDrawer(); else openDrawer();
+  });
+  infoClose.addEventListener('click',closeDrawer);
+  infoBackdrop.addEventListener('click',closeDrawer);
+  document.addEventListener('keydown',function(e){ if(e.key==='Escape') closeDrawer(); });
+
+  update();
+})();
+</script>
+</body>
+</html>

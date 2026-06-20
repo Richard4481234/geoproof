@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>GeoProof — Menelaus' Theorem explorer</title>
+<style>
+  body{background:#f4f4f5;display:flex;justify-content:center;padding:40px 16px;font-family:sans-serif;}
+  .widget{width:680px;max-width:100%;}
+  .card{background:#ffffff;border:1px solid #e2e2e2;padding:1.25rem;}
+  .sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;}
+  #mn-svg{width:100%;height:auto;display:block;touch-action:none;}
+  .handle{cursor:grab;}
+  .handle:active{cursor:grabbing;}
+  .swatch{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:6px;vertical-align:middle;}
+  .toggle-btn{padding:6px 14px;border-radius:999px;border:1px solid #d8d8d8;background:#f4f4f5;color:#888888;font-size:13px;font-weight:500;cursor:pointer;}
+  .toggle-btn.active{background:#1a1a1a;color:#ffffff;border-color:#1a1a1a;}
+  .stage{position:relative;border-radius:12px;overflow:hidden;border:1px solid #e2e2e2;}
+  .stage .card{border:none;}
+  .info-toggle{position:absolute;top:14px;right:14px;z-index:30;background:#1a1a1a;color:#ffffff;border:none;border-radius:999px;padding:7px 14px;font-size:13px;font-weight:500;cursor:pointer;}
+  .info-toggle:hover{background:#333333;}
+  .info-backdrop{position:absolute;inset:0;background:rgba(0,0,0,0.22);opacity:0;visibility:hidden;transition:opacity .2s ease;z-index:25;}
+  .info-backdrop.open{opacity:1;visibility:visible;}
+  .info-drawer{position:absolute;top:0;right:0;height:100%;width:320px;max-width:88%;background:#ffffff;border-left:1px solid #e2e2e2;box-shadow:-8px 0 24px rgba(0,0,0,0.14);padding:22px 20px;overflow-y:auto;transform:translateX(100%);transition:transform .25s ease;z-index:28;box-sizing:border-box;}
+  .info-drawer.open{transform:translateX(0);}
+  .info-close{position:absolute;top:14px;right:14px;background:#f4f4f5;border:1px solid #e2e2e2;border-radius:50%;width:28px;height:28px;font-size:14px;cursor:pointer;color:#555555;}
+  .info-drawer h3{font-size:17px;margin:6px 0 12px;padding-right:30px;color:#1a1a1a;}
+  .info-drawer h4{font-size:12px;margin:18px 0 6px;color:#666666;text-transform:uppercase;letter-spacing:.04em;}
+  .info-drawer p{font-size:13.5px;line-height:1.55;color:#333333;margin:0 0 10px;}
+  .formula-box{background:#f4f4f5;border-radius:8px;padding:10px 12px;text-align:center;font-size:13px;font-weight:600;margin:10px 0;color:#1a1a1a;}
+</style>
+</head>
+<body>
+<div class="widget">
+<div style="margin-bottom:12px;"><a href="index.html" style="font-size:14px;color:#1a1a1a;text-decoration:none;">&larr; GeoProof</a></div>
+<div class="stage">
+<div class="card">
+<h2 class="sr-only">A triangle ABC is crossed by a straight line — the transversal — set by two draggable square handles. The line meets the three side-lines at D on BC, E on CA, and F on AB; because a straight line cannot cross all three sides between the vertices, one of these points lies on a side's extension. Drag the triangle vertices or the transversal handles. Menelaus' theorem says the three division ratios multiply to one: AF over FB, times BD over DC, times CE over EA, equals 1. Each ratio and the product are shown live on the figure and below it. An info button opens a drawer explaining the theorem.</h2>
+<svg id="mn-svg" viewBox="0 0 680 560" aria-hidden="true">
+  <polygon id="tri-poly" fill="#1a1a1a" fill-opacity="0.03" stroke="#1a1a1a" stroke-width="2.5"></polygon>
+  <line id="ext-bc" stroke="#cccccc" stroke-width="1.2" stroke-dasharray="3,4"></line>
+  <line id="ext-ca" stroke="#cccccc" stroke-width="1.2" stroke-dasharray="3,4"></line>
+  <line id="ext-ab" stroke="#cccccc" stroke-width="1.2" stroke-dasharray="3,4"></line>
+  <line id="transversal" stroke="#BA7517" stroke-width="2.5" stroke-linecap="round"></line>
+  <text id="lab-d" text-anchor="middle" dominant-baseline="middle" fill="#185FA5" font-size="12.5" font-weight="600"></text>
+  <text id="lab-e" text-anchor="middle" dominant-baseline="middle" fill="#3B6D11" font-size="12.5" font-weight="600"></text>
+  <text id="lab-f" text-anchor="middle" dominant-baseline="middle" fill="#993556" font-size="12.5" font-weight="600"></text>
+  <polygon id="arrow-d" fill="#378ADD" stroke="none" style="display:none"></polygon>
+  <polygon id="arrow-e" fill="#639922" stroke="none" style="display:none"></polygon>
+  <polygon id="arrow-f" fill="#D4537E" stroke="none" style="display:none"></polygon>
+  <circle id="dot-D" r="4.5" fill="#378ADD"></circle>
+  <circle id="dot-E" r="4.5" fill="#639922"></circle>
+  <circle id="dot-F" r="4.5" fill="#D4537E"></circle>
+  <text id="tag-D" text-anchor="middle" dominant-baseline="middle" fill="#185FA5" font-size="13" font-weight="700">D</text>
+  <text id="tag-E" text-anchor="middle" dominant-baseline="middle" fill="#3B6D11" font-size="13" font-weight="700">E</text>
+  <text id="tag-F" text-anchor="middle" dominant-baseline="middle" fill="#993556" font-size="13" font-weight="700">F</text>
+  <text id="tag-A" text-anchor="middle" dominant-baseline="middle" fill="#1a1a1a" font-size="14" font-weight="700">A</text>
+  <text id="tag-B" text-anchor="middle" dominant-baseline="middle" fill="#1a1a1a" font-size="14" font-weight="700">B</text>
+  <text id="tag-C" text-anchor="middle" dominant-baseline="middle" fill="#1a1a1a" font-size="14" font-weight="700">C</text>
+  <circle id="handle-A" class="handle" r="12" fill="#ffffff" stroke="#1a1a1a" stroke-width="2"></circle>
+  <circle id="handle-B" class="handle" r="12" fill="#ffffff" stroke="#1a1a1a" stroke-width="2"></circle>
+  <circle id="handle-C" class="handle" r="12" fill="#ffffff" stroke="#1a1a1a" stroke-width="2"></circle>
+  <rect id="handle-L1" class="handle" width="18" height="18" rx="3" fill="#ffffff" stroke="#BA7517" stroke-width="2.5"></rect>
+  <rect id="handle-L2" class="handle" width="18" height="18" rx="3" fill="#ffffff" stroke="#BA7517" stroke-width="2.5"></rect>
+</svg>
+
+<div style="display:flex; justify-content:center; gap:10px; flex-wrap:wrap; margin-top:0.75rem;">
+  <button type="button" id="toggle-ext" class="toggle-btn active">Side extensions</button>
+  <button type="button" id="toggle-ratios" class="toggle-btn active">Ratio labels</button>
+</div>
+
+<div style="display:flex; justify-content:center; margin-top:0.85rem;">
+  <span id="status-badge" style="display:inline-block; padding:4px 14px; border-radius:999px; font-size:14px; font-weight:500;"></span>
+</div>
+
+<div id="formula-symbolic" style="text-align:center; font-size:14px; font-weight:600; color:#1a1a1a; margin-top:1.1rem;">(AF / FB) · (BD / DC) · (CE / EA) = 1</div>
+
+<div id="prod-row" style="display:flex; align-items:center; justify-content:center; gap:8px; flex-wrap:wrap; margin-top:0.6rem; font-size:15px; color:#1a1a1a;"></div>
+<div style="text-align:center; font-size:13px; color:#777777; margin-top:0.6rem;">Drag the two square handles to move the transversal, or drag a vertex. One of D, E, F always lands on a side's extension — that's unavoidable for a straight cut. If a point runs off the canvas, a colored arrow on the edge points toward it, so you can drag the line to bring it back.</div>
+</div>
+
+<button type="button" id="info-toggle-btn" class="info-toggle">ⓘ About this theorem</button>
+<div id="info-backdrop" class="info-backdrop"></div>
+<aside id="info-drawer" class="info-drawer">
+  <button type="button" id="info-close" class="info-close" aria-label="Close">✕</button>
+  <h3>Menelaus' Theorem</h3>
+  <p>Draw a straight line (a transversal) that crosses the three side-lines of triangle ABC — meeting line BC at D, line CA at E, and line AB at F. Menelaus' theorem says the three division ratios multiply to one:</p>
+  <div class="formula-box">(AF / FB) · (BD / DC) · (CE / EA) = 1</div>
+  <p>Here the lengths are taken as positive. With <i>signed</i> ratios the product is −1, which encodes a key fact: a straight line must cut either two of the sides and the extension of the third, or all three extensions — never all three sides between the vertices.</p>
+  <h4>The twin of Ceva</h4>
+  <p>Ceva's theorem uses the very same product but equals +1 (signed), and it is about three cevians being <i>concurrent</i>. Menelaus equals −1 and is about three points being <i>collinear</i>. Concurrence and collinearity are dual ideas, and these two theorems are their algebraic statements.</p>
+  <h4>What it's used for</h4>
+  <p>Menelaus is a standard tool for proving points collinear and for chasing ratios along lines — it underlies many results in projective geometry and competition problems.</p>
+  <h4>Converse</h4>
+  <p>The converse holds too: if three points on the side-lines give a product of 1 (signed −1), then they are collinear. So the equation is a test for collinearity.</p>
+  <h4>A bit of history</h4>
+  <p>It is named for Menelaus of Alexandria (c. 70–140 CE), who stated a version for great-circle arcs on a sphere in his <i>Sphaerica</i>; the planar version is the one shown here.</p>
+</aside>
+</div>
+</div>
+
+<script>
+(function(){
+  var svg=document.getElementById('mn-svg');
+  var pts={ A:{x:330,y:110}, B:{x:160,y:435}, C:{x:520,y:430} };
+  // default transversal chosen so all three feet (D on BC, E on CA, F on AB) are on-screen
+  var L1={x:296,y:175}, L2={x:491,y:382};
+  var minX=18,maxX=662,minY=18,maxY=542;
+  var UNIT=30;
+  var showExt=true, showRatios=true;
+
+  function sub(p,q){return {x:p.x-q.x,y:p.y-q.y};}
+  function add(p,q){return {x:p.x+q.x,y:p.y+q.y};}
+  function len(v){return Math.hypot(v.x,v.y);}
+  function cross(u,v){return u.x*v.y-u.y*v.x;}
+  function fmt(n){ var r=Math.round(n*100)/100; return (Math.abs(r-Math.round(r))<1e-9)?Math.round(r).toString():r.toFixed(2); }
+  function lineX(A,B,C,D){
+    var r=sub(B,A), s=sub(D,C), den=cross(r,s);
+    if(Math.abs(den)<1e-9) return null;
+    var t=cross(sub(C,A),s)/den;
+    return {x:A.x+t*r.x, y:A.y+t*r.y};
+  }
+  function onSeg(P,V1,V2){ // is P between V1 and V2 (with small tolerance)?
+    var d=sub(V2,V1), t=((P.x-V1.x)*d.x+(P.y-V1.y)*d.y)/(d.x*d.x+d.y*d.y);
+    return t>=-0.001 && t<=1.001;
+  }
+
+  var triPoly=document.getElementById('tri-poly');
+  var extBC=document.getElementById('ext-bc');
+  var extCA=document.getElementById('ext-ca');
+  var extAB=document.getElementById('ext-ab');
+  var transversal=document.getElementById('transversal');
+  var labD=document.getElementById('lab-d');
+  var labE=document.getElementById('lab-e');
+  var labF=document.getElementById('lab-f');
+  var dotD=document.getElementById('dot-D');
+  var dotE=document.getElementById('dot-E');
+  var dotF=document.getElementById('dot-F');
+  var arrowD=document.getElementById('arrow-d');
+  var arrowE=document.getElementById('arrow-e');
+  var arrowF=document.getElementById('arrow-f');
+  var tagD=document.getElementById('tag-D');
+  var tagE=document.getElementById('tag-E');
+  var tagF=document.getElementById('tag-F');
+  var tagA=document.getElementById('tag-A');
+  var tagB=document.getElementById('tag-B');
+  var tagC=document.getElementById('tag-C');
+  var hA=document.getElementById('handle-A');
+  var hB=document.getElementById('handle-B');
+  var hC=document.getElementById('handle-C');
+  var hL1=document.getElementById('handle-L1');
+  var hL2=document.getElementById('handle-L2');
+  var statusBadge=document.getElementById('status-badge');
+  var prodRow=document.getElementById('prod-row');
+  var toggleExt=document.getElementById('toggle-ext');
+  var toggleRatios=document.getElementById('toggle-ratios');
+
+  function setLine(el,p,q){ el.setAttribute('x1',p.x); el.setAttribute('y1',p.y); el.setAttribute('x2',q.x); el.setAttribute('y2',q.y); }
+  function disp(el,on){ el.style.display=on?'block':'none'; }
+  function extend(V1,V2,L){ var d=sub(V2,V1),l=len(d)||1; var u={x:d.x/l,y:d.y/l}; return [{x:V1.x-u.x*L,y:V1.y-u.y*L},{x:V2.x+u.x*L,y:V2.y+u.y*L}]; }
+
+  function update(){
+    var A=pts.A,B=pts.B,C=pts.C;
+    hA.setAttribute('cx',A.x); hA.setAttribute('cy',A.y);
+    hB.setAttribute('cx',B.x); hB.setAttribute('cy',B.y);
+    hC.setAttribute('cx',C.x); hC.setAttribute('cy',C.y);
+    hL1.setAttribute('x',L1.x-9); hL1.setAttribute('y',L1.y-9);
+    hL2.setAttribute('x',L2.x-9); hL2.setAttribute('y',L2.y-9);
+
+    triPoly.setAttribute('points', A.x+','+A.y+' '+B.x+','+B.y+' '+C.x+','+C.y);
+
+    var cen={x:(A.x+B.x+C.x)/3,y:(A.y+B.y+C.y)/3};
+    function outTag(V,off){ var d=sub(V,cen),l=len(d)||1; return {x:V.x+d.x/l*(off||22),y:V.y+d.y/l*(off||22)}; }
+    var tA=outTag(A),tB=outTag(B),tC=outTag(C);
+    tagA.setAttribute('x',tA.x); tagA.setAttribute('y',tA.y);
+    tagB.setAttribute('x',tB.x); tagB.setAttribute('y',tB.y);
+    tagC.setAttribute('x',tC.x); tagC.setAttribute('y',tC.y);
+
+    // side extension guide-lines
+    var eBC=extend(B,C,140), eCA=extend(C,A,140), eAB=extend(A,B,140);
+    setLine(extBC,eBC[0],eBC[1]); setLine(extCA,eCA[0],eCA[1]); setLine(extAB,eAB[0],eAB[1]);
+    disp(extBC,showExt); disp(extCA,showExt); disp(extAB,showExt);
+
+    // transversal drawn long
+    var tr=extend(L1,L2,900);
+    setLine(transversal,tr[0],tr[1]);
+
+    var D=lineX(L1,L2,B,C), E=lineX(L1,L2,C,A), F=lineX(L1,L2,A,B);
+    if(!D||!E||!F){
+      dotD.style.display='none'; dotE.style.display='none'; dotF.style.display='none';
+      arrowD.style.display='none'; arrowE.style.display='none'; arrowF.style.display='none';
+      disp(tagD,false); disp(tagE,false); disp(tagF,false);
+      disp(labD,false); disp(labE,false); disp(labF,false);
+      statusBadge.textContent='Transversal parallel to a side — move it';
+      statusBadge.style.background='#FAECE7'; statusBadge.style.color='#4A1B0C';
+      prodRow.innerHTML='';
+      return;
+    }
+
+    var r1=len(sub(F,A))/len(sub(B,F));   // AF/FB
+    var r2=len(sub(D,B))/len(sub(C,D));   // BD/DC
+    var r3=len(sub(E,C))/len(sub(A,E));   // CE/EA
+
+    // place each foot; if it is off-canvas, show an edge arrow pointing toward it
+    var VB={minx:14,maxx:666,miny:14,maxy:546}, viewC={x:340,y:280};
+    function placeFoot(dot,arrow,tag,lab,P,ratioTxt,color){
+      var inView=P.x>=VB.minx&&P.x<=VB.maxx&&P.y>=VB.miny&&P.y<=VB.maxy;
+      if(inView){
+        arrow.style.display='none';
+        dot.setAttribute('cx',P.x); dot.setAttribute('cy',P.y);
+        dot.setAttribute('fill',color); dot.setAttribute('stroke','none'); dot.setAttribute('r',4.5);
+        dot.style.display='block';
+        var d=sub(P,cen),l=len(d)||1;
+        tag.setAttribute('x',P.x+d.x/l*14); tag.setAttribute('y',P.y+d.y/l*14); tag.style.display='block';
+        lab.setAttribute('x',P.x+d.x/l*30); lab.setAttribute('y',P.y+d.y/l*30); lab.textContent=ratioTxt;
+        disp(lab,showRatios);
+      } else {
+        // ray from view center to the true point; clamp to the canvas edge
+        var dd=sub(P,viewC), t=1;
+        if(dd.x>1e-9) t=Math.min(t,(VB.maxx-viewC.x)/dd.x); else if(dd.x<-1e-9) t=Math.min(t,(VB.minx-viewC.x)/dd.x);
+        if(dd.y>1e-9) t=Math.min(t,(VB.maxy-viewC.y)/dd.y); else if(dd.y<-1e-9) t=Math.min(t,(VB.miny-viewC.y)/dd.y);
+        var edge={x:viewC.x+dd.x*t, y:viewC.y+dd.y*t};
+        var l=len(dd)||1, u={x:dd.x/l,y:dd.y/l}, perp={x:-u.y,y:u.x};
+        var m={x:edge.x-u.x*12, y:edge.y-u.y*12};       // marker pulled just inside the edge
+        var tip={x:m.x+u.x*13,y:m.y+u.y*13};
+        var b1={x:m.x-u.x*1+perp.x*7,y:m.y-u.y*1+perp.y*7};
+        var b2={x:m.x-u.x*1-perp.x*7,y:m.y-u.y*1-perp.y*7};
+        arrow.setAttribute('points',tip.x.toFixed(1)+','+tip.y.toFixed(1)+' '+b1.x.toFixed(1)+','+b1.y.toFixed(1)+' '+b2.x.toFixed(1)+','+b2.y.toFixed(1));
+        arrow.style.display='block';
+        dot.setAttribute('cx',m.x); dot.setAttribute('cy',m.y);
+        dot.setAttribute('fill','#ffffff'); dot.setAttribute('stroke',color); dot.setAttribute('stroke-width',2); dot.setAttribute('r',5);
+        dot.style.display='block';
+        tag.setAttribute('x',m.x-u.x*15); tag.setAttribute('y',m.y-u.y*15); tag.style.display='block';
+        lab.setAttribute('x',m.x-u.x*34); lab.setAttribute('y',m.y-u.y*34); lab.textContent=ratioTxt;
+        disp(lab,showRatios);
+      }
+    }
+    placeFoot(dotD,arrowD,tagD,labD,D,'BD:DC = '+fmt(r2),'#378ADD');
+    placeFoot(dotE,arrowE,tagE,labE,E,'CE:EA = '+fmt(r3),'#639922');
+    placeFoot(dotF,arrowF,tagF,labF,F,'AF:FB = '+fmt(r1),'#D4537E');
+
+    var prod=r1*r2*r3;
+    var mismatch=Math.abs(prod-1)>0.03;
+    var external=(onSeg(D,B,C)?0:1)+(onSeg(E,C,A)?0:1)+(onSeg(F,A,B)?0:1);
+
+    statusBadge.textContent='Collinear D, E, F → product = 1  ('+external+' on an extension)';
+    statusBadge.style.background='#FBF3D9'; statusBadge.style.color='#5C4813';
+
+    prodRow.innerHTML =
+      '<span><span class="swatch" style="background:#D4537E"></span>'+fmt(r1)+'</span><span style="color:#888;">×</span>'+
+      '<span><span class="swatch" style="background:#378ADD"></span>'+fmt(r2)+'</span><span style="color:#888;">×</span>'+
+      '<span><span class="swatch" style="background:#639922"></span>'+fmt(r3)+'</span>'+
+      '<b style="color:'+(mismatch?'#e24b4a':'#1d9e75')+';font-size:18px;">=</b>'+
+      '<span><b>'+fmt(prod)+'</b></span>'+
+      (mismatch?'':'<span style="color:#1d9e75;font-weight:700;">&check;</span>');
+  }
+
+  var dragging=null;
+  function toSvgPoint(evt){
+    var rect=svg.getBoundingClientRect();
+    var vb=svg.viewBox.baseVal;
+    return { x:(evt.clientX-rect.left)/rect.width*vb.width+vb.x, y:(evt.clientY-rect.top)/rect.height*vb.height+vb.y };
+  }
+  function onDown(key){
+    return function(e){
+      dragging=key;
+      if(e.target.setPointerCapture){ try{ e.target.setPointerCapture(e.pointerId); }catch(err){} }
+      e.preventDefault();
+    };
+  }
+  function onMove(e){
+    if(!dragging) return;
+    var p=toSvgPoint(e);
+    p={x:Math.min(maxX,Math.max(minX,p.x)), y:Math.min(maxY,Math.max(minY,p.y))};
+    if(dragging==='L1'){ L1=p; } else if(dragging==='L2'){ L2=p; } else { pts[dragging]=p; }
+    update();
+  }
+  function onUp(){ dragging=null; }
+  hA.addEventListener('pointerdown',onDown('A'));
+  hB.addEventListener('pointerdown',onDown('B'));
+  hC.addEventListener('pointerdown',onDown('C'));
+  hL1.addEventListener('pointerdown',onDown('L1'));
+  hL2.addEventListener('pointerdown',onDown('L2'));
+  svg.addEventListener('pointermove',onMove);
+  window.addEventListener('pointerup',onUp);
+
+  toggleExt.addEventListener('click',function(){ showExt=!showExt; toggleExt.classList.toggle('active',showExt); update(); });
+  toggleRatios.addEventListener('click',function(){ showRatios=!showRatios; toggleRatios.classList.toggle('active',showRatios); update(); });
+
+  var infoToggle=document.getElementById('info-toggle-btn');
+  var infoDrawer=document.getElementById('info-drawer');
+  var infoBackdrop=document.getElementById('info-backdrop');
+  var infoClose=document.getElementById('info-close');
+  function openDrawer(){ infoDrawer.classList.add('open'); infoBackdrop.classList.add('open'); }
+  function closeDrawer(){ infoDrawer.classList.remove('open'); infoBackdrop.classList.remove('open'); }
+  infoToggle.addEventListener('click',function(){
+    if(infoDrawer.classList.contains('open')) closeDrawer(); else openDrawer();
+  });
+  infoClose.addEventListener('click',closeDrawer);
+  infoBackdrop.addEventListener('click',closeDrawer);
+  document.addEventListener('keydown',function(e){ if(e.key==='Escape') closeDrawer(); });
+
+  update();
+})();
+</script>
+</body>
+</html>

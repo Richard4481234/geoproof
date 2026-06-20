@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>GeoProof — Morley's Trisector Theorem explorer</title>
+<style>
+  body{background:#f4f4f5;display:flex;justify-content:center;padding:40px 16px;font-family:sans-serif;}
+  .widget{width:680px;max-width:100%;}
+  .card{background:#ffffff;border:1px solid #e2e2e2;padding:1.25rem;}
+  .sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;}
+  #mr-svg{width:100%;height:auto;display:block;touch-action:none;}
+  .handle{cursor:grab;}
+  .handle:active{cursor:grabbing;}
+  .swatch{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:6px;vertical-align:middle;}
+  .toggle-btn{padding:6px 14px;border-radius:999px;border:1px solid #d8d8d8;background:#f4f4f5;color:#888888;font-size:13px;font-weight:500;cursor:pointer;}
+  .toggle-btn.active{background:#1a1a1a;color:#ffffff;border-color:#1a1a1a;}
+  .stage{position:relative;border-radius:12px;overflow:hidden;border:1px solid #e2e2e2;}
+  .stage .card{border:none;}
+  .info-toggle{position:absolute;top:14px;right:14px;z-index:30;background:#1a1a1a;color:#ffffff;border:none;border-radius:999px;padding:7px 14px;font-size:13px;font-weight:500;cursor:pointer;}
+  .info-toggle:hover{background:#333333;}
+  .info-backdrop{position:absolute;inset:0;background:rgba(0,0,0,0.22);opacity:0;visibility:hidden;transition:opacity .2s ease;z-index:25;}
+  .info-backdrop.open{opacity:1;visibility:visible;}
+  .info-drawer{position:absolute;top:0;right:0;height:100%;width:320px;max-width:88%;background:#ffffff;border-left:1px solid #e2e2e2;box-shadow:-8px 0 24px rgba(0,0,0,0.14);padding:22px 20px;overflow-y:auto;transform:translateX(100%);transition:transform .25s ease;z-index:28;box-sizing:border-box;}
+  .info-drawer.open{transform:translateX(0);}
+  .info-close{position:absolute;top:14px;right:14px;background:#f4f4f5;border:1px solid #e2e2e2;border-radius:50%;width:28px;height:28px;font-size:14px;cursor:pointer;color:#555555;}
+  .info-drawer h3{font-size:17px;margin:6px 0 12px;padding-right:30px;color:#1a1a1a;}
+  .info-drawer h4{font-size:12px;margin:18px 0 6px;color:#666666;text-transform:uppercase;letter-spacing:.04em;}
+  .info-drawer p{font-size:13.5px;line-height:1.55;color:#333333;margin:0 0 10px;}
+  .formula-box{background:#f4f4f5;border-radius:8px;padding:10px 12px;text-align:center;font-size:13.5px;font-weight:600;margin:10px 0;color:#1a1a1a;}
+</style>
+</head>
+<body>
+<div class="widget">
+<div style="margin-bottom:12px;"><a href="index.html" style="font-size:14px;color:#1a1a1a;text-decoration:none;">&larr; GeoProof</a></div>
+<div class="stage">
+<div class="card">
+<h2 class="sr-only">Start from any triangle ABC and drag its vertices. Each of the three angles is split into three equal parts by two trisector lines. The trisectors next to each side meet in pairs at three points, P, Q, and R. Morley's theorem says these three points always form an equilateral triangle, however the original triangle is shaped. The three side lengths of that Morley triangle are shown and stay equal. A toggle shows or hides the trisector lines. An info button opens a drawer explaining the theorem.</h2>
+<svg id="mr-svg" viewBox="0 0 680 560" aria-hidden="true">
+  <polygon id="tri-poly" fill="#1a1a1a" fill-opacity="0.03" stroke="#1a1a1a" stroke-width="2.5"></polygon>
+  <g id="trisector-group"></g>
+  <polygon id="morley" fill="#8B5FBF" fill-opacity="0.18" stroke="#8B5FBF" stroke-width="2.5"></polygon>
+  <text id="lab-1" text-anchor="middle" dominant-baseline="middle" fill="#5B3886" font-size="12.5" font-weight="600"></text>
+  <text id="lab-2" text-anchor="middle" dominant-baseline="middle" fill="#5B3886" font-size="12.5" font-weight="600"></text>
+  <text id="lab-3" text-anchor="middle" dominant-baseline="middle" fill="#5B3886" font-size="12.5" font-weight="600"></text>
+  <circle id="dot-P" r="4.5" fill="#5B3886"></circle>
+  <circle id="dot-Q" r="4.5" fill="#5B3886"></circle>
+  <circle id="dot-R" r="4.5" fill="#5B3886"></circle>
+  <text id="tag-P" text-anchor="middle" dominant-baseline="middle" fill="#5B3886" font-size="13" font-weight="700">P</text>
+  <text id="tag-Q" text-anchor="middle" dominant-baseline="middle" fill="#5B3886" font-size="13" font-weight="700">Q</text>
+  <text id="tag-R" text-anchor="middle" dominant-baseline="middle" fill="#5B3886" font-size="13" font-weight="700">R</text>
+  <text id="tag-A" text-anchor="middle" dominant-baseline="middle" fill="#1a1a1a" font-size="14" font-weight="700">A</text>
+  <text id="tag-B" text-anchor="middle" dominant-baseline="middle" fill="#1a1a1a" font-size="14" font-weight="700">B</text>
+  <text id="tag-C" text-anchor="middle" dominant-baseline="middle" fill="#1a1a1a" font-size="14" font-weight="700">C</text>
+  <circle id="handle-A" class="handle" r="12" fill="#ffffff" stroke="#1a1a1a" stroke-width="2"></circle>
+  <circle id="handle-B" class="handle" r="12" fill="#ffffff" stroke="#1a1a1a" stroke-width="2"></circle>
+  <circle id="handle-C" class="handle" r="12" fill="#ffffff" stroke="#1a1a1a" stroke-width="2"></circle>
+</svg>
+
+<div style="display:flex; justify-content:center; gap:10px; flex-wrap:wrap; margin-top:0.75rem;">
+  <button type="button" id="toggle-trisectors" class="toggle-btn active">Trisectors</button>
+  <button type="button" id="toggle-labels" class="toggle-btn active">Side labels</button>
+  <button type="button" id="toggle-angles" class="toggle-btn">Angle thirds</button>
+</div>
+
+<div style="display:flex; justify-content:center; margin-top:0.85rem;">
+  <span id="status-badge" style="display:inline-block; padding:4px 14px; border-radius:999px; font-size:14px; font-weight:500;"></span>
+</div>
+
+<div id="formula-symbolic" style="text-align:center; font-size:14px; font-weight:600; color:#1a1a1a; margin-top:1.1rem;">Adjacent angle trisectors meet at an equilateral triangle</div>
+
+<div id="side-row" style="display:flex; align-items:center; justify-content:center; gap:10px; flex-wrap:wrap; margin-top:0.6rem; font-size:15px; color:#1a1a1a;"></div>
+<div id="detail-row" style="text-align:center; font-size:12.5px; color:#777777; margin-top:0.55rem;"></div>
+</div>
+
+<button type="button" id="info-toggle-btn" class="info-toggle">ⓘ About this theorem</button>
+<div id="info-backdrop" class="info-backdrop"></div>
+<aside id="info-drawer" class="info-drawer">
+  <button type="button" id="info-close" class="info-close" aria-label="Close">✕</button>
+  <h3>Morley's Trisector Theorem</h3>
+  <p>Trisect each of the three angles of any triangle — split each one into three equal parts. Near each side, the two trisectors closest to it (one from each end) cross at a point. Those three points P, Q, R are the surprise:</p>
+  <div class="formula-box">P, Q, R always form an equilateral triangle</div>
+  <p>It holds for every triangle — wildly obtuse, nearly degenerate, anything. Drag the vertices and the inner purple triangle stays equilateral.</p>
+  <h4>Why it's called a "miracle"</h4>
+  <p>Angle trisection is famously awkward — you can't even do it with compass and straightedge in general — so there's no obvious reason these three crossings should be so perfectly regular. That unexpected order from messy ingredients is why it's a celebrated surprise.</p>
+  <h4>The Morley triangle's size</h4>
+  <p>If R is the circumradius of the original triangle and its angles are A, B, C, the side of the Morley triangle is 8R·sin(A/3)·sin(B/3)·sin(C/3) — a clean formula despite the trisection.</p>
+  <h4>Discovery</h4>
+  <p>Frank Morley stated it around 1899. Many proofs exist today — trigonometric, algebraic, and elegant "backwards" constructions that start from an equilateral triangle and build the original around it.</p>
+  <h4>A cousin you've seen</h4>
+  <p>Like Napoleon's theorem, it conjures an equilateral triangle out of an arbitrary one — geometry has a soft spot for hidden equilaterals.</p>
+</aside>
+</div>
+</div>
+
+<script>
+(function(){
+  var svg=document.getElementById('mr-svg');
+  var pts={ A:{x:330,y:120}, B:{x:150,y:430}, C:{x:540,y:410} };
+  var minX=40,maxX=640,minY=60,maxY=500;
+  var UNIT=30;
+  var showTrisectors=true, showLabels=true, showAngles=false;
+
+  function sub(p,q){return {x:p.x-q.x,y:p.y-q.y};}
+  function len(v){return Math.hypot(v.x,v.y);}
+  function cross(u,v){return u.x*v.y-u.y*v.x;}
+  function dot(u,v){return u.x*v.x+u.y*v.y;}
+  function unit(v){var l=len(v)||1;return {x:v.x/l,y:v.y/l};}
+  function rot(v,a){var c=Math.cos(a),s=Math.sin(a);return {x:v.x*c-v.y*s,y:v.x*s+v.y*c};}
+  function mid(p,q){return {x:(p.x+q.x)/2,y:(p.y+q.y)/2};}
+  function fmt(n){ var r=Math.round(n*10)/10; return (Math.abs(r-Math.round(r))<1e-9)?Math.round(r).toString():r.toFixed(1); }
+  function svgEl(tag,attrs){ var el=document.createElementNS('http://www.w3.org/2000/svg',tag); for(var k in attrs){el.setAttribute(k,attrs[k]);} return el; }
+  function clearKids(el){ while(el.firstChild) el.removeChild(el.firstChild); }
+  // direction of the trisector at V starting from ray V->W, rotated one-third toward V->U
+  function trisectDir(V,W,U){
+    var d1=unit(sub(W,V)), d2=unit(sub(U,V));
+    var ang=Math.atan2(cross(d1,d2),dot(d1,d2));
+    return rot(d1, ang/3);
+  }
+  function rayIntersect(P,dP,Q,dQ){
+    var den=cross(dP,dQ); if(Math.abs(den)<1e-12) return null;
+    var t=cross(sub(Q,P),dQ)/den;
+    return {x:P.x+t*dP.x,y:P.y+t*dP.y};
+  }
+
+  var triPoly=document.getElementById('tri-poly');
+  var trisectorGroup=document.getElementById('trisector-group');
+  var morley=document.getElementById('morley');
+  var lab1=document.getElementById('lab-1');
+  var lab2=document.getElementById('lab-2');
+  var lab3=document.getElementById('lab-3');
+  var dotP=document.getElementById('dot-P');
+  var dotQ=document.getElementById('dot-Q');
+  var dotR=document.getElementById('dot-R');
+  var tagP=document.getElementById('tag-P');
+  var tagQ=document.getElementById('tag-Q');
+  var tagR=document.getElementById('tag-R');
+  var tagA=document.getElementById('tag-A');
+  var tagB=document.getElementById('tag-B');
+  var tagC=document.getElementById('tag-C');
+  var hA=document.getElementById('handle-A');
+  var hB=document.getElementById('handle-B');
+  var hC=document.getElementById('handle-C');
+  var statusBadge=document.getElementById('status-badge');
+  var sideRow=document.getElementById('side-row');
+  var detailRow=document.getElementById('detail-row');
+  var toggleTrisectors=document.getElementById('toggle-trisectors');
+  var toggleLabels=document.getElementById('toggle-labels');
+  var toggleAngles=document.getElementById('toggle-angles');
+
+  function disp(el,on){ el.style.display=on?'block':'none'; }
+  function angleAt(V,U,W){ var c=dot(unit(sub(U,V)),unit(sub(W,V))); c=Math.min(1,Math.max(-1,c)); return Math.acos(c)*180/Math.PI; }
+
+  function update(){
+    var A=pts.A,B=pts.B,C=pts.C;
+    hA.setAttribute('cx',A.x); hA.setAttribute('cy',A.y);
+    hB.setAttribute('cx',B.x); hB.setAttribute('cy',B.y);
+    hC.setAttribute('cx',C.x); hC.setAttribute('cy',C.y);
+    triPoly.setAttribute('points', A.x+','+A.y+' '+B.x+','+B.y+' '+C.x+','+C.y);
+
+    // Morley points
+    var P=rayIntersect(B,trisectDir(B,C,A), C,trisectDir(C,B,A));  // near BC
+    var Q=rayIntersect(C,trisectDir(C,A,B), A,trisectDir(A,C,B));  // near CA
+    var R=rayIntersect(A,trisectDir(A,B,C), B,trisectDir(B,A,C));  // near AB
+    if(!P||!Q||!R) return;
+
+    // trisector segments from each vertex to the relevant Morley points
+    clearKids(trisectorGroup);
+    if(showTrisectors){
+      var segs=[[B,P],[C,P],[C,Q],[A,Q],[A,R],[B,R]];
+      segs.forEach(function(s){
+        trisectorGroup.appendChild(svgEl('line',{x1:s[0].x,y1:s[0].y,x2:s[1].x,y2:s[1].y,stroke:'#BA7517','stroke-width':1.4,'stroke-opacity':0.7}));
+      });
+    }
+
+    morley.setAttribute('points', P.x+','+P.y+' '+Q.x+','+Q.y+' '+R.x+','+R.y);
+    dotP.setAttribute('cx',P.x); dotP.setAttribute('cy',P.y);
+    dotQ.setAttribute('cx',Q.x); dotQ.setAttribute('cy',Q.y);
+    dotR.setAttribute('cx',R.x); dotR.setAttribute('cy',R.y);
+
+    var ncen={x:(P.x+Q.x+R.x)/3,y:(P.y+Q.y+R.y)/3};
+    function inTag(el,V){ var d=sub(V,ncen),l=len(d)||1; el.setAttribute('x',V.x+d.x/l*14); el.setAttribute('y',V.y+d.y/l*14); }
+    inTag(tagP,P); inTag(tagQ,Q); inTag(tagR,R);
+
+    var cen={x:(A.x+B.x+C.x)/3,y:(A.y+B.y+C.y)/3};
+    function outTag(el,V){ var d=sub(V,cen),l=len(d)||1; el.setAttribute('x',V.x+d.x/l*22); el.setAttribute('y',V.y+d.y/l*22); }
+    outTag(tagA,A); outTag(tagB,B); outTag(tagC,C);
+
+    var s1=len(sub(P,Q))/UNIT, s2=len(sub(Q,R))/UNIT, s3=len(sub(R,P))/UNIT;
+    function sideLbl(el,U,V,val){ var m=mid(U,V); var d=sub(m,ncen),l=len(d)||1; el.setAttribute('x',m.x+d.x/l*13); el.setAttribute('y',m.y+d.y/l*13); el.textContent=fmt(val); }
+    sideLbl(lab1,P,Q,s1); sideLbl(lab2,Q,R,s2); sideLbl(lab3,R,P,s3);
+    disp(lab1,showLabels); disp(lab2,showLabels); disp(lab3,showLabels);
+
+    var avg=(s1+s2+s3)/3, spread=Math.max(Math.abs(s1-avg),Math.abs(s2-avg),Math.abs(s3-avg));
+    var ok=spread<0.05*Math.max(1,avg);
+    statusBadge.textContent='Morley triangle is equilateral';
+    statusBadge.style.background='#EDE6F6'; statusBadge.style.color='#3F2A5C';
+
+    sideRow.innerHTML =
+      '<span><span class="swatch" style="background:#8B5FBF"></span>PQ = '+fmt(s1)+'</span><span style="color:#888;">=</span>'+
+      '<span><span class="swatch" style="background:#8B5FBF"></span>QR = '+fmt(s2)+'</span><span style="color:#888;">=</span>'+
+      '<span><span class="swatch" style="background:#8B5FBF"></span>RP = '+fmt(s3)+'</span>'+
+      (ok?'<span style="color:#1d9e75;font-weight:700;">&check; equilateral</span>':'');
+
+    if(showAngles){
+      var aA=angleAt(A,B,C),aB=angleAt(B,A,C),aC=angleAt(C,A,B);
+      detailRow.textContent='Angle thirds:  A/3 = '+fmt(aA/3)+'°,  B/3 = '+fmt(aB/3)+'°,  C/3 = '+fmt(aC/3)+'°   (sum of thirds = 60°)';
+    } else {
+      detailRow.textContent='Each angle is split into three equal parts; the trisectors next to each side meet at P, Q, R.';
+    }
+  }
+
+  var dragging=null;
+  function toSvgPoint(evt){
+    var rect=svg.getBoundingClientRect();
+    var vb=svg.viewBox.baseVal;
+    return { x:(evt.clientX-rect.left)/rect.width*vb.width+vb.x, y:(evt.clientY-rect.top)/rect.height*vb.height+vb.y };
+  }
+  function onDown(key){
+    return function(e){
+      dragging=key;
+      if(e.target.setPointerCapture){ try{ e.target.setPointerCapture(e.pointerId); }catch(err){} }
+      e.preventDefault();
+    };
+  }
+  function onMove(e){
+    if(!dragging) return;
+    var p=toSvgPoint(e);
+    pts[dragging]={x:Math.min(maxX,Math.max(minX,p.x)), y:Math.min(maxY,Math.max(minY,p.y))};
+    update();
+  }
+  function onUp(){ dragging=null; }
+  hA.addEventListener('pointerdown',onDown('A'));
+  hB.addEventListener('pointerdown',onDown('B'));
+  hC.addEventListener('pointerdown',onDown('C'));
+  svg.addEventListener('pointermove',onMove);
+  window.addEventListener('pointerup',onUp);
+
+  toggleTrisectors.addEventListener('click',function(){ showTrisectors=!showTrisectors; toggleTrisectors.classList.toggle('active',showTrisectors); update(); });
+  toggleLabels.addEventListener('click',function(){ showLabels=!showLabels; toggleLabels.classList.toggle('active',showLabels); update(); });
+  toggleAngles.addEventListener('click',function(){ showAngles=!showAngles; toggleAngles.classList.toggle('active',showAngles); update(); });
+
+  var infoToggle=document.getElementById('info-toggle-btn');
+  var infoDrawer=document.getElementById('info-drawer');
+  var infoBackdrop=document.getElementById('info-backdrop');
+  var infoClose=document.getElementById('info-close');
+  function openDrawer(){ infoDrawer.classList.add('open'); infoBackdrop.classList.add('open'); }
+  function closeDrawer(){ infoDrawer.classList.remove('open'); infoBackdrop.classList.remove('open'); }
+  infoToggle.addEventListener('click',function(){
+    if(infoDrawer.classList.contains('open')) closeDrawer(); else openDrawer();
+  });
+  infoClose.addEventListener('click',closeDrawer);
+  infoBackdrop.addEventListener('click',closeDrawer);
+  document.addEventListener('keydown',function(e){ if(e.key==='Escape') closeDrawer(); });
+
+  update();
+})();
+</script>
+</body>
+</html>

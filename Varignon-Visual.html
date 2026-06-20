@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>GeoProof — Varignon's Theorem explorer</title>
+<style>
+  body{background:#f4f4f5;display:flex;justify-content:center;padding:40px 16px;font-family:sans-serif;}
+  .widget{width:680px;max-width:100%;}
+  .card{background:#ffffff;border:1px solid #e2e2e2;padding:1.25rem;}
+  .sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;}
+  #vg-svg{width:100%;height:auto;display:block;touch-action:none;}
+  .handle{cursor:grab;}
+  .handle:active{cursor:grabbing;}
+  .swatch{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:6px;vertical-align:middle;}
+  .toggle-btn{padding:6px 14px;border-radius:999px;border:1px solid #d8d8d8;background:#f4f4f5;color:#888888;font-size:13px;font-weight:500;cursor:pointer;}
+  .toggle-btn.active{background:#1a1a1a;color:#ffffff;border-color:#1a1a1a;}
+  .stage{position:relative;border-radius:12px;overflow:hidden;border:1px solid #e2e2e2;}
+  .stage .card{border:none;}
+  .info-toggle{position:absolute;top:14px;right:14px;z-index:30;background:#1a1a1a;color:#ffffff;border:none;border-radius:999px;padding:7px 14px;font-size:13px;font-weight:500;cursor:pointer;}
+  .info-toggle:hover{background:#333333;}
+  .info-backdrop{position:absolute;inset:0;background:rgba(0,0,0,0.22);opacity:0;visibility:hidden;transition:opacity .2s ease;z-index:25;}
+  .info-backdrop.open{opacity:1;visibility:visible;}
+  .info-drawer{position:absolute;top:0;right:0;height:100%;width:320px;max-width:88%;background:#ffffff;border-left:1px solid #e2e2e2;box-shadow:-8px 0 24px rgba(0,0,0,0.14);padding:22px 20px;overflow-y:auto;transform:translateX(100%);transition:transform .25s ease;z-index:28;box-sizing:border-box;}
+  .info-drawer.open{transform:translateX(0);}
+  .info-close{position:absolute;top:14px;right:14px;background:#f4f4f5;border:1px solid #e2e2e2;border-radius:50%;width:28px;height:28px;font-size:14px;cursor:pointer;color:#555555;}
+  .info-drawer h3{font-size:17px;margin:6px 0 12px;padding-right:30px;color:#1a1a1a;}
+  .info-drawer h4{font-size:12px;margin:18px 0 6px;color:#666666;text-transform:uppercase;letter-spacing:.04em;}
+  .info-drawer p{font-size:13.5px;line-height:1.55;color:#333333;margin:0 0 10px;}
+  .formula-box{background:#f4f4f5;border-radius:8px;padding:10px 12px;text-align:center;font-size:13.5px;font-weight:600;margin:10px 0;color:#1a1a1a;}
+</style>
+</head>
+<body>
+<div class="widget">
+<div style="margin-bottom:12px;"><a href="index.html" style="font-size:14px;color:#1a1a1a;text-decoration:none;">&larr; GeoProof</a></div>
+<div class="stage">
+<div class="card">
+<h2 class="sr-only">A quadrilateral ABCD is shown; drag any of its four corners. The midpoints of its four sides — P, Q, R, S — are joined to form an inner quadrilateral. Varignon's theorem says this inner shape is always a parallelogram: side PQ is parallel and equal to side RS, and side QR is parallel and equal to side SP. Its sides are parallel to the diagonals of ABCD and half their length, and its area is half the area of ABCD. The side lengths and the area comparison are shown live. An info button opens a drawer explaining the theorem.</h2>
+<svg id="vg-svg" viewBox="0 0 680 560" aria-hidden="true">
+  <polygon id="outer" fill="#1a1a1a" fill-opacity="0.03" stroke="#1a1a1a" stroke-width="2.5"></polygon>
+  <line id="diag-ac" stroke="#378ADD" stroke-width="1.5" stroke-dasharray="5,4" stroke-opacity="0.6"></line>
+  <line id="diag-bd" stroke="#639922" stroke-width="1.5" stroke-dasharray="5,4" stroke-opacity="0.6"></line>
+  <polygon id="inner" fill="#8B5FBF" fill-opacity="0.16" stroke="none"></polygon>
+  <polygon id="ang-p" fill="#8B5FBF" fill-opacity="0.35" stroke="none"></polygon>
+  <polygon id="ang-q" fill="#8B5FBF" fill-opacity="0.35" stroke="none"></polygon>
+  <polygon id="ang-r" fill="#8B5FBF" fill-opacity="0.35" stroke="none"></polygon>
+  <polygon id="ang-s" fill="#8B5FBF" fill-opacity="0.35" stroke="none"></polygon>
+  <line id="side-pq" stroke="#378ADD" stroke-width="3.5" stroke-linecap="round"></line>
+  <line id="side-rs" stroke="#378ADD" stroke-width="3.5" stroke-linecap="round"></line>
+  <line id="side-qr" stroke="#639922" stroke-width="3.5" stroke-linecap="round"></line>
+  <line id="side-sp" stroke="#639922" stroke-width="3.5" stroke-linecap="round"></line>
+  <text id="lab-pq" text-anchor="middle" dominant-baseline="middle" fill="#185FA5" font-size="12.5" font-weight="600"></text>
+  <text id="lab-rs" text-anchor="middle" dominant-baseline="middle" fill="#185FA5" font-size="12.5" font-weight="600"></text>
+  <text id="lab-qr" text-anchor="middle" dominant-baseline="middle" fill="#3B6D11" font-size="12.5" font-weight="600"></text>
+  <text id="lab-sp" text-anchor="middle" dominant-baseline="middle" fill="#3B6D11" font-size="12.5" font-weight="600"></text>
+  <text id="angt-p" text-anchor="middle" dominant-baseline="middle" fill="#5B3886" font-size="11.5" font-weight="600"></text>
+  <text id="angt-q" text-anchor="middle" dominant-baseline="middle" fill="#5B3886" font-size="11.5" font-weight="600"></text>
+  <text id="angt-r" text-anchor="middle" dominant-baseline="middle" fill="#5B3886" font-size="11.5" font-weight="600"></text>
+  <text id="angt-s" text-anchor="middle" dominant-baseline="middle" fill="#5B3886" font-size="11.5" font-weight="600"></text>
+  <text id="tag-A" text-anchor="middle" dominant-baseline="middle" fill="#1a1a1a" font-size="14" font-weight="700">A</text>
+  <text id="tag-B" text-anchor="middle" dominant-baseline="middle" fill="#1a1a1a" font-size="14" font-weight="700">B</text>
+  <text id="tag-C" text-anchor="middle" dominant-baseline="middle" fill="#1a1a1a" font-size="14" font-weight="700">C</text>
+  <text id="tag-D" text-anchor="middle" dominant-baseline="middle" fill="#1a1a1a" font-size="14" font-weight="700">D</text>
+  <circle id="dot-P" r="4.5" fill="#5B3886"></circle>
+  <circle id="dot-Q" r="4.5" fill="#5B3886"></circle>
+  <circle id="dot-R" r="4.5" fill="#5B3886"></circle>
+  <circle id="dot-S" r="4.5" fill="#5B3886"></circle>
+  <text id="tag-P" text-anchor="middle" dominant-baseline="middle" fill="#5B3886" font-size="12" font-weight="700">P</text>
+  <text id="tag-Q" text-anchor="middle" dominant-baseline="middle" fill="#5B3886" font-size="12" font-weight="700">Q</text>
+  <text id="tag-R" text-anchor="middle" dominant-baseline="middle" fill="#5B3886" font-size="12" font-weight="700">R</text>
+  <text id="tag-S" text-anchor="middle" dominant-baseline="middle" fill="#5B3886" font-size="12" font-weight="700">S</text>
+  <circle id="handle-A" class="handle" r="12" fill="#ffffff" stroke="#1a1a1a" stroke-width="2"></circle>
+  <circle id="handle-B" class="handle" r="12" fill="#ffffff" stroke="#1a1a1a" stroke-width="2"></circle>
+  <circle id="handle-C" class="handle" r="12" fill="#ffffff" stroke="#1a1a1a" stroke-width="2"></circle>
+  <circle id="handle-D" class="handle" r="12" fill="#ffffff" stroke="#1a1a1a" stroke-width="2"></circle>
+</svg>
+
+<div style="display:flex; justify-content:center; gap:10px; flex-wrap:wrap; margin-top:0.75rem;">
+  <button type="button" id="toggle-diag" class="toggle-btn active">Diagonals</button>
+  <button type="button" id="toggle-labels" class="toggle-btn active">Length labels</button>
+  <button type="button" id="toggle-angles" class="toggle-btn active">Angles</button>
+</div>
+
+<div style="display:flex; justify-content:center; margin-top:0.85rem;">
+  <span id="status-badge" style="display:inline-block; padding:4px 14px; border-radius:999px; font-size:14px; font-weight:500;"></span>
+</div>
+
+<div id="formula-symbolic" style="text-align:center; font-size:14px; font-weight:600; color:#1a1a1a; margin-top:1.1rem;">PQ = RS = ½·AC &nbsp;·&nbsp; QR = SP = ½·BD</div>
+
+<div id="eq-row" style="display:flex; align-items:center; justify-content:center; gap:14px; flex-wrap:wrap; margin-top:0.6rem; font-size:15px; color:#1a1a1a;"></div>
+<div id="area-row" style="text-align:center; font-size:13px; color:#555555; margin-top:0.55rem;"></div>
+<div style="text-align:center; font-size:13px; color:#777777; margin-top:0.55rem;">Drag any corner — convex, concave, or crossed — and the inner shape stays a perfect parallelogram.</div>
+</div>
+
+<button type="button" id="info-toggle-btn" class="info-toggle">ⓘ About this theorem</button>
+<div id="info-backdrop" class="info-backdrop"></div>
+<aside id="info-drawer" class="info-drawer">
+  <button type="button" id="info-close" class="info-close" aria-label="Close">✕</button>
+  <h3>Varignon's Theorem</h3>
+  <p>Take any quadrilateral ABCD and mark the midpoint of each side: P on AB, Q on BC, R on CD, S on DA. Connect them in order. The result is always a parallelogram — the Varignon parallelogram:</p>
+  <div class="formula-box">PQ ∥ RS, &nbsp; QR ∥ SP</div>
+  <p>This works for every quadrilateral: convex, concave, even a self-crossing one.</p>
+  <h4>Why it's true</h4>
+  <p>Look at triangle ABC: P and Q are midpoints of two of its sides, so segment PQ is a midsegment — parallel to the third side AC and exactly half its length. In triangle ACD, the segment SR is also a midsegment of the same diagonal AC, so SR is parallel to AC and half its length too. Therefore PQ and SR are parallel and equal. The same argument with diagonal BD handles the other pair.</p>
+  <h4>Sides, area, and perimeter</h4>
+  <p>Each pair of parallelogram sides equals half a diagonal of ABCD, so its perimeter equals AC + BD (the sum of the diagonals). For a simple quadrilateral, its area is exactly half the area of ABCD.</p>
+  <h4>A neat special case</h4>
+  <p>If the diagonals of ABCD are equal (as in an isosceles trapezoid), all four parallelogram sides are equal — a rhombus. If the diagonals are perpendicular (as in a kite), the parallelogram is a rectangle.</p>
+  <h4>A bit of history</h4>
+  <p>It is named for Pierre Varignon (1654–1722), the French mathematician, and was published in his work on mechanics and geometry in 1731.</p>
+</aside>
+</div>
+</div>
+
+<script>
+(function(){
+  var svg=document.getElementById('vg-svg');
+  var pts={ A:{x:180,y:120}, B:{x:520,y:165}, C:{x:470,y:445}, D:{x:155,y:400} };
+  var minX=24,maxX=656,minY=24,maxY=536;
+  var UNIT=30;
+  var showDiag=true, showLabels=true, showAngles=true;
+
+  function sub(p,q){return {x:p.x-q.x,y:p.y-q.y};}
+  function add(p,q){return {x:p.x+q.x,y:p.y+q.y};}
+  function len(v){return Math.hypot(v.x,v.y);}
+  function mid(p,q){return {x:(p.x+q.x)/2,y:(p.y+q.y)/2};}
+  function fmt(n){ var r=Math.round(n*10)/10; return (Math.abs(r-Math.round(r))<1e-9)?Math.round(r).toString():r.toFixed(1); }
+  function angleDeg(P,Q,R){
+    var u=sub(Q,P), v=sub(R,P), lu=len(u), lv=len(v);
+    if(lu<1e-6||lv<1e-6) return 0;
+    var c=(u.x*v.x+u.y*v.y)/(lu*lv); c=Math.min(1,Math.max(-1,c));
+    return Math.acos(c)*180/Math.PI;
+  }
+  function angleWedge(P,Q,R,radius){
+    var ua=Math.atan2(Q.y-P.y,Q.x-P.x)*180/Math.PI;
+    var ub=Math.atan2(R.y-P.y,R.x-P.x)*180/Math.PI;
+    var diff=((ub-ua+540)%360)-180;
+    var steps=Math.max(2,Math.round(Math.abs(diff)/5));
+    var arr=[P.x.toFixed(1)+','+P.y.toFixed(1)];
+    for(var i=0;i<=steps;i++){ var a=(ua+diff*(i/steps))*Math.PI/180; arr.push((P.x+radius*Math.cos(a)).toFixed(1)+','+(P.y+radius*Math.sin(a)).toFixed(1)); }
+    return {pts:arr.join(' '), bis:(ua+diff/2)*Math.PI/180};
+  }
+  function shoelace(poly){ var s=0; for(var i=0;i<poly.length;i++){ var a=poly[i],b=poly[(i+1)%poly.length]; s+=a.x*b.y-b.x*a.y; } return Math.abs(s)/2; }
+
+  var outer=document.getElementById('outer');
+  var diagAC=document.getElementById('diag-ac');
+  var diagBD=document.getElementById('diag-bd');
+  var inner=document.getElementById('inner');
+  var sidePQ=document.getElementById('side-pq');
+  var sideRS=document.getElementById('side-rs');
+  var sideQR=document.getElementById('side-qr');
+  var sideSP=document.getElementById('side-sp');
+  var labPQ=document.getElementById('lab-pq');
+  var labRS=document.getElementById('lab-rs');
+  var labQR=document.getElementById('lab-qr');
+  var labSP=document.getElementById('lab-sp');
+  var angP=document.getElementById('ang-p');
+  var angQ=document.getElementById('ang-q');
+  var angR=document.getElementById('ang-r');
+  var angS=document.getElementById('ang-s');
+  var angtP=document.getElementById('angt-p');
+  var angtQ=document.getElementById('angt-q');
+  var angtR=document.getElementById('angt-r');
+  var angtS=document.getElementById('angt-s');
+  var tagA=document.getElementById('tag-A');
+  var tagB=document.getElementById('tag-B');
+  var tagC=document.getElementById('tag-C');
+  var tagD=document.getElementById('tag-D');
+  var dotP=document.getElementById('dot-P');
+  var dotQ=document.getElementById('dot-Q');
+  var dotR=document.getElementById('dot-R');
+  var dotS=document.getElementById('dot-S');
+  var tagP=document.getElementById('tag-P');
+  var tagQ=document.getElementById('tag-Q');
+  var tagR=document.getElementById('tag-R');
+  var tagS=document.getElementById('tag-S');
+  var hA=document.getElementById('handle-A');
+  var hB=document.getElementById('handle-B');
+  var hC=document.getElementById('handle-C');
+  var hD=document.getElementById('handle-D');
+  var statusBadge=document.getElementById('status-badge');
+  var eqRow=document.getElementById('eq-row');
+  var areaRow=document.getElementById('area-row');
+  var toggleDiag=document.getElementById('toggle-diag');
+  var toggleLabels=document.getElementById('toggle-labels');
+  var toggleAngles=document.getElementById('toggle-angles');
+
+  function setLine(el,p,q){ el.setAttribute('x1',p.x); el.setAttribute('y1',p.y); el.setAttribute('x2',q.x); el.setAttribute('y2',q.y); }
+  function disp(el,on){ el.style.display=on?'block':'none'; }
+
+  function update(){
+    var A=pts.A,B=pts.B,C=pts.C,D=pts.D;
+    hA.setAttribute('cx',A.x); hA.setAttribute('cy',A.y);
+    hB.setAttribute('cx',B.x); hB.setAttribute('cy',B.y);
+    hC.setAttribute('cx',C.x); hC.setAttribute('cy',C.y);
+    hD.setAttribute('cx',D.x); hD.setAttribute('cy',D.y);
+
+    outer.setAttribute('points', A.x+','+A.y+' '+B.x+','+B.y+' '+C.x+','+C.y+' '+D.x+','+D.y);
+    setLine(diagAC,A,C); setLine(diagBD,B,D);
+    disp(diagAC,showDiag); disp(diagBD,showDiag);
+
+    var cen={x:(A.x+B.x+C.x+D.x)/4,y:(A.y+B.y+C.y+D.y)/4};
+    function outTag(V){ var d=sub(V,cen),l=len(d)||1; return {x:V.x+d.x/l*22,y:V.y+d.y/l*22}; }
+    var tA=outTag(A),tB=outTag(B),tC=outTag(C),tD=outTag(D);
+    tagA.setAttribute('x',tA.x); tagA.setAttribute('y',tA.y);
+    tagB.setAttribute('x',tB.x); tagB.setAttribute('y',tB.y);
+    tagC.setAttribute('x',tC.x); tagC.setAttribute('y',tC.y);
+    tagD.setAttribute('x',tD.x); tagD.setAttribute('y',tD.y);
+
+    var P=mid(A,B),Q=mid(B,C),R=mid(C,D),S=mid(D,A);
+    inner.setAttribute('points', P.x+','+P.y+' '+Q.x+','+Q.y+' '+R.x+','+R.y+' '+S.x+','+S.y);
+    setLine(sidePQ,P,Q); setLine(sideRS,R,S); setLine(sideQR,Q,R); setLine(sideSP,S,P);
+
+    dotP.setAttribute('cx',P.x); dotP.setAttribute('cy',P.y);
+    dotQ.setAttribute('cx',Q.x); dotQ.setAttribute('cy',Q.y);
+    dotR.setAttribute('cx',R.x); dotR.setAttribute('cy',R.y);
+    dotS.setAttribute('cx',S.x); dotS.setAttribute('cy',S.y);
+    var icen={x:(P.x+Q.x+R.x+S.x)/4,y:(P.y+Q.y+R.y+S.y)/4};
+    function inTag(el,V){ var d=sub(V,icen),l=len(d)||1; el.setAttribute('x',V.x+d.x/l*13); el.setAttribute('y',V.y+d.y/l*13); }
+    inTag(tagP,P); inTag(tagQ,Q); inTag(tagR,R); inTag(tagS,S);
+
+    var PQ=len(sub(Q,P))/UNIT, RS=len(sub(S,R))/UNIT, QR=len(sub(R,Q))/UNIT, SP=len(sub(P,S))/UNIT;
+    var AC=len(sub(C,A))/UNIT, BD=len(sub(D,B))/UNIT;
+
+    // on-graph length labels, nudged outward from the parallelogram center
+    function sideLbl(el,p,q,val){ var m=mid(p,q); var d=sub(m,icen),l=len(d)||1; el.setAttribute('x',m.x+d.x/l*15); el.setAttribute('y',m.y+d.y/l*15); el.textContent=fmt(val); }
+    sideLbl(labPQ,P,Q,PQ); sideLbl(labRS,R,S,RS); sideLbl(labQR,Q,R,QR); sideLbl(labSP,S,P,SP);
+    disp(labPQ,showLabels); disp(labRS,showLabels); disp(labQR,showLabels); disp(labSP,showLabels);
+
+    // interior angles of the parallelogram (opposite angles are equal)
+    var angAtP=angleDeg(P,S,Q), angAtQ=angleDeg(Q,P,R), angAtR=angleDeg(R,Q,S), angAtS=angleDeg(S,R,P);
+    var rad=22;
+    var wP=angleWedge(P,S,Q,rad), wQ=angleWedge(Q,P,R,rad), wR=angleWedge(R,Q,S,rad), wS=angleWedge(S,R,P,rad);
+    angP.setAttribute('points',wP.pts); angQ.setAttribute('points',wQ.pts); angR.setAttribute('points',wR.pts); angS.setAttribute('points',wS.pts);
+    function angTxt(el,P0,bis,val){ el.setAttribute('x',P0.x+(rad+13)*Math.cos(bis)); el.setAttribute('y',P0.y+(rad+13)*Math.sin(bis)); el.textContent=Math.round(val)+'°'; }
+    angTxt(angtP,P,wP.bis,angAtP); angTxt(angtQ,Q,wQ.bis,angAtQ); angTxt(angtR,R,wR.bis,angAtR); angTxt(angtS,S,wS.bis,angAtS);
+    disp(angP,showAngles); disp(angQ,showAngles); disp(angR,showAngles); disp(angS,showAngles);
+    disp(angtP,showAngles); disp(angtQ,showAngles); disp(angtR,showAngles); disp(angtS,showAngles);
+
+    var parOK=Math.abs(PQ-RS)<0.05*Math.max(1,PQ) && Math.abs(QR-SP)<0.05*Math.max(1,QR);
+    statusBadge.textContent='Midpoints PQRS form a parallelogram';
+    statusBadge.style.background='#EDE6F6'; statusBadge.style.color='#3F2A5C';
+
+    eqRow.innerHTML =
+      '<span><span class="swatch" style="background:#378ADD"></span>PQ = '+fmt(PQ)+', RS = '+fmt(RS)+' &nbsp;(½·AC = '+fmt(AC/2)+')</span>'+
+      '<span><span class="swatch" style="background:#639922"></span>QR = '+fmt(QR)+', SP = '+fmt(SP)+' &nbsp;(½·BD = '+fmt(BD/2)+')</span>'+
+      (parOK?'<span style="color:#1d9e75;font-weight:700;">&check;</span>':'');
+
+    var areaOuter=shoelace([A,B,C,D])/(UNIT*UNIT);
+    var areaInner=shoelace([P,Q,R,S])/(UNIT*UNIT);
+    areaRow.innerHTML='area(PQRS) = <b>'+fmt(areaInner)+'</b>   =   ½ × area(ABCD) ('+fmt(areaOuter)+')   →   ½ × '+fmt(areaOuter)+' = '+fmt(areaOuter/2);
+  }
+
+  var dragging=null;
+  function toSvgPoint(evt){
+    var rect=svg.getBoundingClientRect();
+    var vb=svg.viewBox.baseVal;
+    return { x:(evt.clientX-rect.left)/rect.width*vb.width+vb.x, y:(evt.clientY-rect.top)/rect.height*vb.height+vb.y };
+  }
+  function onDown(key){
+    return function(e){
+      dragging=key;
+      if(e.target.setPointerCapture){ try{ e.target.setPointerCapture(e.pointerId); }catch(err){} }
+      e.preventDefault();
+    };
+  }
+  function onMove(e){
+    if(!dragging) return;
+    var p=toSvgPoint(e);
+    pts[dragging]={x:Math.min(maxX,Math.max(minX,p.x)), y:Math.min(maxY,Math.max(minY,p.y))};
+    update();
+  }
+  function onUp(){ dragging=null; }
+  hA.addEventListener('pointerdown',onDown('A'));
+  hB.addEventListener('pointerdown',onDown('B'));
+  hC.addEventListener('pointerdown',onDown('C'));
+  hD.addEventListener('pointerdown',onDown('D'));
+  svg.addEventListener('pointermove',onMove);
+  window.addEventListener('pointerup',onUp);
+
+  toggleDiag.addEventListener('click',function(){ showDiag=!showDiag; toggleDiag.classList.toggle('active',showDiag); update(); });
+  toggleLabels.addEventListener('click',function(){ showLabels=!showLabels; toggleLabels.classList.toggle('active',showLabels); update(); });
+  toggleAngles.addEventListener('click',function(){ showAngles=!showAngles; toggleAngles.classList.toggle('active',showAngles); update(); });
+
+  var infoToggle=document.getElementById('info-toggle-btn');
+  var infoDrawer=document.getElementById('info-drawer');
+  var infoBackdrop=document.getElementById('info-backdrop');
+  var infoClose=document.getElementById('info-close');
+  function openDrawer(){ infoDrawer.classList.add('open'); infoBackdrop.classList.add('open'); }
+  function closeDrawer(){ infoDrawer.classList.remove('open'); infoBackdrop.classList.remove('open'); }
+  infoToggle.addEventListener('click',function(){
+    if(infoDrawer.classList.contains('open')) closeDrawer(); else openDrawer();
+  });
+  infoClose.addEventListener('click',closeDrawer);
+  infoBackdrop.addEventListener('click',closeDrawer);
+  document.addEventListener('keydown',function(e){ if(e.key==='Escape') closeDrawer(); });
+
+  update();
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>GeoProof — Pitot's Theorem explorer</title>
+<style>
+  body{background:#f4f4f5;display:flex;justify-content:center;padding:40px 16px;font-family:sans-serif;}
+  .widget{width:680px;max-width:100%;}
+  .card{background:#ffffff;border:1px solid #e2e2e2;padding:1.25rem;}
+  .sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;}
+  #pt-svg{width:100%;height:auto;display:block;touch-action:none;}
+  .handle{cursor:grab;}
+  .handle:active{cursor:grabbing;}
+  .swatch{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:6px;vertical-align:middle;}
+  .toggle-btn{padding:6px 14px;border-radius:999px;border:1px solid #d8d8d8;background:#f4f4f5;color:#888888;font-size:13px;font-weight:500;cursor:pointer;}
+  .toggle-btn.active{background:#1a1a1a;color:#ffffff;border-color:#1a1a1a;}
+  .stage{position:relative;border-radius:12px;overflow:hidden;border:1px solid #e2e2e2;}
+  .stage .card{border:none;}
+  .info-toggle{position:absolute;top:14px;right:14px;z-index:30;background:#1a1a1a;color:#ffffff;border:none;border-radius:999px;padding:7px 14px;font-size:13px;font-weight:500;cursor:pointer;}
+  .info-toggle:hover{background:#333333;}
+  .info-backdrop{position:absolute;inset:0;background:rgba(0,0,0,0.22);opacity:0;visibility:hidden;transition:opacity .2s ease;z-index:25;}
+  .info-backdrop.open{opacity:1;visibility:visible;}
+  .info-drawer{position:absolute;top:0;right:0;height:100%;width:320px;max-width:88%;background:#ffffff;border-left:1px solid #e2e2e2;box-shadow:-8px 0 24px rgba(0,0,0,0.14);padding:22px 20px;overflow-y:auto;transform:translateX(100%);transition:transform .25s ease;z-index:28;box-sizing:border-box;}
+  .info-drawer.open{transform:translateX(0);}
+  .info-close{position:absolute;top:14px;right:14px;background:#f4f4f5;border:1px solid #e2e2e2;border-radius:50%;width:28px;height:28px;font-size:14px;cursor:pointer;color:#555555;}
+  .info-drawer h3{font-size:17px;margin:6px 0 12px;padding-right:30px;color:#1a1a1a;}
+  .info-drawer h4{font-size:12px;margin:18px 0 6px;color:#666666;text-transform:uppercase;letter-spacing:.04em;}
+  .info-drawer p{font-size:13.5px;line-height:1.55;color:#333333;margin:0 0 10px;}
+  .formula-box{background:#f4f4f5;border-radius:8px;padding:10px 12px;text-align:center;font-size:13.5px;font-weight:600;margin:10px 0;color:#1a1a1a;}
+</style>
+</head>
+<body>
+<div class="widget">
+<div style="margin-bottom:12px;"><a href="index.html" style="font-size:14px;color:#1a1a1a;text-decoration:none;">&larr; GeoProof</a></div>
+<div class="stage">
+<div class="card">
+<h2 class="sr-only">A circle sits inside a quadrilateral ABCD so that all four sides just touch it — a tangential quadrilateral. Drag the four touch points around the circle to reshape it. Because each side is tangent, the two tangent segments drawn from any corner to its neighbouring touch points are equal. Pitot's theorem says the sums of opposite sides are equal: AB plus CD equals BC plus DA. The four side lengths and both sums are shown live. An info button opens a drawer explaining the theorem.</h2>
+<svg id="pt-svg" viewBox="0 0 680 560" aria-hidden="true">
+  <polygon id="quad" fill="#8B5FBF" fill-opacity="0.05" stroke="#1a1a1a" stroke-width="2.5"></polygon>
+  <circle id="incircle" fill="#1D9E75" fill-opacity="0.08" stroke="#1D9E75" stroke-width="1.8"></circle>
+  <circle id="dot-I" r="3" fill="#1D9E75"></circle>
+  <line id="side-ab" stroke="#378ADD" stroke-width="3.5" stroke-linecap="round"></line>
+  <line id="side-bc" stroke="#639922" stroke-width="3.5" stroke-linecap="round"></line>
+  <line id="side-cd" stroke="#378ADD" stroke-width="3.5" stroke-linecap="round"></line>
+  <line id="side-da" stroke="#639922" stroke-width="3.5" stroke-linecap="round"></line>
+  <text id="lab-ab" text-anchor="middle" dominant-baseline="middle" fill="#185FA5" font-size="12.5" font-weight="600"></text>
+  <text id="lab-bc" text-anchor="middle" dominant-baseline="middle" fill="#3B6D11" font-size="12.5" font-weight="600"></text>
+  <text id="lab-cd" text-anchor="middle" dominant-baseline="middle" fill="#185FA5" font-size="12.5" font-weight="600"></text>
+  <text id="lab-da" text-anchor="middle" dominant-baseline="middle" fill="#3B6D11" font-size="12.5" font-weight="600"></text>
+  <circle id="dot-T1" r="3.5" fill="#1a1a1a"></circle>
+  <circle id="dot-T2" r="3.5" fill="#1a1a1a"></circle>
+  <circle id="dot-T3" r="3.5" fill="#1a1a1a"></circle>
+  <circle id="dot-T4" r="3.5" fill="#1a1a1a"></circle>
+  <text id="tag-A" text-anchor="middle" dominant-baseline="middle" fill="#1a1a1a" font-size="14" font-weight="700">A</text>
+  <text id="tag-B" text-anchor="middle" dominant-baseline="middle" fill="#1a1a1a" font-size="14" font-weight="700">B</text>
+  <text id="tag-C" text-anchor="middle" dominant-baseline="middle" fill="#1a1a1a" font-size="14" font-weight="700">C</text>
+  <text id="tag-D" text-anchor="middle" dominant-baseline="middle" fill="#1a1a1a" font-size="14" font-weight="700">D</text>
+  <circle id="handle-T1" class="handle" r="10" fill="#ffffff" stroke="#1a1a1a" stroke-width="2"></circle>
+  <circle id="handle-T2" class="handle" r="10" fill="#ffffff" stroke="#1a1a1a" stroke-width="2"></circle>
+  <circle id="handle-T3" class="handle" r="10" fill="#ffffff" stroke="#1a1a1a" stroke-width="2"></circle>
+  <circle id="handle-T4" class="handle" r="10" fill="#ffffff" stroke="#1a1a1a" stroke-width="2"></circle>
+</svg>
+
+<div style="display:flex; justify-content:center; gap:10px; flex-wrap:wrap; margin-top:0.75rem;">
+  <button type="button" id="toggle-incircle" class="toggle-btn active">Incircle</button>
+  <button type="button" id="toggle-labels" class="toggle-btn active">Side labels</button>
+  <button type="button" id="toggle-tangents" class="toggle-btn">Tangent segments</button>
+</div>
+
+<div style="display:flex; justify-content:center; margin-top:0.85rem;">
+  <span id="status-badge" style="display:inline-block; padding:4px 14px; border-radius:999px; font-size:14px; font-weight:500;"></span>
+</div>
+
+<div id="formula-symbolic" style="text-align:center; font-size:14.5px; font-weight:600; color:#1a1a1a; margin-top:1.1rem;">AB + CD = BC + DA</div>
+
+<div id="sum-row" style="display:flex; align-items:center; justify-content:center; gap:10px; flex-wrap:wrap; margin-top:0.6rem; font-size:15px; color:#1a1a1a;"></div>
+<div id="detail-row" style="text-align:center; font-size:12.5px; color:#777777; margin-top:0.55rem;"></div>
+<div style="text-align:center; font-size:13px; color:#777777; margin-top:0.55rem;">Drag the four touch points around the circle. Every side stays tangent, so the opposite-side sums always match.</div>
+</div>
+
+<button type="button" id="info-toggle-btn" class="info-toggle">ⓘ About this theorem</button>
+<div id="info-backdrop" class="info-backdrop"></div>
+<aside id="info-drawer" class="info-drawer">
+  <button type="button" id="info-close" class="info-close" aria-label="Close">✕</button>
+  <h3>Pitot's Theorem</h3>
+  <p>A <i>tangential quadrilateral</i> is one that has an inscribed circle touching all four sides. For any such quadrilateral ABCD, the two pairs of opposite sides have equal sums:</p>
+  <div class="formula-box">AB + CD = BC + DA</div>
+  <p>In this tool the quadrilateral is built directly from four tangent lines to a fixed circle, so it is always tangential — drag the touch points and the equality never breaks.</p>
+  <h4>Why it works: equal tangents</h4>
+  <p>From any point outside a circle, the two tangent segments to the circle are equal. So from each corner the two tangents to its neighbouring touch points match — call them a, b, c, d at A, B, C, D. Then AB = a + b, BC = b + c, CD = c + d, DA = d + a, and both sums equal a + b + c + d. Turn on "Tangent segments" to see the equal pairs.</p>
+  <h4>The converse</h4>
+  <p>The converse is also true (Pitot's full statement): if a convex quadrilateral has AB + CD = BC + DA, then a circle can be inscribed in it. So the equation is exactly the condition for an incircle to exist.</p>
+  <h4>Familiar special cases</h4>
+  <p>Every rhombus and every square is tangential (all sides equal, so both sums match). A general rectangle is not, unless it's a square.</p>
+  <h4>A bit of history</h4>
+  <p>It is named for Henri Pitot, the French engineer (also known for the Pitot tube), who stated it in 1725.</p>
+</aside>
+</div>
+</div>
+
+<script>
+(function(){
+  var svg=document.getElementById('pt-svg');
+  var I={x:340,y:288}, r=150;
+  var ang=[60,150,210,330];   // touch-point angles (degrees), kept sorted ascending
+  var UNIT=30;
+  var showIncircle=true, showLabels=true, showTangents=false;
+
+  function sub(p,q){return {x:p.x-q.x,y:p.y-q.y};}
+  function len(v){return Math.hypot(v.x,v.y);}
+  function cross(u,v){return u.x*v.y-u.y*v.x;}
+  function mid(p,q){return {x:(p.x+q.x)/2,y:(p.y+q.y)/2};}
+  function fmt(n){ var r=Math.round(n*10)/10; return (Math.abs(r-Math.round(r))<1e-9)?Math.round(r).toString():r.toFixed(1); }
+  function tPt(th){ var r2=th*Math.PI/180; return {x:I.x+r*Math.cos(r2), y:I.y+r*Math.sin(r2)}; }
+  function tDir(th){ var r2=th*Math.PI/180; return {x:-Math.sin(r2), y:Math.cos(r2)}; }
+  function lineX(P1,d1,P2,d2){ var den=cross(d1,d2); if(Math.abs(den)<1e-9) return null; var t=cross(sub(P2,P1),d2)/den; return {x:P1.x+t*d1.x,y:P1.y+t*d1.y}; }
+  function svgEl(tag,attrs){ var el=document.createElementNS('http://www.w3.org/2000/svg',tag); for(var k in attrs){el.setAttribute(k,attrs[k]);} return el; }
+
+  var quad=document.getElementById('quad');
+  var incircle=document.getElementById('incircle');
+  var dotI=document.getElementById('dot-I');
+  var sideAB=document.getElementById('side-ab');
+  var sideBC=document.getElementById('side-bc');
+  var sideCD=document.getElementById('side-cd');
+  var sideDA=document.getElementById('side-da');
+  var labAB=document.getElementById('lab-ab');
+  var labBC=document.getElementById('lab-bc');
+  var labCD=document.getElementById('lab-cd');
+  var labDA=document.getElementById('lab-da');
+  var dotT1=document.getElementById('dot-T1');
+  var dotT2=document.getElementById('dot-T2');
+  var dotT3=document.getElementById('dot-T3');
+  var dotT4=document.getElementById('dot-T4');
+  var tagA=document.getElementById('tag-A');
+  var tagB=document.getElementById('tag-B');
+  var tagC=document.getElementById('tag-C');
+  var tagD=document.getElementById('tag-D');
+  var hT=[document.getElementById('handle-T1'),document.getElementById('handle-T2'),document.getElementById('handle-T3'),document.getElementById('handle-T4')];
+  var statusBadge=document.getElementById('status-badge');
+  var sumRow=document.getElementById('sum-row');
+  var detailRow=document.getElementById('detail-row');
+  var toggleIncircle=document.getElementById('toggle-incircle');
+  var toggleLabels=document.getElementById('toggle-labels');
+  var toggleTangents=document.getElementById('toggle-tangents');
+
+  incircle.setAttribute('cx',I.x); incircle.setAttribute('cy',I.y); incircle.setAttribute('r',r);
+  dotI.setAttribute('cx',I.x); dotI.setAttribute('cy',I.y);
+
+  function setLine(el,p,q){ el.setAttribute('x1',p.x); el.setAttribute('y1',p.y); el.setAttribute('x2',q.x); el.setAttribute('y2',q.y); }
+  function disp(el,on){ el.style.display=on?'block':'none'; }
+
+  var tangentMarks=[];
+  function clearTangentMarks(){ tangentMarks.forEach(function(el){ if(el.parentNode) el.parentNode.removeChild(el); }); tangentMarks=[]; }
+
+  function update(){
+    var T=ang.map(tPt), Dn=ang.map(tDir);
+    for(var i=0;i<4;i++){ hT[i].setAttribute('cx',T[i].x); hT[i].setAttribute('cy',T[i].y); }
+    dotT1.setAttribute('cx',T[0].x); dotT1.setAttribute('cy',T[0].y);
+    dotT2.setAttribute('cx',T[1].x); dotT2.setAttribute('cy',T[1].y);
+    dotT3.setAttribute('cx',T[2].x); dotT3.setAttribute('cy',T[2].y);
+    dotT4.setAttribute('cx',T[3].x); dotT4.setAttribute('cy',T[3].y);
+
+    // vertices from consecutive tangent lines
+    var A=lineX(T[3],Dn[3],T[0],Dn[0]);
+    var B=lineX(T[0],Dn[0],T[1],Dn[1]);
+    var C=lineX(T[1],Dn[1],T[2],Dn[2]);
+    var D=lineX(T[2],Dn[2],T[3],Dn[3]);
+    clearTangentMarks();
+    if(!A||!B||!C||!D){
+      statusBadge.textContent='Touch points too far apart — spread them out';
+      statusBadge.style.background='#FAECE7'; statusBadge.style.color='#4A1B0C';
+      sumRow.innerHTML=''; return;
+    }
+
+    quad.setAttribute('points', A.x+','+A.y+' '+B.x+','+B.y+' '+C.x+','+C.y+' '+D.x+','+D.y);
+    disp(incircle,showIncircle); disp(dotI,showIncircle);
+
+    setLine(sideAB,A,B); setLine(sideBC,B,C); setLine(sideCD,C,D); setLine(sideDA,D,A);
+
+    var cen={x:(A.x+B.x+C.x+D.x)/4,y:(A.y+B.y+C.y+D.y)/4};
+    function tagAt(el,P){ var d=sub(P,cen),l=len(d)||1; el.setAttribute('x',P.x+d.x/l*18); el.setAttribute('y',P.y+d.y/l*18); }
+    tagAt(tagA,A); tagAt(tagB,B); tagAt(tagC,C); tagAt(tagD,D);
+
+    var AB=len(sub(A,B))/UNIT, BC=len(sub(B,C))/UNIT, CD=len(sub(C,D))/UNIT, DA=len(sub(D,A))/UNIT;
+    function sideLbl(el,P,Q,val){ var m=mid(P,Q); var d=sub(m,cen),l=len(d)||1; el.setAttribute('x',m.x+d.x/l*15); el.setAttribute('y',m.y+d.y/l*15); el.textContent=fmt(val); }
+    sideLbl(labAB,A,B,AB); sideLbl(labBC,B,C,BC); sideLbl(labCD,C,D,CD); sideLbl(labDA,D,A,DA);
+    disp(labAB,showLabels); disp(labBC,showLabels); disp(labCD,showLabels); disp(labDA,showLabels);
+
+    // optional tangent-segment markers (equal pairs from each vertex)
+    if(showTangents){
+      var pairs=[[A,T[3],T[0]],[B,T[0],T[1]],[C,T[1],T[2]],[D,T[2],T[3]]];
+      pairs.forEach(function(p){
+        [[p[0],p[1]],[p[0],p[2]]].forEach(function(seg){
+          var ln=svgEl('line',{x1:seg[0].x,y1:seg[0].y,x2:seg[1].x,y2:seg[1].y,stroke:'#BA7517','stroke-width':2.4,'stroke-opacity':0.8});
+          svg.appendChild(ln); tangentMarks.push(ln);
+        });
+      });
+    }
+
+    var lhs=AB+CD, rhs=BC+DA;
+    var mismatch=Math.abs(lhs-rhs)>0.05*Math.max(1,lhs);
+    statusBadge.textContent='Tangential quadrilateral — incircle touches all 4 sides';
+    statusBadge.style.background='#E1F5EE'; statusBadge.style.color='#04342C';
+
+    sumRow.innerHTML =
+      '<span><span class="swatch" style="background:#378ADD"></span>AB + CD = '+fmt(AB)+' + '+fmt(CD)+' = '+fmt(lhs)+'</span>'+
+      '<b style="color:'+(mismatch?'#e24b4a':'#1d9e75')+';font-size:18px;">=</b>'+
+      '<span><span class="swatch" style="background:#639922"></span>BC + DA = '+fmt(BC)+' + '+fmt(DA)+' = '+fmt(rhs)+'</span>'+
+      (mismatch?'':'<span style="color:#1d9e75;font-weight:700;">&check;</span>');
+
+    detailRow.textContent='Equal tangents from each corner: AB+CD and BC+DA both equal the sum of all four tangent lengths.';
+  }
+
+  // dragging touch points around the circle, keeping them sorted in order
+  var dragging=-1;
+  function toSvgPoint(evt){
+    var rect=svg.getBoundingClientRect();
+    var vb=svg.viewBox.baseVal;
+    return { x:(evt.clientX-rect.left)/rect.width*vb.width+vb.x, y:(evt.clientY-rect.top)/rect.height*vb.height+vb.y };
+  }
+  function onDown(idx){
+    return function(e){
+      dragging=idx;
+      if(e.target.setPointerCapture){ try{ e.target.setPointerCapture(e.pointerId); }catch(err){} }
+      e.preventDefault();
+    };
+  }
+  function onMove(e){
+    if(dragging<0) return;
+    var p=toSvgPoint(e), v=sub(p,I); if(len(v)<1e-6) return;
+    var a=((Math.atan2(v.y,v.x)*180/Math.PI)+360)%360;
+    // keep strictly between neighbours so the order (and convexity) is preserved
+    var prev=ang[(dragging+3)%4], next=ang[(dragging+1)%4];
+    function norm(x){return ((x%360)+360)%360;}
+    var lo=norm(prev+6), hi=norm(next-6);
+    // clamp a into (lo,hi) going the short forward way
+    function within(x){ var d1=norm(x-lo), span=norm(hi-lo); return d1<=span; }
+    if(!within(a)){
+      // snap to nearest boundary
+      var dLo=Math.min(norm(a-lo),norm(lo-a)), dHi=Math.min(norm(a-hi),norm(hi-a));
+      a = dLo<dHi ? lo : hi;
+    }
+    ang[dragging]=a;
+    update();
+  }
+  function onUp(){ dragging=-1; }
+  for(var i=0;i<4;i++){ hT[i].addEventListener('pointerdown',onDown(i)); }
+  svg.addEventListener('pointermove',onMove);
+  window.addEventListener('pointerup',onUp);
+
+  toggleIncircle.addEventListener('click',function(){ showIncircle=!showIncircle; toggleIncircle.classList.toggle('active',showIncircle); update(); });
+  toggleLabels.addEventListener('click',function(){ showLabels=!showLabels; toggleLabels.classList.toggle('active',showLabels); update(); });
+  toggleTangents.addEventListener('click',function(){ showTangents=!showTangents; toggleTangents.classList.toggle('active',showTangents); update(); });
+
+  var infoToggle=document.getElementById('info-toggle-btn');
+  var infoDrawer=document.getElementById('info-drawer');
+  var infoBackdrop=document.getElementById('info-backdrop');
+  var infoClose=document.getElementById('info-close');
+  function openDrawer(){ infoDrawer.classList.add('open'); infoBackdrop.classList.add('open'); }
+  function closeDrawer(){ infoDrawer.classList.remove('open'); infoBackdrop.classList.remove('open'); }
+  infoToggle.addEventListener('click',function(){
+    if(infoDrawer.classList.contains('open')) closeDrawer(); else openDrawer();
+  });
+  infoClose.addEventListener('click',closeDrawer);
+  infoBackdrop.addEventListener('click',closeDrawer);
+  document.addEventListener('keydown',function(e){ if(e.key==='Escape') closeDrawer(); });
+
+  update();
+})();
+</script>
+</body>
+</html>

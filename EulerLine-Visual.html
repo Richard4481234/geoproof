@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>GeoProof — Euler Line explorer</title>
+<style>
+  body{background:#f4f4f5;display:flex;justify-content:center;padding:40px 16px;font-family:sans-serif;}
+  .widget{width:680px;max-width:100%;}
+  .card{background:#ffffff;border:1px solid #e2e2e2;padding:1.25rem;}
+  .sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;}
+  #el-svg{width:100%;height:auto;display:block;touch-action:none;}
+  .handle{cursor:grab;}
+  .handle:active{cursor:grabbing;}
+  .swatch{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:6px;vertical-align:middle;}
+  .toggle-btn{padding:6px 14px;border-radius:999px;border:1px solid #d8d8d8;background:#f4f4f5;color:#888888;font-size:13px;font-weight:500;cursor:pointer;}
+  .toggle-btn.active{background:#1a1a1a;color:#ffffff;border-color:#1a1a1a;}
+  .stage{position:relative;border-radius:12px;overflow:hidden;border:1px solid #e2e2e2;}
+  .stage .card{border:none;}
+  .legend{display:flex;justify-content:center;gap:14px;flex-wrap:wrap;margin-top:0.8rem;font-size:12.5px;color:#444444;}
+  .info-toggle{position:absolute;top:14px;right:14px;z-index:30;background:#1a1a1a;color:#ffffff;border:none;border-radius:999px;padding:7px 14px;font-size:13px;font-weight:500;cursor:pointer;}
+  .info-toggle:hover{background:#333333;}
+  .info-backdrop{position:absolute;inset:0;background:rgba(0,0,0,0.22);opacity:0;visibility:hidden;transition:opacity .2s ease;z-index:25;}
+  .info-backdrop.open{opacity:1;visibility:visible;}
+  .info-drawer{position:absolute;top:0;right:0;height:100%;width:320px;max-width:88%;background:#ffffff;border-left:1px solid #e2e2e2;box-shadow:-8px 0 24px rgba(0,0,0,0.14);padding:22px 20px;overflow-y:auto;transform:translateX(100%);transition:transform .25s ease;z-index:28;box-sizing:border-box;}
+  .info-drawer.open{transform:translateX(0);}
+  .info-close{position:absolute;top:14px;right:14px;background:#f4f4f5;border:1px solid #e2e2e2;border-radius:50%;width:28px;height:28px;font-size:14px;cursor:pointer;color:#555555;}
+  .info-drawer h3{font-size:17px;margin:6px 0 12px;padding-right:30px;color:#1a1a1a;}
+  .info-drawer h4{font-size:12px;margin:18px 0 6px;color:#666666;text-transform:uppercase;letter-spacing:.04em;}
+  .info-drawer p{font-size:13.5px;line-height:1.55;color:#333333;margin:0 0 10px;}
+  .formula-box{background:#f4f4f5;border-radius:8px;padding:10px 12px;text-align:center;font-size:13.5px;font-weight:600;margin:10px 0;color:#1a1a1a;}
+</style>
+</head>
+<body>
+<div class="widget">
+<div style="margin-bottom:12px;"><a href="index.html" style="font-size:14px;color:#1a1a1a;text-decoration:none;">&larr; GeoProof</a></div>
+<div class="stage">
+<div class="card">
+<h2 class="sr-only">A triangle ABC has three of its classical centers marked: the circumcenter O (where the perpendicular bisectors meet), the centroid G (where the medians meet), and the orthocenter H (where the altitudes meet). Drag any vertex. Remarkably these three points always lie on one straight line — the Euler line — and the centroid sits between the other two so that OG is to GH as 1 is to 2. The nine-point center N is the midpoint of OH and also lies on the line. The line, the centers, and the 1:2 ratio are shown live. An info button opens a drawer explaining the theorem.</h2>
+<svg id="el-svg" viewBox="0 0 680 560" aria-hidden="true">
+  <circle id="circumcircle" fill="none" stroke="#BA7517" stroke-width="1.5" stroke-dasharray="5,4" stroke-opacity="0.55" style="display:none"></circle>
+  <g id="medians-group"></g>
+  <g id="altitudes-group"></g>
+  <line id="euler-line" stroke="#8B5FBF" stroke-width="2.5" stroke-linecap="round"></line>
+  <polygon id="tri-poly" fill="none" stroke="#1a1a1a" stroke-width="2.5"></polygon>
+  <line id="seg-og" stroke="#1D9E75" stroke-width="5" stroke-linecap="round" stroke-opacity="0.8"></line>
+  <line id="seg-gh" stroke="#D4537E" stroke-width="5" stroke-linecap="round" stroke-opacity="0.7"></line>
+  <circle id="dot-O" r="5.5" fill="#BA7517"></circle>
+  <circle id="dot-G" r="5.5" fill="#1D9E75"></circle>
+  <circle id="dot-H" r="5.5" fill="#D4537E"></circle>
+  <circle id="dot-N" r="4.5" fill="#8B5FBF"></circle>
+  <text id="tag-O" text-anchor="middle" dominant-baseline="middle" fill="#7A4D0B" font-size="13" font-weight="700">O</text>
+  <text id="tag-G" text-anchor="middle" dominant-baseline="middle" fill="#0F5A3D" font-size="13" font-weight="700">G</text>
+  <text id="tag-H" text-anchor="middle" dominant-baseline="middle" fill="#993556" font-size="13" font-weight="700">H</text>
+  <text id="tag-N" text-anchor="middle" dominant-baseline="middle" fill="#5B3886" font-size="12" font-weight="700">N</text>
+  <text id="tag-A" text-anchor="middle" dominant-baseline="middle" fill="#1a1a1a" font-size="14" font-weight="700">A</text>
+  <text id="tag-B" text-anchor="middle" dominant-baseline="middle" fill="#1a1a1a" font-size="14" font-weight="700">B</text>
+  <text id="tag-C" text-anchor="middle" dominant-baseline="middle" fill="#1a1a1a" font-size="14" font-weight="700">C</text>
+  <circle id="handle-A" class="handle" r="12" fill="#ffffff" stroke="#1a1a1a" stroke-width="2"></circle>
+  <circle id="handle-B" class="handle" r="12" fill="#ffffff" stroke="#1a1a1a" stroke-width="2"></circle>
+  <circle id="handle-C" class="handle" r="12" fill="#ffffff" stroke="#1a1a1a" stroke-width="2"></circle>
+</svg>
+
+<div style="display:flex; justify-content:center; gap:10px; flex-wrap:wrap; margin-top:0.75rem;">
+  <button type="button" id="toggle-circum" class="toggle-btn">Circumcircle (O)</button>
+  <button type="button" id="toggle-medians" class="toggle-btn">Medians (G)</button>
+  <button type="button" id="toggle-altitudes" class="toggle-btn">Altitudes (H)</button>
+  <button type="button" id="toggle-nine" class="toggle-btn active">Nine-point center</button>
+</div>
+
+<div class="legend">
+  <span><span class="swatch" style="background:#BA7517"></span>O circumcenter</span>
+  <span><span class="swatch" style="background:#1D9E75"></span>G centroid</span>
+  <span><span class="swatch" style="background:#D4537E"></span>H orthocenter</span>
+  <span><span class="swatch" style="background:#8B5FBF"></span>N nine-point center</span>
+</div>
+
+<div style="display:flex; justify-content:center; margin-top:0.85rem;">
+  <span id="status-badge" style="display:inline-block; padding:4px 14px; border-radius:999px; font-size:14px; font-weight:500;"></span>
+</div>
+
+<div id="formula-symbolic" style="text-align:center; font-size:14.5px; font-weight:600; color:#1a1a1a; margin-top:1.1rem;">O, G, H are collinear &nbsp;·&nbsp; OG : GH = 1 : 2</div>
+
+<div id="ratio-row" style="display:flex; align-items:center; justify-content:center; gap:12px; flex-wrap:wrap; margin-top:0.6rem; font-size:15px; color:#1a1a1a;"></div>
+<div id="detail-row" style="text-align:center; font-size:12.5px; color:#777777; margin-top:0.55rem;"></div>
+</div>
+
+<button type="button" id="info-toggle-btn" class="info-toggle">ⓘ About this theorem</button>
+<div id="info-backdrop" class="info-backdrop"></div>
+<aside id="info-drawer" class="info-drawer">
+  <button type="button" id="info-close" class="info-close" aria-label="Close">✕</button>
+  <h3>The Euler Line</h3>
+  <p>Every triangle has several famous "centers." Three of them — the circumcenter O, the centroid G, and the orthocenter H — are always lined up:</p>
+  <div class="formula-box">O, G, H collinear, with OG : GH = 1 : 2</div>
+  <p>The straight line through them is the <i>Euler line</i>. The centroid always sits one-third of the way from the circumcenter to the orthocenter.</p>
+  <h4>Meet the centers</h4>
+  <p>O is where the three perpendicular bisectors of the sides meet (center of the circumscribed circle). G is where the three medians meet (the balance point, the average of the vertices). H is where the three altitudes meet. Toggle each construction on to see how its center is found.</p>
+  <h4>The nine-point center too</h4>
+  <p>The center N of the nine-point circle is the midpoint of OH — so it also lies on the Euler line, exactly halfway between the circumcenter and orthocenter. Four centers, one line.</p>
+  <h4>When the line disappears</h4>
+  <p>For an equilateral triangle all these centers land on the same point, so there is no unique Euler line. Make the triangle nearly equilateral and the four points crowd together; stretch it and they spread out along the line.</p>
+  <h4>A bit of history</h4>
+  <p>Leonhard Euler proved the collinearity of O, G, and H in 1765 — one of many gems bearing his name.</p>
+</aside>
+</div>
+</div>
+
+<script>
+(function(){
+  var svg=document.getElementById('el-svg');
+  var pts={ A:{x:300,y:120}, B:{x:160,y:430}, C:{x:540,y:380} };
+  var minX=40,maxX=640,minY=50,maxY=500;
+  var UNIT=30;
+  var showCircum=false, showMedians=false, showAltitudes=false, showNine=true;
+
+  function sub(p,q){return {x:p.x-q.x,y:p.y-q.y};}
+  function add(p,q){return {x:p.x+q.x,y:p.y+q.y};}
+  function len(v){return Math.hypot(v.x,v.y);}
+  function cross(u,v){return u.x*v.y-u.y*v.x;}
+  function mid(p,q){return {x:(p.x+q.x)/2,y:(p.y+q.y)/2};}
+  function fmt(n){ var r=Math.round(n*10)/10; return (Math.abs(r-Math.round(r))<1e-9)?Math.round(r).toString():r.toFixed(1); }
+  function circumcenter(A,B,C){
+    var D=2*(A.x*(B.y-C.y)+B.x*(C.y-A.y)+C.x*(A.y-B.y));
+    if(Math.abs(D)<1e-9) return null;
+    var ux=((A.x*A.x+A.y*A.y)*(B.y-C.y)+(B.x*B.x+B.y*B.y)*(C.y-A.y)+(C.x*C.x+C.y*C.y)*(A.y-B.y))/D;
+    var uy=((A.x*A.x+A.y*A.y)*(C.x-B.x)+(B.x*B.x+B.y*B.y)*(A.x-C.x)+(C.x*C.x+C.y*C.y)*(B.x-A.x))/D;
+    return {x:ux,y:uy};
+  }
+  function foot(P,V1,V2){ var d=sub(V2,V1), t=((P.x-V1.x)*d.x+(P.y-V1.y)*d.y)/(d.x*d.x+d.y*d.y); return {x:V1.x+t*d.x,y:V1.y+t*d.y}; }
+  function svgEl(tag,attrs){ var el=document.createElementNS('http://www.w3.org/2000/svg',tag); for(var k in attrs){el.setAttribute(k,attrs[k]);} return el; }
+  function clearKids(el){ while(el.firstChild) el.removeChild(el.firstChild); }
+
+  var circumcircle=document.getElementById('circumcircle');
+  var mediansGroup=document.getElementById('medians-group');
+  var altitudesGroup=document.getElementById('altitudes-group');
+  var eulerLine=document.getElementById('euler-line');
+  var triPoly=document.getElementById('tri-poly');
+  var segOG=document.getElementById('seg-og');
+  var segGH=document.getElementById('seg-gh');
+  var dotO=document.getElementById('dot-O');
+  var dotG=document.getElementById('dot-G');
+  var dotH=document.getElementById('dot-H');
+  var dotN=document.getElementById('dot-N');
+  var tagO=document.getElementById('tag-O');
+  var tagG=document.getElementById('tag-G');
+  var tagH=document.getElementById('tag-H');
+  var tagN=document.getElementById('tag-N');
+  var tagA=document.getElementById('tag-A');
+  var tagB=document.getElementById('tag-B');
+  var tagC=document.getElementById('tag-C');
+  var hA=document.getElementById('handle-A');
+  var hB=document.getElementById('handle-B');
+  var hC=document.getElementById('handle-C');
+  var statusBadge=document.getElementById('status-badge');
+  var ratioRow=document.getElementById('ratio-row');
+  var detailRow=document.getElementById('detail-row');
+  var toggleCircum=document.getElementById('toggle-circum');
+  var toggleMedians=document.getElementById('toggle-medians');
+  var toggleAltitudes=document.getElementById('toggle-altitudes');
+  var toggleNine=document.getElementById('toggle-nine');
+
+  function setLine(el,p,q){ el.setAttribute('x1',p.x); el.setAttribute('y1',p.y); el.setAttribute('x2',q.x); el.setAttribute('y2',q.y); }
+  function disp(el,on){ el.style.display=on?'block':'none'; }
+
+  function update(){
+    var A=pts.A,B=pts.B,C=pts.C;
+    hA.setAttribute('cx',A.x); hA.setAttribute('cy',A.y);
+    hB.setAttribute('cx',B.x); hB.setAttribute('cy',B.y);
+    hC.setAttribute('cx',C.x); hC.setAttribute('cy',C.y);
+    triPoly.setAttribute('points', A.x+','+A.y+' '+B.x+','+B.y+' '+C.x+','+C.y);
+
+    var cenTri={x:(A.x+B.x+C.x)/3,y:(A.y+B.y+C.y)/3};
+    function vtag(el,V){ var d=sub(V,cenTri),l=len(d)||1; el.setAttribute('x',V.x+d.x/l*22); el.setAttribute('y',V.y+d.y/l*22); }
+    vtag(tagA,A); vtag(tagB,B); vtag(tagC,C);
+
+    var O=circumcenter(A,B,C);
+    clearKids(mediansGroup); clearKids(altitudesGroup);
+    if(!O){
+      [eulerLine,segOG,segGH,dotO,dotG,dotH,dotN,tagO,tagG,tagH,tagN,circumcircle].forEach(function(e){e.style.display='none';});
+      statusBadge.textContent='Degenerate triangle — drag a vertex out';
+      statusBadge.style.background='#FAECE7'; statusBadge.style.color='#4A1B0C';
+      ratioRow.innerHTML=''; detailRow.textContent=''; return;
+    }
+    var G={x:(A.x+B.x+C.x)/3,y:(A.y+B.y+C.y)/3};
+    var H={x:A.x+B.x+C.x-2*O.x, y:A.y+B.y+C.y-2*O.y};
+    var N=mid(O,H);
+    var Rc=len(sub(O,A));
+
+    // circumcircle + perpendicular bisectors hint
+    disp(circumcircle,showCircum);
+    if(showCircum){ circumcircle.setAttribute('cx',O.x); circumcircle.setAttribute('cy',O.y); circumcircle.setAttribute('r',Rc); }
+
+    // medians
+    if(showMedians){
+      [[A,mid(B,C)],[B,mid(C,A)],[C,mid(A,B)]].forEach(function(s){
+        mediansGroup.appendChild(svgEl('line',{x1:s[0].x,y1:s[0].y,x2:s[1].x,y2:s[1].y,stroke:'#1D9E75','stroke-width':1.4,'stroke-opacity':0.6}));
+      });
+    }
+    // altitudes (vertex to foot on opposite side line)
+    if(showAltitudes){
+      [[A,foot(A,B,C)],[B,foot(B,C,A)],[C,foot(C,A,B)]].forEach(function(s){
+        altitudesGroup.appendChild(svgEl('line',{x1:s[0].x,y1:s[0].y,x2:s[1].x,y2:s[1].y,stroke:'#D4537E','stroke-width':1.4,'stroke-dasharray':'4,4','stroke-opacity':0.6}));
+      });
+    }
+
+    // is the triangle (near) equilateral? then centers coincide
+    var spread=Math.max(len(sub(O,G)),len(sub(G,H)),len(sub(O,H)));
+    var coincident=spread<4;
+
+    // Euler line drawn long through O and H (fallback to O-G if H≈O)
+    var dirSrc = len(sub(H,O))>1e-6 ? sub(H,O) : sub(G,O);
+    var dl=len(dirSrc)||1, u={x:dirSrc.x/dl,y:dirSrc.y/dl};
+    var c2={x:(O.x+H.x)/2,y:(O.y+H.y)/2};
+    setLine(eulerLine,{x:c2.x-u.x*900,y:c2.y-u.y*900},{x:c2.x+u.x*900,y:c2.y+u.y*900});
+    disp(eulerLine,!coincident);
+
+    // segments O-G (green) and G-H (pink) to show the 1:2 split
+    setLine(segOG,O,G); setLine(segGH,G,H);
+    disp(segOG,!coincident); disp(segGH,!coincident);
+
+    dotO.style.display='block'; dotG.style.display='block'; dotH.style.display='block';
+    dotO.setAttribute('cx',O.x); dotO.setAttribute('cy',O.y);
+    dotG.setAttribute('cx',G.x); dotG.setAttribute('cy',G.y);
+    dotH.setAttribute('cx',H.x); dotH.setAttribute('cy',H.y);
+    disp(dotN,showNine); dotN.setAttribute('cx',N.x); dotN.setAttribute('cy',N.y);
+
+    // labels offset perpendicular to the line so they don't overlap the dots
+    var perp={x:-u.y,y:u.x};
+    function lblAt(el,P,show){ el.setAttribute('x',P.x+perp.x*14); el.setAttribute('y',P.y+perp.y*14); el.style.display=show?'block':'none'; }
+    lblAt(tagO,O,true); lblAt(tagG,G,true); lblAt(tagH,H,true); lblAt(tagN,N,showNine);
+
+    var OG=len(sub(O,G))/UNIT, GH=len(sub(G,H))/UNIT;
+    if(coincident){
+      statusBadge.textContent='Equilateral — all centers coincide';
+      statusBadge.style.background='#EAF3DE'; statusBadge.style.color='#173404';
+      ratioRow.innerHTML='<span>O, G, H, N all meet at one point.</span>';
+      detailRow.textContent='Stretch the triangle so the centers separate along the Euler line.';
+      return;
+    }
+    statusBadge.textContent='O, G, H lie on the Euler line';
+    statusBadge.style.background='#EDE6F6'; statusBadge.style.color='#3F2A5C';
+
+    var ratio=OG>1e-6?GH/OG:0;
+    var ok=Math.abs(ratio-2)<0.05;
+    ratioRow.innerHTML =
+      '<span><span class="swatch" style="background:#1D9E75"></span>OG = '+fmt(OG)+'</span>'+
+      '<span><span class="swatch" style="background:#D4537E"></span>GH = '+fmt(GH)+'</span>'+
+      '<span style="color:#888;">→</span>'+
+      '<span>GH / OG = '+fmt(ratio)+'  (so OG : GH = 1 : 2)</span>'+
+      (ok?'<span style="color:#1d9e75;font-weight:700;">&check;</span>':'');
+
+    detailRow.textContent='N (nine-point center) is the midpoint of OH — also on the line.';
+  }
+
+  var dragging=null;
+  function toSvgPoint(evt){
+    var rect=svg.getBoundingClientRect();
+    var vb=svg.viewBox.baseVal;
+    return { x:(evt.clientX-rect.left)/rect.width*vb.width+vb.x, y:(evt.clientY-rect.top)/rect.height*vb.height+vb.y };
+  }
+  function onDown(key){
+    return function(e){
+      dragging=key;
+      if(e.target.setPointerCapture){ try{ e.target.setPointerCapture(e.pointerId); }catch(err){} }
+      e.preventDefault();
+    };
+  }
+  function onMove(e){
+    if(!dragging) return;
+    var p=toSvgPoint(e);
+    pts[dragging]={x:Math.min(maxX,Math.max(minX,p.x)), y:Math.min(maxY,Math.max(minY,p.y))};
+    update();
+  }
+  function onUp(){ dragging=null; }
+  hA.addEventListener('pointerdown',onDown('A'));
+  hB.addEventListener('pointerdown',onDown('B'));
+  hC.addEventListener('pointerdown',onDown('C'));
+  svg.addEventListener('pointermove',onMove);
+  window.addEventListener('pointerup',onUp);
+
+  toggleCircum.addEventListener('click',function(){ showCircum=!showCircum; toggleCircum.classList.toggle('active',showCircum); update(); });
+  toggleMedians.addEventListener('click',function(){ showMedians=!showMedians; toggleMedians.classList.toggle('active',showMedians); update(); });
+  toggleAltitudes.addEventListener('click',function(){ showAltitudes=!showAltitudes; toggleAltitudes.classList.toggle('active',showAltitudes); update(); });
+  toggleNine.addEventListener('click',function(){ showNine=!showNine; toggleNine.classList.toggle('active',showNine); update(); });
+
+  var infoToggle=document.getElementById('info-toggle-btn');
+  var infoDrawer=document.getElementById('info-drawer');
+  var infoBackdrop=document.getElementById('info-backdrop');
+  var infoClose=document.getElementById('info-close');
+  function openDrawer(){ infoDrawer.classList.add('open'); infoBackdrop.classList.add('open'); }
+  function closeDrawer(){ infoDrawer.classList.remove('open'); infoBackdrop.classList.remove('open'); }
+  infoToggle.addEventListener('click',function(){
+    if(infoDrawer.classList.contains('open')) closeDrawer(); else openDrawer();
+  });
+  infoClose.addEventListener('click',closeDrawer);
+  infoBackdrop.addEventListener('click',closeDrawer);
+  document.addEventListener('keydown',function(e){ if(e.key==='Escape') closeDrawer(); });
+
+  update();
+})();
+</script>
+</body>
+</html>

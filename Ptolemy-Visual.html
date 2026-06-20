@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>GeoProof — Ptolemy's Theorem explorer</title>
+<style>
+  body{background:#f4f4f5;display:flex;justify-content:center;padding:40px 16px;font-family:sans-serif;}
+  .widget{width:680px;max-width:100%;}
+  .card{background:#ffffff;border:1px solid #e2e2e2;padding:1.25rem;}
+  .sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;}
+  #pt-svg{width:100%;height:auto;display:block;touch-action:none;}
+  .handle{cursor:grab;}
+  .handle:active{cursor:grabbing;}
+  .swatch{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:6px;vertical-align:middle;}
+  .toggle-btn{padding:6px 14px;border-radius:999px;border:1px solid #d8d8d8;background:#f4f4f5;color:#888888;font-size:13px;font-weight:500;cursor:pointer;}
+  .toggle-btn.active{background:#1a1a1a;color:#ffffff;border-color:#1a1a1a;}
+  .stage{position:relative;border-radius:12px;overflow:hidden;border:1px solid #e2e2e2;}
+  .stage .card{border:none;}
+  .info-toggle{position:absolute;top:14px;right:14px;z-index:30;background:#1a1a1a;color:#ffffff;border:none;border-radius:999px;padding:7px 14px;font-size:13px;font-weight:500;cursor:pointer;}
+  .info-toggle:hover{background:#333333;}
+  .info-backdrop{position:absolute;inset:0;background:rgba(0,0,0,0.22);opacity:0;visibility:hidden;transition:opacity .2s ease;z-index:25;}
+  .info-backdrop.open{opacity:1;visibility:visible;}
+  .info-drawer{position:absolute;top:0;right:0;height:100%;width:320px;max-width:88%;background:#ffffff;border-left:1px solid #e2e2e2;box-shadow:-8px 0 24px rgba(0,0,0,0.14);padding:22px 20px;overflow-y:auto;transform:translateX(100%);transition:transform .25s ease;z-index:28;box-sizing:border-box;}
+  .info-drawer.open{transform:translateX(0);}
+  .info-close{position:absolute;top:14px;right:14px;background:#f4f4f5;border:1px solid #e2e2e2;border-radius:50%;width:28px;height:28px;font-size:14px;cursor:pointer;color:#555555;}
+  .info-drawer h3{font-size:17px;margin:6px 0 12px;padding-right:30px;color:#1a1a1a;}
+  .info-drawer h4{font-size:12px;margin:18px 0 6px;color:#666666;text-transform:uppercase;letter-spacing:.04em;}
+  .info-drawer p{font-size:13.5px;line-height:1.55;color:#333333;margin:0 0 10px;}
+  .formula-box{background:#f4f4f5;border-radius:8px;padding:10px 12px;text-align:center;font-size:13.5px;font-weight:600;margin:10px 0;color:#1a1a1a;}
+</style>
+</head>
+<body>
+<div class="widget">
+<div style="margin-bottom:12px;"><a href="index.html" style="font-size:14px;color:#1a1a1a;text-decoration:none;">&larr; GeoProof</a></div>
+<div class="stage">
+<div class="card">
+<h2 class="sr-only">Four points A, B, C, D sit on a circle in order, forming a cyclic quadrilateral. Drag any of them around the circle. The two diagonals AC and BD are drawn, along with the four sides. Ptolemy's theorem says the product of the diagonals equals the sum of the products of the two pairs of opposite sides: AC times BD equals AB times CD plus AD times BC. Both sides of that equation are shown live and stay equal. An info button opens a drawer explaining the theorem.</h2>
+<svg id="pt-svg" viewBox="0 0 680 560" aria-hidden="true">
+  <circle id="main-circle" fill="none" stroke="#c8c8cc" stroke-width="2"></circle>
+  <polygon id="quad" fill="#8B5FBF" fill-opacity="0.05" stroke="none"></polygon>
+  <line id="side-ab" stroke="#378ADD" stroke-width="3" stroke-linecap="round"></line>
+  <line id="side-cd" stroke="#378ADD" stroke-width="3" stroke-linecap="round"></line>
+  <line id="side-bc" stroke="#639922" stroke-width="3" stroke-linecap="round"></line>
+  <line id="side-da" stroke="#639922" stroke-width="3" stroke-linecap="round"></line>
+  <line id="diag-ac" stroke="#8B5FBF" stroke-width="3" stroke-dasharray="7,4" stroke-linecap="round"></line>
+  <line id="diag-bd" stroke="#8B5FBF" stroke-width="3" stroke-dasharray="7,4" stroke-linecap="round"></line>
+  <text id="lab-ab" text-anchor="middle" dominant-baseline="middle" fill="#185FA5" font-size="12.5" font-weight="600"></text>
+  <text id="lab-bc" text-anchor="middle" dominant-baseline="middle" fill="#3B6D11" font-size="12.5" font-weight="600"></text>
+  <text id="lab-cd" text-anchor="middle" dominant-baseline="middle" fill="#185FA5" font-size="12.5" font-weight="600"></text>
+  <text id="lab-da" text-anchor="middle" dominant-baseline="middle" fill="#3B6D11" font-size="12.5" font-weight="600"></text>
+  <text id="lab-ac" text-anchor="middle" dominant-baseline="middle" fill="#5B3886" font-size="12.5" font-weight="600"></text>
+  <text id="lab-bd" text-anchor="middle" dominant-baseline="middle" fill="#5B3886" font-size="12.5" font-weight="600"></text>
+  <text id="tag-A" text-anchor="middle" dominant-baseline="middle" fill="#1a1a1a" font-size="14" font-weight="700">A</text>
+  <text id="tag-B" text-anchor="middle" dominant-baseline="middle" fill="#1a1a1a" font-size="14" font-weight="700">B</text>
+  <text id="tag-C" text-anchor="middle" dominant-baseline="middle" fill="#1a1a1a" font-size="14" font-weight="700">C</text>
+  <text id="tag-D" text-anchor="middle" dominant-baseline="middle" fill="#1a1a1a" font-size="14" font-weight="700">D</text>
+  <circle id="h0" class="handle" r="11" fill="#ffffff" stroke="#1a1a1a" stroke-width="2.5"></circle>
+  <circle id="h1" class="handle" r="11" fill="#ffffff" stroke="#1a1a1a" stroke-width="2.5"></circle>
+  <circle id="h2" class="handle" r="11" fill="#ffffff" stroke="#1a1a1a" stroke-width="2.5"></circle>
+  <circle id="h3" class="handle" r="11" fill="#ffffff" stroke="#1a1a1a" stroke-width="2.5"></circle>
+</svg>
+
+<div style="display:flex; justify-content:center; gap:10px; flex-wrap:wrap; margin-top:0.75rem;">
+  <button type="button" id="toggle-diag" class="toggle-btn active">Diagonals</button>
+  <button type="button" id="toggle-labels" class="toggle-btn active">Length labels</button>
+</div>
+
+<div style="display:flex; justify-content:center; margin-top:0.85rem;">
+  <span id="status-badge" style="display:inline-block; padding:4px 14px; border-radius:999px; font-size:14px; font-weight:500;"></span>
+</div>
+
+<div id="formula-symbolic" style="text-align:center; font-size:14.5px; font-weight:600; color:#1a1a1a; margin-top:1.1rem;">AC · BD = AB · CD + AD · BC</div>
+
+<div id="eq-row" style="display:flex; align-items:center; justify-content:center; gap:10px; flex-wrap:wrap; margin-top:0.6rem; font-size:15px; color:#1a1a1a;"></div>
+<div id="detail-row" style="text-align:center; font-size:12.5px; color:#777777; margin-top:0.5rem;"></div>
+<div style="text-align:center; font-size:13px; color:#777777; margin-top:0.6rem;">Drag any vertex around the circle — the four points stay in order, so the quadrilateral is always cyclic and the equation holds exactly.</div>
+</div>
+
+<button type="button" id="info-toggle-btn" class="info-toggle">ⓘ About this theorem</button>
+<div id="info-backdrop" class="info-backdrop"></div>
+<aside id="info-drawer" class="info-drawer">
+  <button type="button" id="info-close" class="info-close" aria-label="Close">✕</button>
+  <h3>Ptolemy's Theorem</h3>
+  <p>Take any four points A, B, C, D lying on a circle, in order, forming a cyclic quadrilateral. Ptolemy's theorem relates its two diagonals to its four sides:</p>
+  <div class="formula-box">AC · BD = AB · CD + AD · BC</div>
+  <p>The product of the diagonals equals the sum of the products of the two pairs of opposite sides.</p>
+  <h4>A quick check: the rectangle</h4>
+  <p>For a rectangle (which is cyclic), both diagonals have the same length d, and opposite sides are equal — say width w and height h. Ptolemy gives d · d = w · w + h · h, i.e. d² = w² + h². That's just the Pythagorean theorem, recovered as a special case.</p>
+  <h4>It needs all four on one circle</h4>
+  <p>Equality is special to <i>cyclic</i> quadrilaterals. For four points not all on a circle, the more general Ptolemy <i>inequality</i> holds instead: AC · BD ≤ AB · CD + AD · BC, with equality exactly when the points are concyclic and in this order. This tool keeps the points on the circle so you always see the equality.</p>
+  <h4>What it's used for</h4>
+  <p>Ptolemy used it to build his table of chords — an early trigonometry table — and it yields the angle-addition formulas for sine and cosine. It's also a workhorse in olympiad geometry.</p>
+  <h4>A bit of history</h4>
+  <p>It is named for Claudius Ptolemy (c. 100–170 CE), who presented it in the <i>Almagest</i>, his great astronomical treatise.</p>
+</aside>
+</div>
+</div>
+
+<script>
+(function(){
+  var svg=document.getElementById('pt-svg');
+  var center={x:340,y:285}, R=185;
+  var UNIT=30;
+  var showDiag=true, showLabels=true;
+  var ang=[210,330,55,130];   // four independent points (degrees)
+
+  function sub(p,q){return {x:p.x-q.x,y:p.y-q.y};}
+  function len(v){return Math.hypot(v.x,v.y);}
+  function ptOn(aDeg){var r=aDeg*Math.PI/180; return {x:center.x+R*Math.cos(r), y:center.y+R*Math.sin(r)};}
+  function fmt(n){
+    var r=Math.round(n*10)/10;
+    return (Math.abs(r-Math.round(r))<1e-9)?Math.round(r).toLocaleString():r.toFixed(1);
+  }
+
+  var mainCircle=document.getElementById('main-circle');
+  var quad=document.getElementById('quad');
+  var sideAB=document.getElementById('side-ab');
+  var sideCD=document.getElementById('side-cd');
+  var sideBC=document.getElementById('side-bc');
+  var sideDA=document.getElementById('side-da');
+  var diagAC=document.getElementById('diag-ac');
+  var diagBD=document.getElementById('diag-bd');
+  var labAB=document.getElementById('lab-ab');
+  var labBC=document.getElementById('lab-bc');
+  var labCD=document.getElementById('lab-cd');
+  var labDA=document.getElementById('lab-da');
+  var labAC=document.getElementById('lab-ac');
+  var labBD=document.getElementById('lab-bd');
+  var tagA=document.getElementById('tag-A');
+  var tagB=document.getElementById('tag-B');
+  var tagC=document.getElementById('tag-C');
+  var tagD=document.getElementById('tag-D');
+  var handles=[document.getElementById('h0'),document.getElementById('h1'),document.getElementById('h2'),document.getElementById('h3')];
+  var statusBadge=document.getElementById('status-badge');
+  var eqRow=document.getElementById('eq-row');
+  var detailRow=document.getElementById('detail-row');
+  var toggleDiag=document.getElementById('toggle-diag');
+  var toggleLabels=document.getElementById('toggle-labels');
+
+  mainCircle.setAttribute('cx',center.x); mainCircle.setAttribute('cy',center.y); mainCircle.setAttribute('r',R);
+
+  function setLine(el,p,q){ el.setAttribute('x1',p.x); el.setAttribute('y1',p.y); el.setAttribute('x2',q.x); el.setAttribute('y2',q.y); }
+  function disp(el,on){ el.style.display=on?'block':'none'; }
+
+  function update(){
+    // place handles at their own angles
+    for(var i=0;i<4;i++){ var hp=ptOn(ang[i]); handles[i].setAttribute('cx',hp.x); handles[i].setAttribute('cy',hp.y); }
+
+    // sort the four angles to get cyclic order -> A,B,C,D
+    var order=[0,1,2,3].slice().sort(function(a,b){return ((ang[a]%360)+360)%360 - (((ang[b]%360)+360)%360);});
+    var sa=order.map(function(idx){return ((ang[idx]%360)+360)%360;});
+    var A=ptOn(sa[0]), B=ptOn(sa[1]), C=ptOn(sa[2]), D=ptOn(sa[3]);
+
+    // sides + diagonals
+    setLine(sideAB,A,B); setLine(sideBC,B,C); setLine(sideCD,C,D); setLine(sideDA,D,A);
+    setLine(diagAC,A,C); setLine(diagBD,B,D);
+    quad.setAttribute('points', A.x+','+A.y+' '+B.x+','+B.y+' '+C.x+','+C.y+' '+D.x+','+D.y);
+
+    // outward labels
+    function outTag(aDeg){ var r=aDeg*Math.PI/180; return {x:center.x+(R+20)*Math.cos(r), y:center.y+(R+20)*Math.sin(r)}; }
+    var ta=outTag(sa[0]), tb=outTag(sa[1]), tc=outTag(sa[2]), td=outTag(sa[3]);
+    tagA.setAttribute('x',ta.x); tagA.setAttribute('y',ta.y);
+    tagB.setAttribute('x',tb.x); tagB.setAttribute('y',tb.y);
+    tagC.setAttribute('x',tc.x); tagC.setAttribute('y',tc.y);
+    tagD.setAttribute('x',td.x); tagD.setAttribute('y',td.y);
+
+    disp(diagAC,showDiag); disp(diagBD,showDiag);
+
+    var AB=len(sub(A,B))/UNIT, BC=len(sub(B,C))/UNIT, CD=len(sub(C,D))/UNIT, DA=len(sub(D,A))/UNIT;
+    var AC=len(sub(A,C))/UNIT, BD=len(sub(B,D))/UNIT;
+
+    // on-graph length labels
+    var quadC={x:(A.x+B.x+C.x+D.x)/4, y:(A.y+B.y+C.y+D.y)/4};
+    function sideLabel(el,p,q,val){
+      var m={x:(p.x+q.x)/2,y:(p.y+q.y)/2};
+      var dir=sub(m,quadC), dl=len(dir)||1;       // push label outward from the quad
+      el.setAttribute('x', m.x+dir.x/dl*16);
+      el.setAttribute('y', m.y+dir.y/dl*16);
+      el.textContent=fmt(val);
+    }
+    function diagLabel(el,p,q,val,t){
+      el.setAttribute('x', p.x+(q.x-p.x)*t);
+      el.setAttribute('y', p.y+(q.y-p.y)*t - 4);
+      el.textContent=fmt(val);
+    }
+    sideLabel(labAB,A,B,AB); sideLabel(labBC,B,C,BC); sideLabel(labCD,C,D,CD); sideLabel(labDA,D,A,DA);
+    diagLabel(labAC,A,C,AC,0.30); diagLabel(labBD,B,D,BD,0.70);
+    disp(labAB,showLabels); disp(labBC,showLabels); disp(labCD,showLabels); disp(labDA,showLabels);
+    disp(labAC,showLabels&&showDiag); disp(labBD,showLabels&&showDiag);
+
+    var lhs=AC*BD, rhs=AB*CD+DA*BC;
+    var mismatch=Math.abs(lhs-rhs)>0.05*Math.max(1,lhs);
+
+    statusBadge.textContent='Cyclic quadrilateral — Ptolemy holds exactly';
+    statusBadge.style.background='#EDE6F6'; statusBadge.style.color='#3F2A5C';
+
+    eqRow.innerHTML =
+      '<span><span class="swatch" style="background:#8B5FBF"></span>AC · BD = '+fmt(AC)+' · '+fmt(BD)+' = '+fmt(lhs)+'</span>'+
+      '<b style="color:'+(mismatch?'#e24b4a':'#1d9e75')+';font-size:18px;">=</b>'+
+      '<span><span class="swatch" style="background:#378ADD"></span>AB·CD <span style="color:#888;">+</span> <span class="swatch" style="background:#639922"></span>AD·BC = '+fmt(rhs)+'</span>'+
+      (mismatch?'':'<span style="color:#1d9e75;font-weight:700;">&check;</span>');
+
+    detailRow.textContent='AB·CD = '+fmt(AB*CD)+'   +   AD·BC = '+fmt(DA*BC);
+  }
+
+  // dragging — constrain handles to the circle (each keeps its own identity)
+  var dragging=null;
+  function toSvgPoint(evt){
+    var rect=svg.getBoundingClientRect();
+    var vb=svg.viewBox.baseVal;
+    return { x:(evt.clientX-rect.left)/rect.width*vb.width+vb.x, y:(evt.clientY-rect.top)/rect.height*vb.height+vb.y };
+  }
+  function onDown(idx){
+    return function(e){
+      dragging=idx;
+      if(e.target.setPointerCapture){ try{ e.target.setPointerCapture(e.pointerId); }catch(err){} }
+      e.preventDefault();
+    };
+  }
+  function onMove(e){
+    if(dragging===null) return;
+    var p=toSvgPoint(e);
+    var v=sub(p,center); if(len(v)<1e-6) return;
+    ang[dragging]=((Math.atan2(v.y,v.x)*180/Math.PI)+360)%360;
+    update();
+  }
+  function onUp(){ dragging=null; }
+  for(var k=0;k<4;k++){ handles[k].addEventListener('pointerdown',onDown(k)); }
+  svg.addEventListener('pointermove',onMove);
+  window.addEventListener('pointerup',onUp);
+
+  toggleDiag.addEventListener('click',function(){ showDiag=!showDiag; toggleDiag.classList.toggle('active',showDiag); update(); });
+  toggleLabels.addEventListener('click',function(){ showLabels=!showLabels; toggleLabels.classList.toggle('active',showLabels); update(); });
+
+  var infoToggle=document.getElementById('info-toggle-btn');
+  var infoDrawer=document.getElementById('info-drawer');
+  var infoBackdrop=document.getElementById('info-backdrop');
+  var infoClose=document.getElementById('info-close');
+  function openDrawer(){ infoDrawer.classList.add('open'); infoBackdrop.classList.add('open'); }
+  function closeDrawer(){ infoDrawer.classList.remove('open'); infoBackdrop.classList.remove('open'); }
+  infoToggle.addEventListener('click',function(){
+    if(infoDrawer.classList.contains('open')) closeDrawer(); else openDrawer();
+  });
+  infoClose.addEventListener('click',closeDrawer);
+  infoBackdrop.addEventListener('click',closeDrawer);
+  document.addEventListener('keydown',function(e){ if(e.key==='Escape') closeDrawer(); });
+
+  update();
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>GeoProof — Ceva's Theorem explorer</title>
+<style>
+  body{background:#f4f4f5;display:flex;justify-content:center;padding:40px 16px;font-family:sans-serif;}
+  .widget{width:680px;max-width:100%;}
+  .card{background:#ffffff;border:1px solid #e2e2e2;padding:1.25rem;}
+  .sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;}
+  #cv-svg{width:100%;height:auto;display:block;touch-action:none;}
+  .handle{cursor:grab;}
+  .handle:active{cursor:grabbing;}
+  .swatch{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:6px;vertical-align:middle;}
+  .toggle-btn{padding:6px 14px;border-radius:999px;border:1px solid #d8d8d8;background:#f4f4f5;color:#888888;font-size:13px;font-weight:500;cursor:pointer;}
+  .toggle-btn.active{background:#1a1a1a;color:#ffffff;border-color:#1a1a1a;}
+  .stage{position:relative;border-radius:12px;overflow:hidden;border:1px solid #e2e2e2;}
+  .stage .card{border:none;}
+  .info-toggle{position:absolute;top:14px;right:14px;z-index:30;background:#1a1a1a;color:#ffffff;border:none;border-radius:999px;padding:7px 14px;font-size:13px;font-weight:500;cursor:pointer;}
+  .info-toggle:hover{background:#333333;}
+  .info-backdrop{position:absolute;inset:0;background:rgba(0,0,0,0.22);opacity:0;visibility:hidden;transition:opacity .2s ease;z-index:25;}
+  .info-backdrop.open{opacity:1;visibility:visible;}
+  .info-drawer{position:absolute;top:0;right:0;height:100%;width:320px;max-width:88%;background:#ffffff;border-left:1px solid #e2e2e2;box-shadow:-8px 0 24px rgba(0,0,0,0.14);padding:22px 20px;overflow-y:auto;transform:translateX(100%);transition:transform .25s ease;z-index:28;box-sizing:border-box;}
+  .info-drawer.open{transform:translateX(0);}
+  .info-close{position:absolute;top:14px;right:14px;background:#f4f4f5;border:1px solid #e2e2e2;border-radius:50%;width:28px;height:28px;font-size:14px;cursor:pointer;color:#555555;}
+  .info-drawer h3{font-size:17px;margin:6px 0 12px;padding-right:30px;color:#1a1a1a;}
+  .info-drawer h4{font-size:12px;margin:18px 0 6px;color:#666666;text-transform:uppercase;letter-spacing:.04em;}
+  .info-drawer p{font-size:13.5px;line-height:1.55;color:#333333;margin:0 0 10px;}
+  .formula-box{background:#f4f4f5;border-radius:8px;padding:10px 12px;text-align:center;font-size:13.5px;font-weight:600;margin:10px 0;color:#1a1a1a;}
+</style>
+</head>
+<body>
+<div class="widget">
+<div style="margin-bottom:12px;"><a href="index.html" style="font-size:14px;color:#1a1a1a;text-decoration:none;">&larr; GeoProof</a></div>
+<div class="stage">
+<div class="card">
+<h2 class="sr-only">A triangle ABC has an interior point P. Three cevians are drawn — from each vertex through P to the opposite side, meeting it at D on BC, E on CA, and F on AB. Drag the triangle vertices or the point P. Because the three cevians all pass through P they are concurrent, and Ceva's theorem says the three side-division ratios multiply to one: BD over DC, times CE over EA, times AF over FB, equals 1. Each ratio and the running product are shown live on the figure and below it. An info button opens a drawer explaining the theorem.</h2>
+<svg id="cv-svg" viewBox="0 0 680 560" aria-hidden="true">
+  <polygon id="tri-poly" fill="#1D9E75" fill-opacity="0.05" stroke="#1a1a1a" stroke-width="2.5"></polygon>
+  <line id="cevian-ad" stroke="#378ADD" stroke-width="2.5" stroke-linecap="round"></line>
+  <line id="cevian-be" stroke="#639922" stroke-width="2.5" stroke-linecap="round"></line>
+  <line id="cevian-cf" stroke="#D4537E" stroke-width="2.5" stroke-linecap="round"></line>
+  <text id="lab-d" text-anchor="middle" dominant-baseline="middle" fill="#185FA5" font-size="12.5" font-weight="600"></text>
+  <text id="lab-e" text-anchor="middle" dominant-baseline="middle" fill="#3B6D11" font-size="12.5" font-weight="600"></text>
+  <text id="lab-f" text-anchor="middle" dominant-baseline="middle" fill="#993556" font-size="12.5" font-weight="600"></text>
+  <circle id="dot-D" r="4.5" fill="#378ADD"></circle>
+  <circle id="dot-E" r="4.5" fill="#639922"></circle>
+  <circle id="dot-F" r="4.5" fill="#D4537E"></circle>
+  <text id="tag-A" text-anchor="middle" dominant-baseline="middle" fill="#1a1a1a" font-size="14" font-weight="700">A</text>
+  <text id="tag-B" text-anchor="middle" dominant-baseline="middle" fill="#1a1a1a" font-size="14" font-weight="700">B</text>
+  <text id="tag-C" text-anchor="middle" dominant-baseline="middle" fill="#1a1a1a" font-size="14" font-weight="700">C</text>
+  <text id="tag-Dn" text-anchor="middle" dominant-baseline="middle" fill="#185FA5" font-size="13" font-weight="700">D</text>
+  <text id="tag-En" text-anchor="middle" dominant-baseline="middle" fill="#3B6D11" font-size="13" font-weight="700">E</text>
+  <text id="tag-Fn" text-anchor="middle" dominant-baseline="middle" fill="#993556" font-size="13" font-weight="700">F</text>
+  <circle id="dot-P" r="5.5" fill="#1a1a1a"></circle>
+  <text id="tag-P" text-anchor="middle" dominant-baseline="middle" fill="#1a1a1a" font-size="13" font-weight="700">P</text>
+  <circle id="handle-A" class="handle" r="12" fill="#ffffff" stroke="#1a1a1a" stroke-width="2"></circle>
+  <circle id="handle-B" class="handle" r="12" fill="#ffffff" stroke="#1a1a1a" stroke-width="2"></circle>
+  <circle id="handle-C" class="handle" r="12" fill="#ffffff" stroke="#1a1a1a" stroke-width="2"></circle>
+  <circle id="handle-P" class="handle" r="12" fill="#ffffff" stroke="#1D9E75" stroke-width="2.5"></circle>
+</svg>
+
+<div style="display:flex; justify-content:center; gap:10px; flex-wrap:wrap; margin-top:0.75rem;">
+  <button type="button" id="toggle-cevians" class="toggle-btn active">Cevians</button>
+  <button type="button" id="toggle-ratios" class="toggle-btn active">Ratio labels</button>
+</div>
+
+<div style="display:flex; justify-content:center; margin-top:0.85rem;">
+  <span id="status-badge" style="display:inline-block; padding:4px 14px; border-radius:999px; font-size:14px; font-weight:500;"></span>
+</div>
+
+<div id="formula-symbolic" style="text-align:center; font-size:14px; font-weight:600; color:#1a1a1a; margin-top:1.1rem;">(BD / DC) · (CE / EA) · (AF / FB) = 1</div>
+
+<div id="prod-row" style="display:flex; align-items:center; justify-content:center; gap:8px; flex-wrap:wrap; margin-top:0.6rem; font-size:15px; color:#1a1a1a;"></div>
+<div style="text-align:center; font-size:13px; color:#777777; margin-top:0.6rem;">Drag P, or any vertex. The three cevians always pass through P, so the product of the ratios stays at exactly 1.</div>
+</div>
+
+<button type="button" id="info-toggle-btn" class="info-toggle">ⓘ About this theorem</button>
+<div id="info-backdrop" class="info-backdrop"></div>
+<aside id="info-drawer" class="info-drawer">
+  <button type="button" id="info-close" class="info-close" aria-label="Close">✕</button>
+  <h3>Ceva's Theorem</h3>
+  <p>A <i>cevian</i> is a segment from a vertex of a triangle to a point on the opposite side. Take three cevians AD, BE, CF (with D on BC, E on CA, F on AB). Ceva's theorem says they all pass through one common point if and only if:</p>
+  <div class="formula-box">(BD / DC) · (CE / EA) · (AF / FB) = 1</div>
+  <p>In this tool the three cevians are built through a shared point P, so they are concurrent by construction — and the product stays pinned at 1 as you drag.</p>
+  <h4>Worked example: the medians</h4>
+  <p>If D, E, F are the midpoints of the sides, every ratio is 1, so the product is 1·1·1 = 1 — and indeed the three medians meet at the centroid. Drag P toward the centroid to see all three ratios approach 1.</p>
+  <h4>Other concurrent sets</h4>
+  <p>The same equation is satisfied by the three angle bisectors (meeting at the incenter) and the three altitudes (meeting at the orthocenter) — each is a special choice of D, E, F obeying Ceva's condition.</p>
+  <h4>Signed version</h4>
+  <p>Using signed ratios, the product equals +1, which also handles cevians meeting outside the triangle. With unsigned lengths and an interior point P, as shown here, the product is simply 1.</p>
+  <h4>A companion: Menelaus</h4>
+  <p>Ceva's theorem (about concurrence) has a twin, Menelaus' theorem (about three points being collinear), where the analogous signed product equals −1 instead of +1.</p>
+  <h4>A bit of history</h4>
+  <p>It is named for the Italian mathematician Giovanni Ceva, who published it in 1678 — though it was found earlier by the 11th-century Spanish-Arab mathematician Yusuf al-Mu'taman ibn Hud.</p>
+</aside>
+</div>
+</div>
+
+<script>
+(function(){
+  var svg=document.getElementById('cv-svg');
+  var pts={ A:{x:340,y:110}, B:{x:165,y:435}, C:{x:515,y:435} };
+  var P={x:340,y:328};
+  var minX=24,maxX=656,minY=24,maxY=536;
+  var showCevians=true, showRatios=true;
+
+  function sub(p,q){return {x:p.x-q.x,y:p.y-q.y};}
+  function len(v){return Math.hypot(v.x,v.y);}
+  function cross(u,v){return u.x*v.y-u.y*v.x;}
+  function fmt(n){
+    var r=Math.round(n*100)/100;
+    return (Math.abs(r-Math.round(r))<1e-9)?Math.round(r).toString():r.toFixed(2);
+  }
+  function lineX(A,B,C,D){
+    var r=sub(B,A), s=sub(D,C), den=cross(r,s);
+    if(Math.abs(den)<1e-9) return null;
+    var t=cross(sub(C,A),s)/den;
+    return {x:A.x+t*r.x, y:A.y+t*r.y};
+  }
+  function clampInside(Q){
+    var v0=sub(pts.B,pts.A), v1=sub(pts.C,pts.A), v2=sub(Q,pts.A);
+    var d00=v0.x*v0.x+v0.y*v0.y, d01=v0.x*v1.x+v0.y*v1.y, d11=v1.x*v1.x+v1.y*v1.y;
+    var d20=v2.x*v0.x+v2.y*v0.y, d21=v2.x*v1.x+v2.y*v1.y;
+    var den=d00*d11-d01*d01; if(Math.abs(den)<1e-9) return Q;
+    var vB=(d11*d20-d01*d21)/den, wC=(d00*d21-d01*d20)/den, uA=1-vB-wC;
+    var eps=0.02;
+    uA=Math.max(eps,uA); vB=Math.max(eps,vB); wC=Math.max(eps,wC);
+    var s=uA+vB+wC; uA/=s; vB/=s; wC/=s;
+    return {x:uA*pts.A.x+vB*pts.B.x+wC*pts.C.x, y:uA*pts.A.y+vB*pts.B.y+wC*pts.C.y};
+  }
+
+  var triPoly=document.getElementById('tri-poly');
+  var cevAD=document.getElementById('cevian-ad');
+  var cevBE=document.getElementById('cevian-be');
+  var cevCF=document.getElementById('cevian-cf');
+  var labD=document.getElementById('lab-d');
+  var labE=document.getElementById('lab-e');
+  var labF=document.getElementById('lab-f');
+  var dotD=document.getElementById('dot-D');
+  var dotE=document.getElementById('dot-E');
+  var dotF=document.getElementById('dot-F');
+  var tagA=document.getElementById('tag-A');
+  var tagB=document.getElementById('tag-B');
+  var tagC=document.getElementById('tag-C');
+  var tagDn=document.getElementById('tag-Dn');
+  var tagEn=document.getElementById('tag-En');
+  var tagFn=document.getElementById('tag-Fn');
+  var dotP=document.getElementById('dot-P');
+  var tagP=document.getElementById('tag-P');
+  var hA=document.getElementById('handle-A');
+  var hB=document.getElementById('handle-B');
+  var hC=document.getElementById('handle-C');
+  var hP=document.getElementById('handle-P');
+  var statusBadge=document.getElementById('status-badge');
+  var prodRow=document.getElementById('prod-row');
+  var toggleCevians=document.getElementById('toggle-cevians');
+  var toggleRatios=document.getElementById('toggle-ratios');
+
+  function setLine(el,p,q){ el.setAttribute('x1',p.x); el.setAttribute('y1',p.y); el.setAttribute('x2',q.x); el.setAttribute('y2',q.y); }
+  function disp(el,on){ el.style.display=on?'block':'none'; }
+
+  function update(){
+    P=clampInside(P);
+
+    hA.setAttribute('cx',pts.A.x); hA.setAttribute('cy',pts.A.y);
+    hB.setAttribute('cx',pts.B.x); hB.setAttribute('cy',pts.B.y);
+    hC.setAttribute('cx',pts.C.x); hC.setAttribute('cy',pts.C.y);
+    hP.setAttribute('cx',P.x); hP.setAttribute('cy',P.y);
+    dotP.setAttribute('cx',P.x); dotP.setAttribute('cy',P.y);
+    tagP.setAttribute('x',P.x+14); tagP.setAttribute('y',P.y-10);
+
+    triPoly.setAttribute('points', pts.A.x+','+pts.A.y+' '+pts.B.x+','+pts.B.y+' '+pts.C.x+','+pts.C.y);
+
+    var cen={x:(pts.A.x+pts.B.x+pts.C.x)/3,y:(pts.A.y+pts.B.y+pts.C.y)/3};
+    function tagOut(V){ var d=sub(V,cen),l=len(d)||1; return {x:V.x+d.x/l*22,y:V.y+d.y/l*22}; }
+    var tA=tagOut(pts.A),tB=tagOut(pts.B),tC=tagOut(pts.C);
+    tagA.setAttribute('x',tA.x); tagA.setAttribute('y',tA.y);
+    tagB.setAttribute('x',tB.x); tagB.setAttribute('y',tB.y);
+    tagC.setAttribute('x',tC.x); tagC.setAttribute('y',tC.y);
+
+    // cevian feet
+    var D=lineX(pts.A,P,pts.B,pts.C);
+    var E=lineX(pts.B,P,pts.C,pts.A);
+    var F=lineX(pts.C,P,pts.A,pts.B);
+    if(!D||!E||!F) return;
+
+    setLine(cevAD,pts.A,D); setLine(cevBE,pts.B,E); setLine(cevCF,pts.C,F);
+    dotD.setAttribute('cx',D.x); dotD.setAttribute('cy',D.y);
+    dotE.setAttribute('cx',E.x); dotE.setAttribute('cy',E.y);
+    dotF.setAttribute('cx',F.x); dotF.setAttribute('cy',F.y);
+
+    function footTag(el,Pt){ var d=sub(Pt,cen),l=len(d)||1; el.setAttribute('x',Pt.x+d.x/l*15); el.setAttribute('y',Pt.y+d.y/l*15); }
+    footTag(tagDn,D); footTag(tagEn,E); footTag(tagFn,F);
+
+    var r1=len(sub(D,pts.B))/len(sub(pts.C,D));   // BD/DC
+    var r2=len(sub(E,pts.C))/len(sub(pts.A,E));   // CE/EA
+    var r3=len(sub(F,pts.A))/len(sub(pts.B,F));   // AF/FB
+
+    // ratio labels near each foot, pushed outward
+    function ratioLabel(el,Pt,text){ var d=sub(Pt,cen),l=len(d)||1; el.setAttribute('x',Pt.x+d.x/l*30); el.setAttribute('y',Pt.y+d.y/l*30); el.textContent=text; }
+    ratioLabel(labD,D,'BD:DC = '+fmt(r1));
+    ratioLabel(labE,E,'CE:EA = '+fmt(r2));
+    ratioLabel(labF,F,'AF:FB = '+fmt(r3));
+
+    disp(cevAD,showCevians); disp(cevBE,showCevians); disp(cevCF,showCevians);
+    disp(dotD,showCevians); disp(dotE,showCevians); disp(dotF,showCevians);
+    disp(tagDn,showCevians); disp(tagEn,showCevians); disp(tagFn,showCevians);
+    disp(labD,showCevians&&showRatios); disp(labE,showCevians&&showRatios); disp(labF,showCevians&&showRatios);
+
+    var prod=r1*r2*r3;
+    var mismatch=Math.abs(prod-1)>0.02;
+
+    statusBadge.textContent='Cevians concurrent at P → product = 1';
+    statusBadge.style.background='#E1F5EE'; statusBadge.style.color='#04342C';
+
+    prodRow.innerHTML =
+      '<span><span class="swatch" style="background:#378ADD"></span>'+fmt(r1)+'</span><span style="color:#888;">×</span>'+
+      '<span><span class="swatch" style="background:#639922"></span>'+fmt(r2)+'</span><span style="color:#888;">×</span>'+
+      '<span><span class="swatch" style="background:#D4537E"></span>'+fmt(r3)+'</span>'+
+      '<b style="color:'+(mismatch?'#e24b4a':'#1d9e75')+';font-size:18px;">=</b>'+
+      '<span><b>'+fmt(prod)+'</b></span>'+
+      (mismatch?'':'<span style="color:#1d9e75;font-weight:700;">&check;</span>');
+  }
+
+  var dragging=null;
+  function toSvgPoint(evt){
+    var rect=svg.getBoundingClientRect();
+    var vb=svg.viewBox.baseVal;
+    return { x:(evt.clientX-rect.left)/rect.width*vb.width+vb.x, y:(evt.clientY-rect.top)/rect.height*vb.height+vb.y };
+  }
+  function onDown(key){
+    return function(e){
+      dragging=key;
+      if(e.target.setPointerCapture){ try{ e.target.setPointerCapture(e.pointerId); }catch(err){} }
+      e.preventDefault();
+    };
+  }
+  function onMove(e){
+    if(!dragging) return;
+    var p=toSvgPoint(e);
+    p={x:Math.min(maxX,Math.max(minX,p.x)), y:Math.min(maxY,Math.max(minY,p.y))};
+    if(dragging==='P'){ P=p; } else { pts[dragging]=p; }
+    update();
+  }
+  function onUp(){ dragging=null; }
+  hA.addEventListener('pointerdown',onDown('A'));
+  hB.addEventListener('pointerdown',onDown('B'));
+  hC.addEventListener('pointerdown',onDown('C'));
+  hP.addEventListener('pointerdown',onDown('P'));
+  svg.addEventListener('pointermove',onMove);
+  window.addEventListener('pointerup',onUp);
+
+  toggleCevians.addEventListener('click',function(){ showCevians=!showCevians; toggleCevians.classList.toggle('active',showCevians); update(); });
+  toggleRatios.addEventListener('click',function(){ showRatios=!showRatios; toggleRatios.classList.toggle('active',showRatios); update(); });
+
+  var infoToggle=document.getElementById('info-toggle-btn');
+  var infoDrawer=document.getElementById('info-drawer');
+  var infoBackdrop=document.getElementById('info-backdrop');
+  var infoClose=document.getElementById('info-close');
+  function openDrawer(){ infoDrawer.classList.add('open'); infoBackdrop.classList.add('open'); }
+  function closeDrawer(){ infoDrawer.classList.remove('open'); infoBackdrop.classList.remove('open'); }
+  infoToggle.addEventListener('click',function(){
+    if(infoDrawer.classList.contains('open')) closeDrawer(); else openDrawer();
+  });
+  infoClose.addEventListener('click',closeDrawer);
+  infoBackdrop.addEventListener('click',closeDrawer);
+  document.addEventListener('keydown',function(e){ if(e.key==='Escape') closeDrawer(); });
+
+  update();
+})();
+</script>
+</body>
+</html>
