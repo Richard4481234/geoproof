@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<script>/*gp-noflash*/(function(){try{var t=localStorage.getItem('gp:theme')||(matchMedia('(prefers-color-scheme:dark)').matches?'dark':'light');document.documentElement.setAttribute('data-theme',t);if(t==='dark'){var s=document.createElement('style');s.textContent='html[data-theme=dark]{background:#14151a}html[data-theme=dark] body{background:#14151a!important;color:#e6e6e8!important}';document.head.appendChild(s);}}catch(e){}})();</script>
+<title>GeoProof — Equal Chords are Equidistant from the Center</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="Two chords are the same length exactly when they sit the same distance from the center.">
+<link rel="canonical" href="https://richard4481234.github.io/geoproof/EqualChords-Visual.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="GeoProof">
+<meta property="og:title" content="Equal Chords — GeoProof">
+<meta property="og:description" content="Two chords are the same length exactly when they sit the same distance from the center.">
+<meta property="og:url" content="https://richard4481234.github.io/geoproof/EqualChords-Visual.html">
+<meta property="og:image" content="https://richard4481234.github.io/geoproof/og/EqualChords-Visual.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Equal Chords — GeoProof">
+<meta name="twitter:description" content="Two chords are the same length exactly when they sit the same distance from the center.">
+<meta name="twitter:image" content="https://richard4481234.github.io/geoproof/og/EqualChords-Visual.png">
+<style>
+  body{background:#f4f4f5;display:flex;justify-content:center;padding:40px 16px;font-family:sans-serif;}
+  .widget{width:680px;max-width:100%;}
+  .card{background:#ffffff;border:1px solid #e2e2e2;padding:1.25rem;}
+  .sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;}
+  #ec-svg{width:100%;height:auto;display:block;touch-action:none;}
+  .handle{cursor:grab;}
+  .handle:active{cursor:grabbing;}
+  .toggle-btn{padding:6px 14px;border-radius:999px;border:1px solid #d8d8d8;background:#f4f4f5;color:#888888;font-size:13px;font-weight:500;cursor:pointer;}
+  .toggle-btn.active{background:#1a1a1a;color:#ffffff;border-color:#1a1a1a;}
+  .stage{position:relative;border-radius:12px;overflow:hidden;border:1px solid #e2e2e2;}
+  .stage .card{border:none;}
+  .info-toggle{position:absolute;top:14px;right:14px;z-index:30;background:#1a1a1a;color:#ffffff;border:none;border-radius:999px;padding:7px 14px;font-size:13px;font-weight:500;cursor:pointer;}
+  .info-toggle:hover{background:#333333;}
+  .info-backdrop{position:absolute;inset:0;background:rgba(0,0,0,0.22);opacity:0;visibility:hidden;transition:opacity .2s ease;z-index:25;}
+  .info-backdrop.open{opacity:1;visibility:visible;}
+  .info-drawer{position:absolute;top:0;right:0;height:100%;width:320px;max-width:88%;background:#ffffff;border-left:1px solid #e2e2e2;box-shadow:-8px 0 24px rgba(0,0,0,0.14);padding:22px 20px;overflow-y:auto;transform:translateX(100%);transition:transform .25s ease;z-index:28;box-sizing:border-box;}
+  .info-drawer.open{transform:translateX(0);}
+  .info-close{position:absolute;top:14px;right:14px;background:#f4f4f5;border:1px solid #e2e2e2;border-radius:50%;width:28px;height:28px;font-size:14px;cursor:pointer;color:#555555;}
+  .info-drawer h3{font-size:17px;margin:6px 0 12px;padding-right:30px;color:#1a1a1a;}
+  .info-drawer h4{font-size:12px;margin:18px 0 6px;color:#666666;text-transform:uppercase;letter-spacing:.04em;}
+  .info-drawer p{font-size:13.5px;line-height:1.55;color:#333333;margin:0 0 10px;}
+  .formula-box{background:#f4f4f5;border-radius:8px;padding:10px 12px;text-align:center;font-size:13px;font-weight:600;margin:10px 0;color:#1a1a1a;}
+  .widget svg text{paint-order:stroke;stroke:#ffffff;stroke-width:3px;stroke-linejoin:round;stroke-opacity:0.92;}
+</style>
+</head>
+<body>
+<div class="widget">
+<div style="margin-bottom:12px;"><a href="index.html" style="font-size:14px;color:#1a1a1a;text-decoration:none;">&larr; GeoProof</a></div>
+<div class="stage">
+<div class="card">
+<h2 class="sr-only">A circle with centre O has two chords drawn inside it: chord AB and chord CD. You can drag all four endpoints around the circle. From the centre, a perpendicular segment is drawn to each chord, giving its distance from the centre. The theorem: two chords are equal in length exactly when they are the same distance from the centre — and the longer a chord is, the closer it lies to the centre. Each chord's length and its distance from the centre are shown live, linked by length equals two times the square root of radius squared minus distance squared. A button can make the second chord equal to the first. An info button opens a drawer with the explanation.</h2>
+<svg id="ec-svg" viewBox="0 0 680 560" aria-hidden="true">
+  <circle id="circ" fill="none" stroke="#cccccc" stroke-width="2"></circle>
+  <line id="chord1" stroke="#185FA5" stroke-width="4" stroke-linecap="round"></line>
+  <line id="chord2" stroke="#BA7517" stroke-width="4" stroke-linecap="round"></line>
+  <line id="dist1" stroke="#185FA5" stroke-width="2" stroke-dasharray="4 3"></line>
+  <line id="dist2" stroke="#BA7517" stroke-width="2" stroke-dasharray="4 3"></line>
+  <polyline id="rt1" fill="none" stroke="#185FA5" stroke-width="1.3"></polyline>
+  <polyline id="rt2" fill="none" stroke="#BA7517" stroke-width="1.3"></polyline>
+  <circle id="oDot" r="3.5" fill="#993556"></circle>
+  <circle id="m1" r="3" fill="#185FA5"></circle>
+  <circle id="m2" r="3" fill="#BA7517"></circle>
+  <text id="d1lab" text-anchor="middle" dominant-baseline="middle" fill="#185FA5" font-size="12.5" font-weight="700"></text>
+  <text id="d2lab" text-anchor="middle" dominant-baseline="middle" fill="#8a5710" font-size="12.5" font-weight="700"></text>
+  <text id="L1lab" text-anchor="middle" dominant-baseline="middle" fill="#185FA5" font-size="12.5" font-weight="700"></text>
+  <text id="L2lab" text-anchor="middle" dominant-baseline="middle" fill="#8a5710" font-size="12.5" font-weight="700"></text>
+  <text id="tO" text-anchor="middle" dominant-baseline="middle" fill="#993556" font-size="12.5" font-weight="700">O</text>
+  <text id="tA" text-anchor="middle" dominant-baseline="middle" fill="#185FA5" font-size="13" font-weight="700">A</text>
+  <text id="tB" text-anchor="middle" dominant-baseline="middle" fill="#185FA5" font-size="13" font-weight="700">B</text>
+  <text id="tC" text-anchor="middle" dominant-baseline="middle" fill="#8a5710" font-size="13" font-weight="700">C</text>
+  <text id="tD" text-anchor="middle" dominant-baseline="middle" fill="#8a5710" font-size="13" font-weight="700">D</text>
+  <circle id="hA" class="handle" r="10" fill="#ffffff" stroke="#185FA5" stroke-width="2.5"></circle>
+  <circle id="hB" class="handle" r="10" fill="#ffffff" stroke="#185FA5" stroke-width="2.5"></circle>
+  <circle id="hC" class="handle" r="10" fill="#ffffff" stroke="#BA7517" stroke-width="2.5"></circle>
+  <circle id="hD" class="handle" r="10" fill="#ffffff" stroke="#BA7517" stroke-width="2.5"></circle>
+</svg>
+
+<div style="display:flex; justify-content:center; gap:10px; flex-wrap:wrap; margin-top:0.75rem;">
+  <button type="button" id="toggle-dist" class="toggle-btn active">Show distances</button>
+  <button type="button" id="snap-equal" class="toggle-btn">Make CD equal to AB</button>
+</div>
+
+<div style="display:flex; justify-content:center; margin-top:0.85rem;">
+  <span id="status-badge" style="display:inline-block; padding:4px 14px; border-radius:999px; font-size:14px; font-weight:500;"></span>
+</div>
+
+<div id="formula-symbolic" style="text-align:center; font-size:14px; font-weight:600; color:#1a1a1a; margin-top:1.1rem;">equal chords ⟺ equal distance from O&nbsp;&nbsp;(length = 2√(R² − d²))</div>
+<div id="eq-row" style="display:flex; align-items:center; justify-content:center; gap:24px; flex-wrap:wrap; margin-top:0.6rem; font-size:14px; color:#1a1a1a;"></div>
+<div id="detail-row" style="text-align:center; font-size:12.5px; color:#777777; margin-top:0.5rem;"></div>
+</div>
+
+<button type="button" id="info-toggle-btn" class="info-toggle">ⓘ About this theorem</button>
+<div id="info-backdrop" class="info-backdrop"></div>
+<aside id="info-drawer" class="info-drawer">
+  <button type="button" id="info-close" class="info-close" aria-label="Close">✕</button>
+  <h3>Equal Chords, Equal Distances</h3>
+  <p>In a circle, two chords have the same length if and only if they are the same distance from the centre:</p>
+  <div class="formula-box">AB = CD&nbsp; ⟺ &nbsp;d₁ = d₂</div>
+  <p>The distance is measured along the perpendicular from the centre to the chord.</p>
+  <h4>Why it works</h4>
+  <p>The perpendicular from the centre bisects a chord, so a chord of length L, its half L/2, the distance d, and the radius R form a right triangle: (L/2)² + d² = R². Hence L = 2√(R² − d²). Equal L forces equal d, and vice versa.</p>
+  <h4>Longer means closer</h4>
+  <p>Because of that formula, a smaller distance d gives a longer chord. The longest chord of all — at distance 0 — is a diameter, passing right through the centre.</p>
+  <h4>Where it's used</h4>
+  <p>It's the reason equal arcs subtend equal chords, and it underlies constructions that compare or reproduce chord lengths with a compass.</p>
+</aside>
+</div>
+</div>
+
+<script>
+(function(){
+  var svg=document.getElementById('ec-svg');
+  var O={x:340,y:262}, R=172;
+  var ang={ A:-2.55, B:-0.55, C:0.5, D:2.0 };
+  var showDist=true;
+
+  function P_(a){ return {x:O.x+R*Math.cos(a), y:O.y+R*Math.sin(a)}; }
+  function sub(p,q){return {x:p.x-q.x,y:p.y-q.y};}
+  function add(p,q){return {x:p.x+q.x,y:p.y+q.y};}
+  function scl(p,s){return {x:p.x*s,y:p.y*s};}
+  function len(v){return Math.hypot(v.x,v.y);}
+  function dot(u,v){return u.x*v.x+u.y*v.y;}
+  function mid(p,q){return {x:(p.x+q.x)/2,y:(p.y+q.y)/2};}
+  function norm(a){ a%=2*Math.PI; if(a<0)a+=2*Math.PI; return a; }
+  function fmt(n){ var r=Math.round(n*10)/10; return (Math.abs(r-Math.round(r))<1e-9)?Math.round(r).toString():r.toFixed(1); }
+  var UNIT=30;
+
+  var circ=document.getElementById('circ'); circ.setAttribute('cx',O.x);circ.setAttribute('cy',O.y);circ.setAttribute('r',R);
+  var chord1=document.getElementById('chord1'),chord2=document.getElementById('chord2');
+  var dist1=document.getElementById('dist1'),dist2=document.getElementById('dist2');
+  var rt1=document.getElementById('rt1'),rt2=document.getElementById('rt2');
+  var oDot=document.getElementById('oDot'),m1=document.getElementById('m1'),m2=document.getElementById('m2');
+  var d1lab=document.getElementById('d1lab'),d2lab=document.getElementById('d2lab'),L1lab=document.getElementById('L1lab'),L2lab=document.getElementById('L2lab');
+  var tO=document.getElementById('tO');
+  var tA=document.getElementById('tA'),tB=document.getElementById('tB'),tC=document.getElementById('tC'),tD=document.getElementById('tD');
+  var hA=document.getElementById('hA'),hB=document.getElementById('hB'),hC=document.getElementById('hC'),hD=document.getElementById('hD');
+  var statusBadge=document.getElementById('status-badge');
+  var eqRow=document.getElementById('eq-row'), detailRow=document.getElementById('detail-row');
+  var toggleDist=document.getElementById('toggle-dist'), snapEqual=document.getElementById('snap-equal');
+
+  function setLine(el,p,q){ el.setAttribute('x1',p.x);el.setAttribute('y1',p.y);el.setAttribute('x2',q.x);el.setAttribute('y2',q.y); }
+  function rightMark(el,F,toCh,toO,s){
+    var u=scl(toCh,s/(len(toCh)||1)), v=scl(toO,s/(len(toO)||1));
+    var p1=add(F,u), p2=add(add(F,u),v), p3=add(F,v);
+    el.setAttribute('points',[p1,p2,p3].map(function(p){return p.x.toFixed(1)+','+p.y.toFixed(1);}).join(' '));
+  }
+
+  function chordParts(P1,P2){
+    var M=mid(P1,P2);                 // foot of perpendicular from O (chord midpoint)
+    var d=len(sub(M,O)), L=len(sub(P2,P1));
+    return {M:M,d:d,L:L};
+  }
+
+  function update(){
+    var A=P_(ang.A),B=P_(ang.B),C=P_(ang.C),D=P_(ang.D);
+    hA.setAttribute('cx',A.x);hA.setAttribute('cy',A.y);
+    hB.setAttribute('cx',B.x);hB.setAttribute('cy',B.y);
+    hC.setAttribute('cx',C.x);hC.setAttribute('cy',C.y);
+    hD.setAttribute('cx',D.x);hD.setAttribute('cy',D.y);
+    oDot.setAttribute('cx',O.x);oDot.setAttribute('cy',O.y);
+    tO.setAttribute('x',O.x); tO.setAttribute('y',O.y-13);
+
+    setLine(chord1,A,B); setLine(chord2,C,D);
+
+    // endpoint labels, nudged just outside the circle
+    function endLab(el,V){ var d=sub(V,O),l=len(d)||1; el.setAttribute('x',V.x+d.x/l*18); el.setAttribute('y',V.y+d.y/l*18); }
+    endLab(tA,A); endLab(tB,B); endLab(tC,C); endLab(tD,D);
+
+    var c1=chordParts(A,B), c2=chordParts(C,D);
+    m1.setAttribute('cx',c1.M.x);m1.setAttribute('cy',c1.M.y);
+    m2.setAttribute('cx',c2.M.x);m2.setAttribute('cy',c2.M.y);
+    setLine(dist1,O,c1.M); setLine(dist2,O,c2.M);
+
+    // right-angle marks at the feet
+    rightMark(rt1,c1.M,sub(A,c1.M),sub(O,c1.M),10);
+    rightMark(rt2,c2.M,sub(C,c2.M),sub(O,c2.M),10);
+
+    var disp=showDist?'':'none';
+    dist1.style.display=dist2.style.display=rt1.style.display=rt2.style.display=m1.style.display=m2.style.display=disp;
+
+    // labels
+    var d1lp=mid(O,c1.M), d2lp=mid(O,c2.M);
+    var n1={x:-(c1.M.y-O.y),y:(c1.M.x-O.x)}; n1=scl(n1,12/(len(n1)||1));
+    var n2={x:-(c2.M.y-O.y),y:(c2.M.x-O.x)}; n2=scl(n2,12/(len(n2)||1));
+    d1lab.setAttribute('x',d1lp.x+n1.x); d1lab.setAttribute('y',d1lp.y+n1.y);
+    d2lab.setAttribute('x',d2lp.x+n2.x); d2lab.setAttribute('y',d2lp.y+n2.y);
+    d1lab.textContent='d₁='+fmt(c1.d/UNIT); d2lab.textContent='d₂='+fmt(c2.d/UNIT);
+    d1lab.style.display=d2lab.style.display=disp;
+    // chord-length labels just outside each chord's midpoint
+    var o1=sub(c1.M,O); o1=scl(o1,18/(len(o1)||1));
+    var o2=sub(c2.M,O); o2=scl(o2,18/(len(o2)||1));
+    L1lab.setAttribute('x',c1.M.x+o1.x); L1lab.setAttribute('y',c1.M.y+o1.y);
+    L2lab.setAttribute('x',c2.M.x+o2.x); L2lab.setAttribute('y',c2.M.y+o2.y);
+    L1lab.textContent='AB='+fmt(c1.L/UNIT); L2lab.textContent='CD='+fmt(c2.L/UNIT);
+
+    var L1=c1.L/UNIT, L2=c2.L/UNIT, d1=c1.d/UNIT, d2=c2.d/UNIT, r=R/UNIT;
+    var equalLen=Math.abs(L1-L2)<0.06*Math.max(1,L1);
+    var equalDist=Math.abs(d1-d2)<0.06*Math.max(1,Math.max(d1,d2,1));
+
+    if(equalLen){
+      statusBadge.textContent='Equal chords → equal distance from O ✓';
+      statusBadge.style.background='#E3F4EC'; statusBadge.style.color='#1d7a4d';
+    } else {
+      statusBadge.textContent = (L1>L2? 'AB is longer → AB is closer to O' : 'CD is longer → CD is closer to O');
+      statusBadge.style.background='#EEF1F6'; statusBadge.style.color='#3a4a63';
+    }
+
+    eqRow.innerHTML =
+      '<span style="color:#185FA5;">AB = '+fmt(L1)+',&nbsp; d₁ = '+fmt(d1)+'&nbsp; (2√(R²−d₁²)='+fmt(2*Math.sqrt(Math.max(0,r*r-d1*d1)))+')</span>'+
+      '<span style="color:#8a5710;">CD = '+fmt(L2)+',&nbsp; d₂ = '+fmt(d2)+'&nbsp; (2√(R²−d₂²)='+fmt(2*Math.sqrt(Math.max(0,r*r-d2*d2)))+')</span>';
+    detailRow.textContent='Radius R = '+fmt(r)+'.  Each chord, its half, and its distance from O make a right triangle, so a shorter distance always means a longer chord.';
+  }
+
+  var dragging=null;
+  function toSvgPoint(evt){
+    var rect=svg.getBoundingClientRect(), vb=svg.viewBox.baseVal;
+    return { x:(evt.clientX-rect.left)/rect.width*vb.width+vb.x, y:(evt.clientY-rect.top)/rect.height*vb.height+vb.y };
+  }
+  function onDown(key){ return function(e){ dragging=key; if(e.target.setPointerCapture){try{e.target.setPointerCapture(e.pointerId);}catch(err){}} e.preventDefault(); }; }
+  function onMove(e){
+    if(!dragging) return;
+    var p=toSvgPoint(e);
+    ang[dragging]=Math.atan2(p.y-O.y,p.x-O.x);
+    update();
+  }
+  function onUp(){ dragging=null; }
+  hA.addEventListener('pointerdown',onDown('A'));
+  hB.addEventListener('pointerdown',onDown('B'));
+  hC.addEventListener('pointerdown',onDown('C'));
+  hD.addEventListener('pointerdown',onDown('D'));
+  svg.addEventListener('pointermove',onMove);
+  window.addEventListener('pointerup',onUp);
+
+  toggleDist.addEventListener('click',function(){ showDist=!showDist; toggleDist.classList.toggle('active',showDist); update(); });
+  snapEqual.addEventListener('click',function(){
+    var sep=ang.B-ang.A;                 // central angle of chord AB (signed)
+    ang.D=ang.C+sep;                      // give CD the same central angle ⇒ same length
+    update();
+  });
+
+  var infoToggle=document.getElementById('info-toggle-btn');
+  var infoDrawer=document.getElementById('info-drawer');
+  var infoBackdrop=document.getElementById('info-backdrop');
+  var infoClose=document.getElementById('info-close');
+  function openDrawer(){ infoDrawer.classList.add('open'); infoBackdrop.classList.add('open'); }
+  function closeDrawer(){ infoDrawer.classList.remove('open'); infoBackdrop.classList.remove('open'); }
+  infoToggle.addEventListener('click',function(){ if(infoDrawer.classList.contains('open')) closeDrawer(); else openDrawer(); });
+  infoClose.addEventListener('click',closeDrawer);
+  infoBackdrop.addEventListener('click',closeDrawer);
+  document.addEventListener('keydown',function(e){ if(e.key==='Escape') closeDrawer(); });
+
+  update();
+})();
+</script>
+<script defer src="site-chrome.js"></script>
+</body>
+</html>

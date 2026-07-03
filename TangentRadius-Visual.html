@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<script>/*gp-noflash*/(function(){try{var t=localStorage.getItem('gp:theme')||(matchMedia('(prefers-color-scheme:dark)').matches?'dark':'light');document.documentElement.setAttribute('data-theme',t);if(t==='dark'){var s=document.createElement('style');s.textContent='html[data-theme=dark]{background:#14151a}html[data-theme=dark] body{background:#14151a!important;color:#e6e6e8!important}';document.head.appendChild(s);}}catch(e){}})();</script>
+<title>GeoProof — Tangent ⟂ Radius explorer</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="Drag the touch point around a circle and see the tangent always meet the radius at a right angle.">
+<link rel="canonical" href="https://richard4481234.github.io/geoproof/TangentRadius-Visual.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="GeoProof">
+<meta property="og:title" content="Tangent ⟂ Radius — GeoProof">
+<meta property="og:description" content="Drag the touch point around a circle and see the tangent always meet the radius at a right angle.">
+<meta property="og:url" content="https://richard4481234.github.io/geoproof/TangentRadius-Visual.html">
+<meta property="og:image" content="https://richard4481234.github.io/geoproof/og/TangentRadius-Visual.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Tangent ⟂ Radius — GeoProof">
+<meta name="twitter:description" content="Drag the touch point around a circle and see the tangent always meet the radius at a right angle.">
+<meta name="twitter:image" content="https://richard4481234.github.io/geoproof/og/TangentRadius-Visual.png">
+<style>
+  body{background:#f4f4f5;display:flex;justify-content:center;padding:40px 16px;font-family:sans-serif;}
+  .widget{width:680px;max-width:100%;}
+  .card{background:#ffffff;border:1px solid #e2e2e2;padding:1.25rem;}
+  .sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;}
+  #tr-svg{width:100%;height:auto;display:block;touch-action:none;}
+  .handle{cursor:grab;}
+  .handle:active{cursor:grabbing;}
+  .swatch{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:6px;vertical-align:middle;}
+  .toggle-btn{padding:6px 14px;border-radius:999px;border:1px solid #d8d8d8;background:#f4f4f5;color:#888888;font-size:13px;font-weight:500;cursor:pointer;}
+  .toggle-btn.active{background:#1a1a1a;color:#ffffff;border-color:#1a1a1a;}
+  .stage{position:relative;border-radius:12px;overflow:hidden;border:1px solid #e2e2e2;}
+  .stage .card{border:none;}
+  .info-toggle{position:absolute;top:14px;right:14px;z-index:30;background:#1a1a1a;color:#ffffff;border:none;border-radius:999px;padding:7px 14px;font-size:13px;font-weight:500;cursor:pointer;}
+  .info-toggle:hover{background:#333333;}
+  .info-backdrop{position:absolute;inset:0;background:rgba(0,0,0,0.22);opacity:0;visibility:hidden;transition:opacity .2s ease;z-index:25;}
+  .info-backdrop.open{opacity:1;visibility:visible;}
+  .info-drawer{position:absolute;top:0;right:0;height:100%;width:320px;max-width:88%;background:#ffffff;border-left:1px solid #e2e2e2;box-shadow:-8px 0 24px rgba(0,0,0,0.14);padding:22px 20px;overflow-y:auto;transform:translateX(100%);transition:transform .25s ease;z-index:28;box-sizing:border-box;}
+  .info-drawer.open{transform:translateX(0);}
+  .info-close{position:absolute;top:14px;right:14px;background:#f4f4f5;border:1px solid #e2e2e2;border-radius:50%;width:28px;height:28px;font-size:14px;cursor:pointer;color:#555555;}
+  .info-drawer h3{font-size:17px;margin:6px 0 12px;padding-right:30px;color:#1a1a1a;}
+  .info-drawer h4{font-size:12px;margin:18px 0 6px;color:#666666;text-transform:uppercase;letter-spacing:.04em;}
+  .info-drawer p{font-size:13.5px;line-height:1.55;color:#333333;margin:0 0 10px;}
+  .formula-box{background:#f4f4f5;border-radius:8px;padding:10px 12px;text-align:center;font-size:13.5px;font-weight:600;margin:10px 0;color:#1a1a1a;}
+  .widget svg text{paint-order:stroke;stroke:#ffffff;stroke-width:3px;stroke-linejoin:round;stroke-opacity:0.92;}
+</style>
+</head>
+<body>
+<div class="widget">
+<div style="margin-bottom:12px;"><a href="index.html" style="font-size:14px;color:#1a1a1a;text-decoration:none;">&larr; GeoProof</a></div>
+<div class="stage">
+<div class="card">
+<h2 class="sr-only">A circle has centre O. A point T sits on the circle; drag it around. The radius from O to T is drawn, and the tangent line touching the circle at T is drawn too. The tangent always meets the radius at a right angle. A movable point Q slides along the tangent line: the distance from O to Q is shortest exactly at T, where it equals the radius, confirming the radius is the perpendicular (shortest) line to the tangent. An info button opens a drawer explaining the fact.</h2>
+<svg id="tr-svg" viewBox="0 0 680 560" aria-hidden="true">
+  <circle id="circle" fill="#378ADD" fill-opacity="0.05" stroke="#378ADD" stroke-width="2"></circle>
+  <line id="tangent" stroke="#1a1a1a" stroke-width="2.5" stroke-linecap="round"></line>
+  <line id="radius" stroke="#BA7517" stroke-width="3" stroke-linecap="round"></line>
+  <line id="oq" stroke="#D4537E" stroke-width="2" stroke-dasharray="5,3" style="display:none"></line>
+  <polyline id="rt-mark" fill="none" stroke="#999999" stroke-width="1.6"></polyline>
+  <circle id="dot-O" r="4.5" fill="#1a1a1a"></circle>
+  <circle id="dot-Q" r="4" fill="#D4537E" style="display:none"></circle>
+  <text id="lab-r" text-anchor="middle" dominant-baseline="middle" fill="#7A4D0B" font-size="12.5" font-weight="600"></text>
+  <text id="lab-oq" text-anchor="middle" dominant-baseline="middle" fill="#993556" font-size="12.5" font-weight="600" style="display:none"></text>
+  <text id="tag-O" text-anchor="middle" dominant-baseline="middle" fill="#1a1a1a" font-size="14" font-weight="700">O</text>
+  <text id="tag-T" text-anchor="middle" dominant-baseline="middle" fill="#7A4D0B" font-size="14" font-weight="700">T</text>
+  <circle id="handle-T" class="handle" r="11" fill="#ffffff" stroke="#BA7517" stroke-width="2.5"></circle>
+  <circle id="handle-Q" class="handle" r="10" fill="#ffffff" stroke="#D4537E" stroke-width="2.5" style="display:none"></circle>
+</svg>
+
+<div style="display:flex; justify-content:center; gap:10px; flex-wrap:wrap; margin-top:0.75rem;">
+  <button type="button" id="toggle-tangent" class="toggle-btn active">Tangent line</button>
+  <button type="button" id="toggle-q" class="toggle-btn">Nearest-point check</button>
+</div>
+
+<div style="display:flex; justify-content:center; margin-top:0.85rem;">
+  <span id="status-badge" style="display:inline-block; padding:4px 14px; border-radius:999px; font-size:14px; font-weight:500;"></span>
+</div>
+
+<div id="formula-symbolic" style="text-align:center; font-size:14px; font-weight:600; color:#1a1a1a; margin-top:1.1rem;">the tangent at T is perpendicular to the radius OT</div>
+
+<div id="eq-row" style="display:flex; align-items:center; justify-content:center; gap:10px; flex-wrap:wrap; margin-top:0.6rem; font-size:15px; color:#1a1a1a;"></div>
+<div id="detail-row" style="text-align:center; font-size:12.5px; color:#777777; margin-top:0.55rem;"></div>
+</div>
+
+<button type="button" id="info-toggle-btn" class="info-toggle">ⓘ About this fact</button>
+<div id="info-backdrop" class="info-backdrop"></div>
+<aside id="info-drawer" class="info-drawer">
+  <button type="button" id="info-close" class="info-close" aria-label="Close">✕</button>
+  <h3>Tangent ⟂ Radius</h3>
+  <p>A <i>tangent</i> is a line that touches a circle at exactly one point. At that point of contact, the tangent is always perpendicular to the radius drawn there:</p>
+  <div class="formula-box">tangent at T ⟂ radius OT &nbsp;(a 90° angle)</div>
+  <p>Drag T around the circle and the right angle between the radius and the tangent never changes.</p>
+  <h4>Why it's true</h4>
+  <p>The radius OT is the shortest distance from the centre O to the tangent line. The shortest segment from a point to a line is always the perpendicular one — so OT must meet the tangent at 90°. Turn on "Nearest-point check": slide Q along the tangent and OQ is smallest exactly at T, where it equals the radius.</p>
+  <h4>Only one tangent per point</h4>
+  <p>Because the direction is fixed (perpendicular to the radius), there is exactly one tangent line at each point of the circle.</p>
+  <h4>Where it's used</h4>
+  <p>This fact is the starting point for constructing tangents, for the tangent–chord angle, for equal tangent lengths from an external point, and for tangent circles and many engineering and optics problems.</p>
+</aside>
+</div>
+</div>
+
+<script>
+(function(){
+  var svg=document.getElementById('tr-svg');
+  var O={x:300,y:290}, R=170;
+  var Tang=-35;       // angle of T on the circle (deg)
+  var Qt=120;         // Q's signed offset along the tangent from T (px)
+  var showTangent=true, showQ=false;
+  var UNIT=30;
+
+  function sub(p,q){return {x:p.x-q.x,y:p.y-q.y};}
+  function len(v){return Math.hypot(v.x,v.y);}
+  function fmt(n){ var r=Math.round(n*10)/10; return (Math.abs(r-Math.round(r))<1e-9)?Math.round(r).toString():r.toFixed(1); }
+  function Tpt(){ var a=Tang*Math.PI/180; return {x:O.x+R*Math.cos(a), y:O.y+R*Math.sin(a)}; }
+
+  var circle=document.getElementById('circle');
+  var tangent=document.getElementById('tangent');
+  var radius=document.getElementById('radius');
+  var oq=document.getElementById('oq');
+  var rtMark=document.getElementById('rt-mark');
+  var dotO=document.getElementById('dot-O'), dotQ=document.getElementById('dot-Q');
+  var labR=document.getElementById('lab-r'), labOQ=document.getElementById('lab-oq');
+  var tagO=document.getElementById('tag-O'), tagT=document.getElementById('tag-T');
+  var hT=document.getElementById('handle-T'), hQ=document.getElementById('handle-Q');
+  var statusBadge=document.getElementById('status-badge');
+  var eqRow=document.getElementById('eq-row');
+  var detailRow=document.getElementById('detail-row');
+  var toggleTangent=document.getElementById('toggle-tangent');
+  var toggleQ=document.getElementById('toggle-q');
+
+  function setLine(el,p,q){ el.setAttribute('x1',p.x); el.setAttribute('y1',p.y); el.setAttribute('x2',q.x); el.setAttribute('y2',q.y); }
+  function disp(el,on){ el.style.display=on?'block':'none'; }
+
+  function update(){
+    circle.setAttribute('cx',O.x); circle.setAttribute('cy',O.y); circle.setAttribute('r',R);
+    dotO.setAttribute('cx',O.x); dotO.setAttribute('cy',O.y);
+    tagO.setAttribute('x',O.x-14); tagO.setAttribute('y',O.y+14);
+
+    var T=Tpt();
+    var ur={x:(T.x-O.x)/R,y:(T.y-O.y)/R};      // radial unit (O->T)
+    var ut={x:-ur.y,y:ur.x};                    // tangent unit (perp)
+
+    setLine(radius,O,T);
+    setLine(tangent,{x:T.x-ut.x*220,y:T.y-ut.y*220},{x:T.x+ut.x*220,y:T.y+ut.y*220});
+    disp(tangent,showTangent);
+    hT.setAttribute('cx',T.x); hT.setAttribute('cy',T.y);
+    tagT.setAttribute('x',T.x+ur.x*18); tagT.setAttribute('y',T.y+ur.y*18);
+
+    // right-angle mark at T between radius (toward O = -ur) and tangent (ut)
+    var s=16;
+    var c1={x:T.x-ur.x*s,y:T.y-ur.y*s}, c2={x:T.x-ur.x*s+ut.x*s,y:T.y-ur.y*s+ut.y*s}, c3={x:T.x+ut.x*s,y:T.y+ut.y*s};
+    rtMark.setAttribute('points', c1.x+','+c1.y+' '+c2.x+','+c2.y+' '+c3.x+','+c3.y);
+
+    var mR={x:(O.x+T.x)/2,y:(O.y+T.y)/2};
+    labR.setAttribute('x',mR.x-ut.x*12); labR.setAttribute('y',mR.y-ut.y*12); labR.textContent='r='+fmt(R/UNIT);
+
+    // nearest-point check
+    disp(oq,showQ); disp(dotQ,showQ); disp(hQ,showQ); disp(labOQ,showQ);
+    if(showQ){
+      var Q={x:T.x+ut.x*Qt, y:T.y+ut.y*Qt};
+      setLine(oq,O,Q);
+      dotQ.setAttribute('cx',Q.x); dotQ.setAttribute('cy',Q.y);
+      hQ.setAttribute('cx',Q.x); hQ.setAttribute('cy',Q.y);
+      var OQ=len(sub(Q,O))/UNIT;
+      var mq={x:(O.x+Q.x)/2,y:(O.y+Q.y)/2};
+      labOQ.setAttribute('x',mq.x); labOQ.setAttribute('y',mq.y-8); labOQ.textContent='OQ='+fmt(OQ);
+    }
+
+    statusBadge.textContent='Radius ⟂ tangent at the point of contact';
+    statusBadge.style.background='#FBF3D9'; statusBadge.style.color='#5C4813';
+
+    eqRow.innerHTML =
+      '<span><span class="swatch" style="background:#BA7517"></span>angle (radius, tangent) = 90°</span>'+
+      '<span style="color:#1d9e75;font-weight:700;">&check;</span>'+
+      (showQ?'<span style="color:#888;">·</span><span><span class="swatch" style="background:#D4537E"></span>OQ ≥ r, equal only at T</span>':'');
+
+    detailRow.textContent=showQ?'Slide Q along the tangent — OQ is smallest (= r) exactly at T, so OT is the perpendicular.':'Drag T around the circle; the radius and tangent always meet at 90°.';
+  }
+
+  var dragging=null;
+  function toSvgPoint(evt){
+    var rect=svg.getBoundingClientRect();
+    var vb=svg.viewBox.baseVal;
+    return { x:(evt.clientX-rect.left)/rect.width*vb.width+vb.x, y:(evt.clientY-rect.top)/rect.height*vb.height+vb.y };
+  }
+  function onDown(key){
+    return function(e){
+      dragging=key;
+      if(e.target.setPointerCapture){ try{ e.target.setPointerCapture(e.pointerId); }catch(err){} }
+      e.preventDefault();
+    };
+  }
+  function onMove(e){
+    if(!dragging) return;
+    var p=toSvgPoint(e);
+    if(dragging==='T'){ Tang=Math.atan2(p.y-O.y,p.x-O.x)*180/Math.PI; }
+    else if(dragging==='Q'){
+      var T=Tpt(); var a=Tang*Math.PI/180; var ur={x:Math.cos(a),y:Math.sin(a)}, ut={x:-ur.y,y:ur.x};
+      Qt=(p.x-T.x)*ut.x+(p.y-T.y)*ut.y;
+    }
+    update();
+  }
+  function onUp(){ dragging=null; }
+  hT.addEventListener('pointerdown',onDown('T'));
+  hQ.addEventListener('pointerdown',onDown('Q'));
+  svg.addEventListener('pointermove',onMove);
+  window.addEventListener('pointerup',onUp);
+
+  toggleTangent.addEventListener('click',function(){ showTangent=!showTangent; toggleTangent.classList.toggle('active',showTangent); update(); });
+  toggleQ.addEventListener('click',function(){ showQ=!showQ; toggleQ.classList.toggle('active',showQ); update(); });
+
+  var infoToggle=document.getElementById('info-toggle-btn');
+  var infoDrawer=document.getElementById('info-drawer');
+  var infoBackdrop=document.getElementById('info-backdrop');
+  var infoClose=document.getElementById('info-close');
+  function openDrawer(){ infoDrawer.classList.add('open'); infoBackdrop.classList.add('open'); }
+  function closeDrawer(){ infoDrawer.classList.remove('open'); infoBackdrop.classList.remove('open'); }
+  infoToggle.addEventListener('click',function(){
+    if(infoDrawer.classList.contains('open')) closeDrawer(); else openDrawer();
+  });
+  infoClose.addEventListener('click',closeDrawer);
+  infoBackdrop.addEventListener('click',closeDrawer);
+  document.addEventListener('keydown',function(e){ if(e.key==='Escape') closeDrawer(); });
+
+  update();
+})();
+</script>
+<script defer src="site-chrome.js"></script>
+</body>
+</html>

@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<script>/*gp-noflash*/(function(){try{var t=localStorage.getItem('gp:theme')||(matchMedia('(prefers-color-scheme:dark)').matches?'dark':'light');document.documentElement.setAttribute('data-theme',t);if(t==='dark'){var s=document.createElement('style');s.textContent='html[data-theme=dark]{background:#14151a}html[data-theme=dark] body{background:#14151a!important;color:#e6e6e8!important}';document.head.appendChild(s);}}catch(e){}})();</script>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Guided Paths — GeoProof</title>
+<meta name="description" content="Curated learning paths through GeoProof's interactive geometry explorers — from angle foundations and triangle centres to circle theorems, transformations, and more.">
+<link rel="canonical" href="https://richard4481234.github.io/geoproof/paths.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="GeoProof">
+<meta property="og:title" content="Guided Paths — GeoProof">
+<meta property="og:description" content="Curated learning paths through GeoProof's interactive geometry explorers — ordered sequences from the basics to advanced results.">
+<meta property="og:url" content="https://richard4481234.github.io/geoproof/paths.html">
+<meta property="og:image" content="https://richard4481234.github.io/geoproof/og-image.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Guided Paths — GeoProof">
+<meta name="twitter:description" content="Curated, ordered learning paths through GeoProof's interactive geometry explorers.">
+<meta name="twitter:image" content="https://richard4481234.github.io/geoproof/og-image.png">
+<style>
+  *{box-sizing:border-box;}
+  body{margin:0;background:#f4f4f5;color:#1a1a1a;font-family:system-ui,-apple-system,sans-serif;line-height:1.6;}
+  .paths-wrap{max-width:760px;margin:0 auto;padding:40px 20px 64px;}
+  .eyebrow{font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#8a8f98;}
+  h1{font-size:36px;font-weight:800;letter-spacing:-0.02em;margin:10px 0 12px;}
+  .lead{font-size:18px;color:#444444;margin:0 0 8px;}
+  .path-card{background:#ffffff;border:1px solid #e2e2e2;border-radius:14px;padding:20px 22px;margin:18px 0;}
+  .path-head{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:4px;}
+  .path-h{font-size:19px;font-weight:700;margin:0;letter-spacing:-0.01em;}
+  .path-tag{font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:#ffffff;padding:3px 9px;border-radius:999px;}
+  .path-desc{font-size:14px;color:#555555;margin:6px 0 10px;}
+  .path-steps{list-style:none;counter-reset:s;margin:6px 0 0;padding:0;}
+  .path-steps li{counter-increment:s;display:flex;align-items:center;gap:12px;padding:7px 0;border-top:1px solid #f0f0f1;}
+  .path-steps li:first-child{border-top:none;}
+  .path-steps li::before{content:counter(s);flex:none;width:24px;height:24px;line-height:24px;text-align:center;border-radius:50%;background:#f0f0f2;color:#666666;font-size:12px;font-weight:700;}
+  .path-steps a{text-decoration:none;color:#1a1a1a;font-size:14.5px;font-weight:600;}
+  .path-steps a:hover{color:#185FA5;text-decoration:underline;}
+  .path-start{display:inline-block;margin-top:14px;background:#1a1a1a;color:#ffffff;font-weight:600;font-size:14px;padding:9px 18px;border-radius:999px;text-decoration:none;}
+  .path-start:hover{background:#000000;}
+  .foot{margin-top:28px;font-size:14px;color:#666666;}
+  .foot a{color:#185FA5;text-decoration:none;}
+</style>
+</head>
+<body>
+<main class="paths-wrap">
+  <div class="eyebrow">Guided paths</div>
+  <h1>Learn it in order</h1>
+  <p class="lead">Not sure where to start? Each path is a curated sequence of explorers that builds one idea at a time, from the basics to the deeper results.</p>
+
+  <section class="path-card">
+    <div class="path-head"><h2 class="path-h">Angle foundations</h2><span class="path-tag" style="background:#a9650f">Beginner</span></div>
+    <p class="path-desc">Start at a single point and build up to the angle rules that govern lines, triangles, and polygons.</p>
+    <ol class="path-steps">
+      <li><a href="AnglesAroundPoint-Visual.html">Angles Around a Point</a></li>
+      <li><a href="CompSuppAngles-Visual.html">Complementary &amp; Supplementary</a></li>
+      <li><a href="VerticalAngles-Visual.html">Vertical Angles</a></li>
+      <li><a href="ParallelTransversal-Visual.html">Parallel Lines &amp; Transversal</a></li>
+      <li><a href="TriangleAngleSum-Visual.html">Triangle Angle Sum</a></li>
+      <li><a href="ExteriorAngle-Visual.html">Exterior Angle Theorem</a></li>
+      <li><a href="PolygonAngleSum-Visual.html">Angle Sum of Polygons</a></li>
+      <li><a href="PolygonExteriorAngleSum-Visual.html">Sum of Exterior Angles</a></li>
+    </ol>
+    <a class="path-start" href="AnglesAroundPoint-Visual.html">Start path →</a>
+  </section>
+
+  <section class="path-card">
+    <div class="path-head"><h2 class="path-h">The triangle's centres</h2><span class="path-tag" style="background:#185FA5">Triangle</span></div>
+    <p class="path-desc">Meet the four classic triangle centres, then the line and circle that tie them all together.</p>
+    <ol class="path-steps">
+      <li><a href="Incircle-Visual.html">Incenter &amp; Incircle</a></li>
+      <li><a href="Circumcircle-Visual.html">Circumcenter &amp; Circumcircle</a></li>
+      <li><a href="CentroidMedians-Visual.html">Centroid &amp; the 2:1 Median</a></li>
+      <li><a href="Orthocenter-Visual.html">Orthocenter</a></li>
+      <li><a href="EulerLine-Visual.html">Euler Line</a></li>
+      <li><a href="NinePointCircle-Visual.html">Nine-Point Circle</a></li>
+      <li><a href="EulerInequality-Visual.html">Euler's Inequality</a></li>
+    </ol>
+    <a class="path-start" href="Incircle-Visual.html">Start path →</a>
+  </section>
+
+  <section class="path-card">
+    <div class="path-head"><h2 class="path-h">Angles in a circle</h2><span class="path-tag" style="background:#1d7a52">Circle</span></div>
+    <p class="path-desc">Where an angle's vertex sits — at the centre, on the circle, inside, or outside — decides everything.</p>
+    <ol class="path-steps">
+      <li><a href="InscribedAngle-Visual.html">Inscribed Angle Theorem</a></li>
+      <li><a href="TangentRadius-Visual.html">Tangent ⟂ Radius</a></li>
+      <li><a href="TangentChordAngle-Visual.html">Tangent–Chord Angle</a></li>
+      <li><a href="CyclicQuadrilateral-Visual.html">Cyclic Quadrilateral</a></li>
+      <li><a href="IntersectingChordsAngle-Visual.html">Intersecting Chords Angle</a></li>
+      <li><a href="SecantsAngle-Visual.html">Intersecting Secants Angle</a></li>
+      <li><a href="TangentTangentAngle-Visual.html">Tangent–Tangent Angle</a></li>
+      <li><a href="PowerOfAPoint-Visual.html">Power of a Point</a></li>
+    </ol>
+    <a class="path-start" href="InscribedAngle-Visual.html">Start path →</a>
+  </section>
+
+  <section class="path-card">
+    <div class="path-head"><h2 class="path-h">The plane's symmetries</h2><span class="path-tag" style="background:#993556">Transformation</span></div>
+    <p class="path-desc">Every rigid motion of the plane is one of four kinds — reflect, rotate, translate, or glide — plus scaling.</p>
+    <ol class="path-steps">
+      <li><a href="Reflection-Visual.html">Reflection</a></li>
+      <li><a href="Rotation-Visual.html">Rotation</a></li>
+      <li><a href="Translation-Visual.html">Translation</a></li>
+      <li><a href="Dilation-Visual.html">Dilation (Scaling)</a></li>
+      <li><a href="TwoReflections-Visual.html">Two Reflections</a></li>
+      <li><a href="GlideReflection-Visual.html">Glide Reflection</a></li>
+    </ol>
+    <a class="path-start" href="Reflection-Visual.html">Start path →</a>
+  </section>
+
+  <section class="path-card">
+    <div class="path-head"><h2 class="path-h">Many ways to find area</h2><span class="path-tag" style="background:#b5731a">Mensuration</span></div>
+    <p class="path-desc">Six different routes to the area of a shape — from side lengths and angles to counting lattice dots.</p>
+    <ol class="path-steps">
+      <li><a href="Heron-Visual.html">Heron's Formula</a></li>
+      <li><a href="TriangleAreaSine-Visual.html">Triangle Area (sine)</a></li>
+      <li><a href="AreaInradius-Visual.html">Area = r·s</a></li>
+      <li><a href="AreaCircumradius-Visual.html">Area = abc/4R</a></li>
+      <li><a href="Shoelace-Visual.html">Shoelace Formula</a></li>
+      <li><a href="Picks-Visual.html">Pick's Theorem</a></li>
+    </ol>
+    <a class="path-start" href="Heron-Visual.html">Start path →</a>
+  </section>
+
+  <section class="path-card">
+    <div class="path-head"><h2 class="path-h">Similarity &amp; proportion</h2><span class="path-tag" style="background:#5b3886">Similarity</span></div>
+    <p class="path-desc">Parallel lines split sides in equal ratios — and that one idea powers similar triangles and beyond.</p>
+    <ol class="path-steps">
+      <li><a href="BasicProportionality-Visual.html">Basic Proportionality</a></li>
+      <li><a href="Midsegment-Visual.html">Triangle Midsegment</a></li>
+      <li><a href="AASimilarity-Visual.html">AA Similarity</a></li>
+      <li><a href="SASSimilarity-Visual.html">SAS Similarity</a></li>
+      <li><a href="GeometricMean-Visual.html">Geometric Mean</a></li>
+      <li><a href="Stewart-Visual.html">Stewart's Theorem</a></li>
+    </ol>
+    <a class="path-start" href="BasicProportionality-Visual.html">Start path →</a>
+  </section>
+
+  <section class="path-card">
+    <div class="path-head"><h2 class="path-h">The quadrilateral family</h2><span class="path-tag" style="background:#8B5FBF">Quadrilateral</span></div>
+    <p class="path-desc">From parallelograms to circle-inscribed quadrilaterals — the special quadrilaterals and their secrets.</p>
+    <ol class="path-steps">
+      <li><a href="ParallelogramDiagonals-Visual.html">Diagonals Bisect</a></li>
+      <li><a href="RhombusDiagonals-Visual.html">Rhombus Diagonals</a></li>
+      <li><a href="ParallelogramLaw-Visual.html">Parallelogram Law</a></li>
+      <li><a href="TrapezoidMidsegment-Visual.html">Trapezoid Midsegment</a></li>
+      <li><a href="Varignon-Visual.html">Varignon's Theorem</a></li>
+      <li><a href="CyclicQuadrilateral-Visual.html">Cyclic Quadrilateral</a></li>
+      <li><a href="Pitot-Visual.html">Pitot's Theorem</a></li>
+      <li><a href="Ptolemy-Visual.html">Ptolemy's Theorem</a></li>
+      <li><a href="Brahmagupta-Visual.html">Brahmagupta's Formula</a></li>
+    </ol>
+    <a class="path-start" href="ParallelogramDiagonals-Visual.html">Start path →</a>
+  </section>
+
+  <section class="path-card">
+    <div class="path-head"><h2 class="path-h">Right triangles &amp; Pythagoras</h2><span class="path-tag" style="background:#1a7f8a">Right triangle</span></div>
+    <p class="path-desc">The right angle's special powers, ending with the law that generalises Pythagoras to any triangle.</p>
+    <ol class="path-steps">
+      <li><a href="GeoProof-Visual.html">Pythagorean Theorem</a></li>
+      <li><a href="GeometricMean-Visual.html">Geometric Mean</a></li>
+      <li><a href="RightMedian-Visual.html">Median to Hypotenuse</a></li>
+      <li><a href="DistanceMidpoint-Visual.html">Distance &amp; Midpoint</a></li>
+      <li><a href="BritishFlag-Visual.html">British Flag Theorem</a></li>
+      <li><a href="LawOfCosines-Visual.html">Law of Cosines</a></li>
+    </ol>
+    <a class="path-start" href="GeoProof-Visual.html">Start path →</a>
+  </section>
+
+  <p class="foot">Prefer to browse freely? <a href="index.html">See all 73 explorers →</a></p>
+</main>
+<script defer src="site-chrome.js"></script>
+</body>
+</html>

@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<script>/*gp-noflash*/(function(){try{var t=localStorage.getItem('gp:theme')||(matchMedia('(prefers-color-scheme:dark)').matches?'dark':'light');document.documentElement.setAttribute('data-theme',t);if(t==='dark'){var s=document.createElement('style');s.textContent='html[data-theme=dark]{background:#14151a}html[data-theme=dark] body{background:#14151a!important;color:#e6e6e8!important}';document.head.appendChild(s);}}catch(e){}})();</script>
+<title>GeoProof — Angle Bisector (Locus) explorer</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="Drag a point inside an angle and see it stay equally far from both arms exactly on the bisector.">
+<link rel="canonical" href="https://richard4481234.github.io/geoproof/AngleBisectorLocus-Visual.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="GeoProof">
+<meta property="og:title" content="Angle Bisector (Locus) — GeoProof">
+<meta property="og:description" content="Drag a point inside an angle and see it stay equally far from both arms exactly on the bisector.">
+<meta property="og:url" content="https://richard4481234.github.io/geoproof/AngleBisectorLocus-Visual.html">
+<meta property="og:image" content="https://richard4481234.github.io/geoproof/og/AngleBisectorLocus-Visual.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Angle Bisector (Locus) — GeoProof">
+<meta name="twitter:description" content="Drag a point inside an angle and see it stay equally far from both arms exactly on the bisector.">
+<meta name="twitter:image" content="https://richard4481234.github.io/geoproof/og/AngleBisectorLocus-Visual.png">
+<style>
+  body{background:#f4f4f5;display:flex;justify-content:center;padding:40px 16px;font-family:sans-serif;}
+  .widget{width:680px;max-width:100%;}
+  .card{background:#ffffff;border:1px solid #e2e2e2;padding:1.25rem;}
+  .sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;}
+  #ab-svg{width:100%;height:auto;display:block;touch-action:none;}
+  .handle{cursor:grab;}
+  .handle:active{cursor:grabbing;}
+  .swatch{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:6px;vertical-align:middle;}
+  .toggle-btn{padding:6px 14px;border-radius:999px;border:1px solid #d8d8d8;background:#f4f4f5;color:#888888;font-size:13px;font-weight:500;cursor:pointer;}
+  .toggle-btn.active{background:#1a1a1a;color:#ffffff;border-color:#1a1a1a;}
+  .stage{position:relative;border-radius:12px;overflow:hidden;border:1px solid #e2e2e2;}
+  .stage .card{border:none;}
+  .info-toggle{position:absolute;top:14px;right:14px;z-index:30;background:#1a1a1a;color:#ffffff;border:none;border-radius:999px;padding:7px 14px;font-size:13px;font-weight:500;cursor:pointer;}
+  .info-toggle:hover{background:#333333;}
+  .info-backdrop{position:absolute;inset:0;background:rgba(0,0,0,0.22);opacity:0;visibility:hidden;transition:opacity .2s ease;z-index:25;}
+  .info-backdrop.open{opacity:1;visibility:visible;}
+  .info-drawer{position:absolute;top:0;right:0;height:100%;width:320px;max-width:88%;background:#ffffff;border-left:1px solid #e2e2e2;box-shadow:-8px 0 24px rgba(0,0,0,0.14);padding:22px 20px;overflow-y:auto;transform:translateX(100%);transition:transform .25s ease;z-index:28;box-sizing:border-box;}
+  .info-drawer.open{transform:translateX(0);}
+  .info-close{position:absolute;top:14px;right:14px;background:#f4f4f5;border:1px solid #e2e2e2;border-radius:50%;width:28px;height:28px;font-size:14px;cursor:pointer;color:#555555;}
+  .info-drawer h3{font-size:17px;margin:6px 0 12px;padding-right:30px;color:#1a1a1a;}
+  .info-drawer h4{font-size:12px;margin:18px 0 6px;color:#666666;text-transform:uppercase;letter-spacing:.04em;}
+  .info-drawer p{font-size:13.5px;line-height:1.55;color:#333333;margin:0 0 10px;}
+  .formula-box{background:#f4f4f5;border-radius:8px;padding:10px 12px;text-align:center;font-size:13.5px;font-weight:600;margin:10px 0;color:#1a1a1a;}
+  .widget svg text{paint-order:stroke;stroke:#ffffff;stroke-width:3px;stroke-linejoin:round;stroke-opacity:0.92;}
+</style>
+</head>
+<body>
+<div class="widget">
+<div style="margin-bottom:12px;"><a href="index.html" style="font-size:14px;color:#1a1a1a;text-decoration:none;">&larr; GeoProof</a></div>
+<div class="stage">
+<div class="card">
+<h2 class="sr-only">An angle is formed by two rays (arms) from a vertex V. Its bisector — the ray splitting the angle into two equal halves — is drawn. Drag the point P inside the angle, or drag the arms. The perpendicular distance from P to each arm is shown. P is the same distance from both arms exactly when it sits on the bisector. A toggle snaps P onto the bisector so the two distances always match. An info button opens a drawer explaining the idea.</h2>
+<svg id="ab-svg" viewBox="0 0 680 560" aria-hidden="true">
+  <line id="arm1" stroke="#378ADD" stroke-width="3" stroke-linecap="round"></line>
+  <line id="arm2" stroke="#639922" stroke-width="3" stroke-linecap="round"></line>
+  <line id="bisector" stroke="#8B5FBF" stroke-width="2.5" stroke-dasharray="7,4" stroke-linecap="round"></line>
+  <polygon id="half1" fill="#8B5FBF" fill-opacity="0.10" stroke="none"></polygon>
+  <polygon id="half2" fill="#8B5FBF" fill-opacity="0.10" stroke="none"></polygon>
+  <line id="d1" stroke="#378ADD" stroke-width="2" stroke-dasharray="4,3"></line>
+  <line id="d2" stroke="#639922" stroke-width="2" stroke-dasharray="4,3"></line>
+  <circle id="foot1" r="3.5" fill="#378ADD"></circle>
+  <circle id="foot2" r="3.5" fill="#639922"></circle>
+  <text id="lab-d1" text-anchor="middle" dominant-baseline="middle" fill="#185FA5" font-size="12.5" font-weight="600"></text>
+  <text id="lab-d2" text-anchor="middle" dominant-baseline="middle" fill="#3B6D11" font-size="12.5" font-weight="600"></text>
+  <text id="tag-V" text-anchor="middle" dominant-baseline="middle" fill="#1a1a1a" font-size="14" font-weight="700">V</text>
+  <text id="tag-P" text-anchor="middle" dominant-baseline="middle" fill="#5B3886" font-size="14" font-weight="700">P</text>
+  <circle id="handle-1" class="handle" r="11" fill="#ffffff" stroke="#378ADD" stroke-width="2.5"></circle>
+  <circle id="handle-2" class="handle" r="11" fill="#ffffff" stroke="#639922" stroke-width="2.5"></circle>
+  <circle id="handle-P" class="handle" r="12" fill="#ffffff" stroke="#8B5FBF" stroke-width="3"></circle>
+  <circle id="dot-V" r="4.5" fill="#1a1a1a"></circle>
+</svg>
+
+<div style="display:flex; justify-content:center; gap:10px; flex-wrap:wrap; margin-top:0.75rem;">
+  <button type="button" id="toggle-snap" class="toggle-btn">Snap P to the bisector</button>
+  <button type="button" id="toggle-labels" class="toggle-btn active">Distance labels</button>
+</div>
+
+<div style="display:flex; justify-content:center; margin-top:0.85rem;">
+  <span id="status-badge" style="display:inline-block; padding:4px 14px; border-radius:999px; font-size:14px; font-weight:500;"></span>
+</div>
+
+<div id="formula-symbolic" style="text-align:center; font-size:14px; font-weight:600; color:#1a1a1a; margin-top:1.1rem;">P is on the angle bisector ⟺ P is equidistant from both arms</div>
+
+<div id="eq-row" style="display:flex; align-items:center; justify-content:center; gap:10px; flex-wrap:wrap; margin-top:0.6rem; font-size:15px; color:#1a1a1a;"></div>
+<div id="detail-row" style="text-align:center; font-size:12.5px; color:#777777; margin-top:0.55rem;"></div>
+</div>
+
+<button type="button" id="info-toggle-btn" class="info-toggle">ⓘ About this concept</button>
+<div id="info-backdrop" class="info-backdrop"></div>
+<aside id="info-drawer" class="info-drawer">
+  <button type="button" id="info-close" class="info-close" aria-label="Close">✕</button>
+  <h3>The Angle Bisector (as a locus)</h3>
+  <p>The <i>angle bisector</i> is the ray that cuts an angle into two equal halves. Its key property is about distance to the two arms (sides) of the angle:</p>
+  <div class="formula-box">a point is equidistant from both arms ⟺ it lies on the angle bisector</div>
+  <p>"Distance to an arm" means the perpendicular distance — the shortest hop from the point straight to that line.</p>
+  <h4>Both directions</h4>
+  <p>Slide P along the bisector and the two perpendicular distances stay equal. And any point that is the same distance from both arms has to lie on the bisector — there is nowhere else.</p>
+  <h4>Why it's true</h4>
+  <p>Drop perpendiculars from P to the two arms. With the shared segment VP and the equal split angles at V, the two right triangles are congruent, so the two perpendicular distances match. The converse runs the same argument backwards.</p>
+  <h4>The companion result</h4>
+  <p>This mirrors the perpendicular bisector, which is the set of points equidistant from two <i>points</i>. Here it's two <i>lines</i>. The three angle bisectors of a triangle meet at the incenter — the point equidistant from all three sides, and the center of the inscribed circle.</p>
+</aside>
+</div>
+</div>
+
+<script>
+(function(){
+  var svg=document.getElementById('ab-svg');
+  var V={x:230,y:430};
+  var ang1=-18, ang2=-70;     // arm directions in degrees (screen coords)
+  var armLen=380;
+  var P={x:430,y:330};
+  var snap=false, showLabels=true;
+  var UNIT=30;
+
+  function sub(p,q){return {x:p.x-q.x,y:p.y-q.y};}
+  function len(v){return Math.hypot(v.x,v.y);}
+  function unit(v){var l=len(v)||1;return {x:v.x/l,y:v.y/l};}
+  function fmt(n){ var r=Math.round(n*10)/10; return (Math.abs(r-Math.round(r))<1e-9)?Math.round(r).toString():r.toFixed(1); }
+  function rayPt(aDeg,r){ var a=aDeg*Math.PI/180; return {x:V.x+r*Math.cos(a), y:V.y+r*Math.sin(a)}; }
+  function footOnRay(P,dir){ var t=(P.x-V.x)*dir.x+(P.y-V.y)*dir.y; return {x:V.x+dir.x*t, y:V.y+dir.y*t, t:t}; }
+
+  var arm1El=document.getElementById('arm1'), arm2El=document.getElementById('arm2');
+  var bisector=document.getElementById('bisector');
+  var half1=document.getElementById('half1'), half2=document.getElementById('half2');
+  var d1El=document.getElementById('d1'), d2El=document.getElementById('d2');
+  var foot1=document.getElementById('foot1'), foot2=document.getElementById('foot2');
+  var labD1=document.getElementById('lab-d1'), labD2=document.getElementById('lab-d2');
+  var tagV=document.getElementById('tag-V'), tagP=document.getElementById('tag-P');
+  var h1=document.getElementById('handle-1'), h2=document.getElementById('handle-2'), hP=document.getElementById('handle-P');
+  var dotV=document.getElementById('dot-V');
+  var statusBadge=document.getElementById('status-badge');
+  var eqRow=document.getElementById('eq-row');
+  var detailRow=document.getElementById('detail-row');
+  var toggleSnap=document.getElementById('toggle-snap');
+  var toggleLabels=document.getElementById('toggle-labels');
+
+  function setLine(el,p,q){ el.setAttribute('x1',p.x); el.setAttribute('y1',p.y); el.setAttribute('x2',q.x); el.setAttribute('y2',q.y); }
+  function disp(el,on){ el.style.display=on?'block':'none'; }
+
+  function bisDir(){
+    var u1=unit(rayPt(ang1,1)===V?{x:1,y:0}:sub(rayPt(ang1,100),V));
+    var u2=unit(sub(rayPt(ang2,100),V));
+    var b={x:u1.x+u2.x,y:u1.y+u2.y};
+    if(len(b)<1e-6){ b={x:-u1.y,y:u1.x}; }
+    return unit(b);
+  }
+
+  function update(){
+    var u1=unit(sub(rayPt(ang1,100),V)), u2=unit(sub(rayPt(ang2,100),V));
+    var b=bisDir();
+
+    if(snap){ var t=Math.max(10,(P.x-V.x)*b.x+(P.y-V.y)*b.y); P={x:V.x+b.x*t, y:V.y+b.y*t}; }
+
+    var A1=rayPt(ang1,armLen), A2=rayPt(ang2,armLen);
+    setLine(arm1El,V,A1); setLine(arm2El,V,A2);
+    setLine(bisector,V,{x:V.x+b.x*armLen,y:V.y+b.y*armLen});
+
+    dotV.setAttribute('cx',V.x); dotV.setAttribute('cy',V.y);
+    h1.setAttribute('cx',A1.x); h1.setAttribute('cy',A1.y);
+    h2.setAttribute('cx',A2.x); h2.setAttribute('cy',A2.y);
+    hP.setAttribute('cx',P.x); hP.setAttribute('cy',P.y);
+    tagV.setAttribute('x',V.x-14); tagV.setAttribute('y',V.y+14);
+    tagP.setAttribute('x',P.x+12); tagP.setAttribute('y',P.y-14);
+
+    var f1=footOnRay(P,u1), f2=footOnRay(P,u2);
+    setLine(d1El,P,f1); setLine(d2El,P,f2);
+    foot1.setAttribute('cx',f1.x); foot1.setAttribute('cy',f1.y);
+    foot2.setAttribute('cx',f2.x); foot2.setAttribute('cy',f2.y);
+
+    var D1=len(sub(P,f1))/UNIT, D2=len(sub(P,f2))/UNIT;
+    var m1={x:(P.x+f1.x)/2,y:(P.y+f1.y)/2}, m2={x:(P.x+f2.x)/2,y:(P.y+f2.y)/2};
+    labD1.setAttribute('x',m1.x+8); labD1.setAttribute('y',m1.y); labD1.textContent='d₁='+fmt(D1);
+    labD2.setAttribute('x',m2.x+8); labD2.setAttribute('y',m2.y); labD2.textContent='d₂='+fmt(D2);
+    disp(labD1,showLabels); disp(labD2,showLabels);
+
+    // faint half-angle wedges to show the bisector splits the angle equally
+    half1.setAttribute('points', V.x+','+V.y+' '+rayPt(ang1,60).x+','+rayPt(ang1,60).y+' '+(V.x+b.x*60)+','+(V.y+b.y*60));
+    half2.setAttribute('points', V.x+','+V.y+' '+(V.x+b.x*60)+','+(V.y+b.y*60)+' '+rayPt(ang2,60).x+','+rayPt(ang2,60).y);
+
+    var diff=Math.abs(D1-D2), onLine=diff<0.06*Math.max(1,D1);
+    statusBadge.textContent=onLine?'P is on the bisector — equal distances':'P is off the bisector — distances differ';
+    statusBadge.style.background=onLine?'#EDE6F6':'#FAECE7'; statusBadge.style.color=onLine?'#3F2A5C':'#4A1B0C';
+
+    eqRow.innerHTML =
+      '<span><span class="swatch" style="background:#378ADD"></span>d₁ = '+fmt(D1)+'</span>'+
+      '<b style="color:'+(onLine?'#1d9e75':'#e24b4a')+';font-size:18px;">'+(onLine?'=':'≠')+'</b>'+
+      '<span><span class="swatch" style="background:#639922"></span>d₂ = '+fmt(D2)+'</span>'+
+      (onLine?'<span style="color:#1d9e75;font-weight:700;">&check;</span>':'<span style="color:#e24b4a;font-size:12.5px;">(off by '+fmt(diff)+')</span>');
+
+    detailRow.textContent=snap?'P is locked on the bisector, so its perpendicular distances to the two arms stay equal.':'Drag P onto the dashed bisector (or snap it) to make d₁ = d₂.';
+  }
+
+  var dragging=null;
+  function toSvgPoint(evt){
+    var rect=svg.getBoundingClientRect();
+    var vb=svg.viewBox.baseVal;
+    return { x:(evt.clientX-rect.left)/rect.width*vb.width+vb.x, y:(evt.clientY-rect.top)/rect.height*vb.height+vb.y };
+  }
+  function onDown(key){
+    return function(e){
+      dragging=key;
+      if(e.target.setPointerCapture){ try{ e.target.setPointerCapture(e.pointerId); }catch(err){} }
+      e.preventDefault();
+    };
+  }
+  function onMove(e){
+    if(!dragging) return;
+    var p=toSvgPoint(e);
+    if(dragging==='1'){ ang1=Math.atan2(p.y-V.y,p.x-V.x)*180/Math.PI; }
+    else if(dragging==='2'){ ang2=Math.atan2(p.y-V.y,p.x-V.x)*180/Math.PI; }
+    else { P={x:Math.min(660,Math.max(20,p.x)), y:Math.min(540,Math.max(20,p.y))}; }
+    update();
+  }
+  function onUp(){ dragging=null; }
+  h1.addEventListener('pointerdown',onDown('1'));
+  h2.addEventListener('pointerdown',onDown('2'));
+  hP.addEventListener('pointerdown',onDown('P'));
+  svg.addEventListener('pointermove',onMove);
+  window.addEventListener('pointerup',onUp);
+
+  toggleSnap.addEventListener('click',function(){ snap=!snap; toggleSnap.classList.toggle('active',snap); update(); });
+  toggleLabels.addEventListener('click',function(){ showLabels=!showLabels; toggleLabels.classList.toggle('active',showLabels); update(); });
+
+  var infoToggle=document.getElementById('info-toggle-btn');
+  var infoDrawer=document.getElementById('info-drawer');
+  var infoBackdrop=document.getElementById('info-backdrop');
+  var infoClose=document.getElementById('info-close');
+  function openDrawer(){ infoDrawer.classList.add('open'); infoBackdrop.classList.add('open'); }
+  function closeDrawer(){ infoDrawer.classList.remove('open'); infoBackdrop.classList.remove('open'); }
+  infoToggle.addEventListener('click',function(){
+    if(infoDrawer.classList.contains('open')) closeDrawer(); else openDrawer();
+  });
+  infoClose.addEventListener('click',closeDrawer);
+  infoBackdrop.addEventListener('click',closeDrawer);
+  document.addEventListener('keydown',function(e){ if(e.key==='Escape') closeDrawer(); });
+
+  update();
+})();
+</script>
+<script defer src="site-chrome.js"></script>
+</body>
+</html>

@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<script>/*gp-noflash*/(function(){try{var t=localStorage.getItem('gp:theme')||(matchMedia('(prefers-color-scheme:dark)').matches?'dark':'light');document.documentElement.setAttribute('data-theme',t);if(t==='dark'){var s=document.createElement('style');s.textContent='html[data-theme=dark]{background:#14151a}html[data-theme=dark] body{background:#14151a!important;color:#e6e6e8!important}';document.head.appendChild(s);}}catch(e){}})();</script>
+<title>GeoProof — Median to the Hypotenuse</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="In a right triangle, the median from the right angle is exactly half the hypotenuse.">
+<link rel="canonical" href="https://richard4481234.github.io/geoproof/RightMedian-Visual.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="GeoProof">
+<meta property="og:title" content="Median to Hypotenuse — GeoProof">
+<meta property="og:description" content="In a right triangle, the median from the right angle is exactly half the hypotenuse.">
+<meta property="og:url" content="https://richard4481234.github.io/geoproof/RightMedian-Visual.html">
+<meta property="og:image" content="https://richard4481234.github.io/geoproof/og/RightMedian-Visual.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Median to Hypotenuse — GeoProof">
+<meta name="twitter:description" content="In a right triangle, the median from the right angle is exactly half the hypotenuse.">
+<meta name="twitter:image" content="https://richard4481234.github.io/geoproof/og/RightMedian-Visual.png">
+<style>
+  body{background:#f4f4f5;display:flex;justify-content:center;padding:40px 16px;font-family:sans-serif;}
+  .widget{width:680px;max-width:100%;}
+  .card{background:#ffffff;border:1px solid #e2e2e2;padding:1.25rem;}
+  .sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;}
+  #rm-svg{width:100%;height:auto;display:block;touch-action:none;}
+  .handle{cursor:grab;}
+  .handle:active{cursor:grabbing;}
+  .toggle-btn{padding:6px 14px;border-radius:999px;border:1px solid #d8d8d8;background:#f4f4f5;color:#888888;font-size:13px;font-weight:500;cursor:pointer;}
+  .toggle-btn.active{background:#1a1a1a;color:#ffffff;border-color:#1a1a1a;}
+  .stage{position:relative;border-radius:12px;overflow:hidden;border:1px solid #e2e2e2;}
+  .stage .card{border:none;}
+  .info-toggle{position:absolute;top:14px;right:14px;z-index:30;background:#1a1a1a;color:#ffffff;border:none;border-radius:999px;padding:7px 14px;font-size:13px;font-weight:500;cursor:pointer;}
+  .info-toggle:hover{background:#333333;}
+  .info-backdrop{position:absolute;inset:0;background:rgba(0,0,0,0.22);opacity:0;visibility:hidden;transition:opacity .2s ease;z-index:25;}
+  .info-backdrop.open{opacity:1;visibility:visible;}
+  .info-drawer{position:absolute;top:0;right:0;height:100%;width:320px;max-width:88%;background:#ffffff;border-left:1px solid #e2e2e2;box-shadow:-8px 0 24px rgba(0,0,0,0.14);padding:22px 20px;overflow-y:auto;transform:translateX(100%);transition:transform .25s ease;z-index:28;box-sizing:border-box;}
+  .info-drawer.open{transform:translateX(0);}
+  .info-close{position:absolute;top:14px;right:14px;background:#f4f4f5;border:1px solid #e2e2e2;border-radius:50%;width:28px;height:28px;font-size:14px;cursor:pointer;color:#555555;}
+  .info-drawer h3{font-size:17px;margin:6px 0 12px;padding-right:30px;color:#1a1a1a;}
+  .info-drawer h4{font-size:12px;margin:18px 0 6px;color:#666666;text-transform:uppercase;letter-spacing:.04em;}
+  .info-drawer p{font-size:13.5px;line-height:1.55;color:#333333;margin:0 0 10px;}
+  .formula-box{background:#f4f4f5;border-radius:8px;padding:10px 12px;text-align:center;font-size:13px;font-weight:600;margin:10px 0;color:#1a1a1a;}
+  .widget svg text{paint-order:stroke;stroke:#ffffff;stroke-width:3px;stroke-linejoin:round;stroke-opacity:0.92;}
+</style>
+</head>
+<body>
+<div class="widget">
+<div style="margin-bottom:12px;"><a href="index.html" style="font-size:14px;color:#1a1a1a;text-decoration:none;">&larr; GeoProof</a></div>
+<div class="stage">
+<div class="card">
+<h2 class="sr-only">A right triangle ABC has its right angle at C. The two legs from C stay perpendicular as you reshape it: drag A to set one leg's length and the triangle's tilt, drag B to set the other leg, and drag C to move the whole figure. M is the midpoint of the hypotenuse AB, and CM is the median from the right angle to the hypotenuse. The theorem: this median is exactly half the hypotenuse, so CM equals AM equals BM equals half of AB — meaning M is the same distance from all three corners. Equal tick marks show the three equal segments, a right-angle mark sits at C, and the segment lengths are shown live. An info button opens a drawer with the explanation.</h2>
+<svg id="rm-svg" viewBox="0 0 680 560" aria-hidden="true">
+  <circle id="circ" fill="none" stroke="#cccccc" stroke-width="1.8" stroke-dasharray="5 4"></circle>
+  <polygon id="tri" fill="#378ADD" fill-opacity="0.10" stroke="#1a1a1a" stroke-width="2.5"></polygon>
+  <line id="hyp" stroke="#1a1a1a" stroke-width="2.5"></line>
+  <line id="median" stroke="#993556" stroke-width="2.6"></line>
+  <polyline id="rightMk" fill="none" stroke="#185FA5" stroke-width="1.5"></polyline>
+  <g id="ticks"></g>
+  <circle id="mDot" r="4" fill="#ffffff" stroke="#993556" stroke-width="3"></circle>
+  <text id="cmLab" text-anchor="middle" dominant-baseline="middle" fill="#993556" font-size="12.5" font-weight="700"></text>
+  <text id="amLab" text-anchor="middle" dominant-baseline="middle" fill="#185FA5" font-size="12.5" font-weight="700"></text>
+  <text id="bmLab" text-anchor="middle" dominant-baseline="middle" fill="#185FA5" font-size="12.5" font-weight="700"></text>
+  <text id="tA" text-anchor="middle" dominant-baseline="middle" fill="#1a1a1a" font-size="13" font-weight="700">A</text>
+  <text id="tB" text-anchor="middle" dominant-baseline="middle" fill="#1a1a1a" font-size="13" font-weight="700">B</text>
+  <text id="tC" text-anchor="middle" dominant-baseline="middle" fill="#1a1a1a" font-size="13" font-weight="700">C</text>
+  <text id="tM" text-anchor="middle" dominant-baseline="middle" fill="#993556" font-size="12.5" font-weight="700">M</text>
+  <circle id="hA" class="handle" r="11" fill="#ffffff" stroke="#185FA5" stroke-width="2.5"></circle>
+  <circle id="hB" class="handle" r="11" fill="#ffffff" stroke="#13694e" stroke-width="2.5"></circle>
+  <circle id="hC" class="handle" r="11" fill="#ffffff" stroke="#1a1a1a" stroke-width="2"></circle>
+</svg>
+
+<div style="display:flex; justify-content:center; gap:10px; flex-wrap:wrap; margin-top:0.75rem;">
+  <button type="button" id="toggle-ticks" class="toggle-btn active">Equal-segment ticks</button>
+  <button type="button" id="toggle-circ" class="toggle-btn">Circle centered at M</button>
+</div>
+
+<div style="display:flex; justify-content:center; margin-top:0.85rem;">
+  <span id="status-badge" style="display:inline-block; padding:4px 14px; border-radius:999px; font-size:14px; font-weight:500;"></span>
+</div>
+
+<div id="formula-symbolic" style="text-align:center; font-size:14px; font-weight:600; color:#1a1a1a; margin-top:1.1rem;">CM = AM = BM = ½ AB</div>
+<div id="eq-row" style="display:flex; align-items:center; justify-content:center; gap:18px; flex-wrap:wrap; margin-top:0.6rem; font-size:14.5px; color:#1a1a1a;"></div>
+<div id="detail-row" style="text-align:center; font-size:12.5px; color:#777777; margin-top:0.5rem;"></div>
+</div>
+
+<button type="button" id="info-toggle-btn" class="info-toggle">ⓘ About this theorem</button>
+<div id="info-backdrop" class="info-backdrop"></div>
+<aside id="info-drawer" class="info-drawer">
+  <button type="button" id="info-close" class="info-close" aria-label="Close">✕</button>
+  <h3>Median to the Hypotenuse</h3>
+  <p>In a right triangle, the median drawn from the right angle to the hypotenuse is exactly half the hypotenuse:</p>
+  <div class="formula-box">CM = ½ AB&nbsp; (so CM = AM = BM)</div>
+  <p>Its endpoint M — the midpoint of the hypotenuse — is therefore the same distance from all three vertices.</p>
+  <h4>Why it's true</h4>
+  <p>The hypotenuse AB is a diameter of the triangle's circumscribed circle (the right angle "sees" a diameter, by Thales' theorem). Its centre is the midpoint M, and CM, AM, BM are all radii — hence equal, each half of AB.</p>
+  <h4>It runs both ways</h4>
+  <p>Conversely, if a triangle's median to one side equals half that side, the angle opposite is a right angle — a quick right-angle test.</p>
+  <h4>Handy uses</h4>
+  <p>It locates a right triangle's circumcentre instantly (the hypotenuse's midpoint) and is a staple step in coordinate-geometry and olympiad proofs.</p>
+</aside>
+</div>
+</div>
+
+<script>
+(function(){
+  var svg=document.getElementById('rm-svg');
+  var C={x:230,y:400}, th=-Math.PI/2, p=240, q=300;   // right angle at C; legs perpendicular
+  var minX=45,maxX=635,minY=55,maxY=470;
+  var UNIT=30, showTicks=true, showCirc=false;
+
+  function sub(p,q){return {x:p.x-q.x,y:p.y-q.y};}
+  function add(p,q){return {x:p.x+q.x,y:p.y+q.y};}
+  function scl(p,s){return {x:p.x*s,y:p.y*s};}
+  function len(v){return Math.hypot(v.x,v.y);}
+  function mid(p,q){return {x:(p.x+q.x)/2,y:(p.y+q.y)/2};}
+  function dot(u,v){return u.x*v.x+u.y*v.y;}
+  function fmt(n){ var r=Math.round(n*100)/100; return (Math.abs(r-Math.round(r))<1e-9)?Math.round(r).toString():r.toFixed(2); }
+  function fmt1(n){ var r=Math.round(n*10)/10; return (Math.abs(r-Math.round(r))<1e-9)?Math.round(r).toString():r.toFixed(1); }
+  function svgEl(tag,attrs){ var el=document.createElementNS('http://www.w3.org/2000/svg',tag); for(var k in attrs){el.setAttribute(k,attrs[k]);} return el; }
+  function clearKids(el){ while(el.firstChild) el.removeChild(el.firstChild); }
+
+  var circ=document.getElementById('circ'), tri=document.getElementById('tri'), hyp=document.getElementById('hyp'), median=document.getElementById('median');
+  var rightMk=document.getElementById('rightMk'), ticks=document.getElementById('ticks'), mDot=document.getElementById('mDot');
+  var cmLab=document.getElementById('cmLab'),amLab=document.getElementById('amLab'),bmLab=document.getElementById('bmLab');
+  var tA=document.getElementById('tA'),tB=document.getElementById('tB'),tC=document.getElementById('tC'),tM=document.getElementById('tM');
+  var hA=document.getElementById('hA'),hB=document.getElementById('hB'),hC=document.getElementById('hC');
+  var statusBadge=document.getElementById('status-badge');
+  var eqRow=document.getElementById('eq-row'), detailRow=document.getElementById('detail-row');
+  var toggleTicks=document.getElementById('toggle-ticks'), toggleCirc=document.getElementById('toggle-circ');
+
+  function setLine(el,a,b){ el.setAttribute('x1',a.x);el.setAttribute('y1',a.y);el.setAttribute('x2',b.x);el.setAttribute('y2',b.y); }
+  function tagOut(el,V,ref,dist){ var d=sub(V,ref),l=len(d)||1; el.setAttribute('x',V.x+d.x/l*dist); el.setAttribute('y',V.y+d.y/l*dist); }
+  function labelPerp(el,a,b,ref,dist){ var d=sub(b,a),l=len(d)||1,n={x:-d.y/l,y:d.x/l},m=mid(a,b); if(dot(sub(m,ref),n)<0){n.x=-n.x;n.y=-n.y;} el.setAttribute('x',m.x+n.x*dist); el.setAttribute('y',m.y+n.y*dist+4); }
+  function ticksOn(a,b,count,cen){
+    var d=sub(b,a),l=len(d)||1,u={x:d.x/l,y:d.y/l},n={x:-u.y,y:u.x},c=mid(a,b);
+    if(dot(sub(c,cen),n)<0){n.x=-n.x;n.y=-n.y;}
+    var gap=5;
+    for(var i=0;i<count;i++){ var off=(i-(count-1)/2)*gap, base=add(c,scl(u,off));
+      ticks.appendChild(svgEl('line',{x1:base.x-n.x*5,y1:base.y-n.y*5,x2:base.x+n.x*5,y2:base.y+n.y*5,stroke:'#993556','stroke-width':2})); }
+  }
+
+  function geom(){
+    var dir={x:Math.cos(th),y:Math.sin(th)}, perp={x:-Math.sin(th),y:Math.cos(th)};
+    var A=add(C,scl(dir,p)), B=add(C,scl(perp,q));
+    return {A:A,B:B,dir:dir,perp:perp};
+  }
+
+  function update(){
+    var g=geom(), A=g.A, B=g.B, M=mid(A,B);
+    hA.setAttribute('cx',A.x);hA.setAttribute('cy',A.y);
+    hB.setAttribute('cx',B.x);hB.setAttribute('cy',B.y);
+    hC.setAttribute('cx',C.x);hC.setAttribute('cy',C.y);
+    mDot.setAttribute('cx',M.x);mDot.setAttribute('cy',M.y);
+
+    tri.setAttribute('points',[A,B,C].map(function(z){return z.x.toFixed(1)+','+z.y.toFixed(1);}).join(' '));
+    setLine(hyp,A,B); setLine(median,C,M);
+
+    // right-angle mark at C between the two legs
+    var s=13, q1=add(C,scl(g.dir,s)), q2=add(add(C,scl(g.dir,s)),scl(g.perp,(dot(sub(B,C),g.perp)>=0?s:-s))), q3=add(C,scl(g.perp,(dot(sub(B,C),g.perp)>=0?s:-s)));
+    rightMk.setAttribute('points',[q1,q2,q3].map(function(z){return z.x.toFixed(1)+','+z.y.toFixed(1);}).join(' '));
+
+    // circle centered M through A,B,C
+    var Rr=len(sub(A,B))/2;
+    circ.setAttribute('cx',M.x);circ.setAttribute('cy',M.y);circ.setAttribute('r',Rr);
+    circ.style.display=showCirc?'':'none';
+
+    var cen={x:(A.x+B.x+C.x)/3,y:(A.y+B.y+C.y)/3};
+    clearKids(ticks);
+    if(showTicks){ ticksOn(A,M,1,cen); ticksOn(M,B,1,cen); ticksOn(C,M,1,cen); }
+
+    tagOut(tA,A,cen,18); tagOut(tB,B,cen,18); tagOut(tC,C,cen,18); tagOut(tM,M,C,16);
+    labelPerp(amLab,A,M,cen,15); labelPerp(bmLab,M,B,cen,15); labelPerp(cmLab,C,M,cen,15);
+
+    var AM=len(sub(M,A))/UNIT, BM=len(sub(B,M))/UNIT, CM=len(sub(M,C))/UNIT, AB=len(sub(A,B))/UNIT;
+    amLab.textContent='AM='+fmt1(AM); bmLab.textContent='BM='+fmt1(BM); cmLab.textContent='CM='+fmt1(CM);
+
+    var ok=Math.abs(CM-AB/2)<0.02*Math.max(1,AB) && Math.abs(AM-CM)<0.02*Math.max(1,AB) && Math.abs(BM-CM)<0.02*Math.max(1,AB);
+    statusBadge.textContent = ok ? 'CM = AM = BM = ½ AB ✓' : 'computing…';
+    statusBadge.style.background = ok ? '#E3F4EC' : '#FBECEC';
+    statusBadge.style.color = ok ? '#1d7a4d' : '#a23b3b';
+
+    eqRow.innerHTML =
+      '<span style="color:#993556;">CM = <b>'+fmt(CM)+'</b></span>'+
+      '<span style="color:#185FA5;">AM = '+fmt(AM)+'</span>'+
+      '<span style="color:#185FA5;">BM = '+fmt(BM)+'</span>'+
+      '<span style="color:#999;">½AB = '+fmt(AB/2)+'</span>';
+    detailRow.textContent='Right angle at C; hypotenuse AB = '+fmt1(AB)+'. M (its midpoint) is the same distance from all three corners.';
+  }
+
+  var dragging=null;
+  function toSvgPoint(evt){
+    var rect=svg.getBoundingClientRect(), vb=svg.viewBox.baseVal;
+    return { x:(evt.clientX-rect.left)/rect.width*vb.width+vb.x, y:(evt.clientY-rect.top)/rect.height*vb.height+vb.y };
+  }
+  function onDown(key){ return function(e){ dragging=key; if(e.target.setPointerCapture){try{e.target.setPointerCapture(e.pointerId);}catch(err){}} e.preventDefault(); }; }
+  function onMove(e){
+    if(!dragging) return;
+    var pnt=toSvgPoint(e);
+    pnt={x:Math.min(maxX,Math.max(minX,pnt.x)),y:Math.min(maxY,Math.max(minY,pnt.y))};
+    if(dragging==='A'){ var u=sub(pnt,C); th=Math.atan2(u.y,u.x); p=Math.max(30,len(u)); }     // A sets tilt + leg1
+    else if(dragging==='B'){ var perp={x:-Math.sin(th),y:Math.cos(th)}; var s=dot(sub(pnt,C),perp); if(Math.abs(s)<30) s=(s<0?-30:30); q=s; } // B sets leg2 (kept ⟂)
+    else if(dragging==='C'){ C=pnt; }
+    update();
+  }
+  function onUp(){ dragging=null; }
+  hA.addEventListener('pointerdown',onDown('A'));
+  hB.addEventListener('pointerdown',onDown('B'));
+  hC.addEventListener('pointerdown',onDown('C'));
+  svg.addEventListener('pointermove',onMove);
+  window.addEventListener('pointerup',onUp);
+
+  toggleTicks.addEventListener('click',function(){ showTicks=!showTicks; toggleTicks.classList.toggle('active',showTicks); update(); });
+  toggleCirc.addEventListener('click',function(){ showCirc=!showCirc; toggleCirc.classList.toggle('active',showCirc); update(); });
+
+  var infoToggle=document.getElementById('info-toggle-btn');
+  var infoDrawer=document.getElementById('info-drawer');
+  var infoBackdrop=document.getElementById('info-backdrop');
+  var infoClose=document.getElementById('info-close');
+  function openDrawer(){ infoDrawer.classList.add('open'); infoBackdrop.classList.add('open'); }
+  function closeDrawer(){ infoDrawer.classList.remove('open'); infoBackdrop.classList.remove('open'); }
+  infoToggle.addEventListener('click',function(){ if(infoDrawer.classList.contains('open')) closeDrawer(); else openDrawer(); });
+  infoClose.addEventListener('click',closeDrawer);
+  infoBackdrop.addEventListener('click',closeDrawer);
+  document.addEventListener('keydown',function(e){ if(e.key==='Escape') closeDrawer(); });
+
+  update();
+})();
+</script>
+<script defer src="site-chrome.js"></script>
+</body>
+</html>

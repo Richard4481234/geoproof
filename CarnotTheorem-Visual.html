@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<script>/*gp-noflash*/(function(){try{var t=localStorage.getItem('gp:theme')||(matchMedia('(prefers-color-scheme:dark)').matches?'dark':'light');document.documentElement.setAttribute('data-theme',t);if(t==='dark'){var s=document.createElement('style');s.textContent='html[data-theme=dark]{background:#14151a}html[data-theme=dark] body{background:#14151a!important;color:#e6e6e8!important}';document.head.appendChild(s);}}catch(e){}})();</script>
+<title>GeoProof — Carnot's Theorem explorer</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="Drop a perpendicular from the circumcenter to each side — their signed lengths always add up to the circumradius plus the inradius.">
+<link rel="canonical" href="https://richard4481234.github.io/geoproof/CarnotTheorem-Visual.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="GeoProof">
+<meta property="og:title" content="Carnot's Theorem — GeoProof">
+<meta property="og:description" content="Drop a perpendicular from the circumcenter to each side — their signed lengths always add up to the circumradius plus the inradius.">
+<meta property="og:url" content="https://richard4481234.github.io/geoproof/CarnotTheorem-Visual.html">
+<meta property="og:image" content="https://richard4481234.github.io/geoproof/og/CarnotTheorem-Visual.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Carnot's Theorem — GeoProof">
+<meta name="twitter:description" content="Drop a perpendicular from the circumcenter to each side — their signed lengths always add up to the circumradius plus the inradius.">
+<meta name="twitter:image" content="https://richard4481234.github.io/geoproof/og/CarnotTheorem-Visual.png">
+<style>
+  body{background:#f4f4f5;display:flex;justify-content:center;padding:40px 16px;font-family:sans-serif;}
+  .widget{width:680px;max-width:100%;}
+  .card{background:#ffffff;border:1px solid #e2e2e2;padding:1.25rem;}
+  .sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;}
+  #carnot-svg{width:100%;height:auto;display:block;touch-action:none;}
+  .handle{cursor:grab;}
+  .handle:active{cursor:grabbing;}
+  .swatch{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:6px;vertical-align:middle;}
+  .toggle-btn{padding:6px 14px;border-radius:999px;border:1px solid #d8d8d8;background:#f4f4f5;color:#888888;font-size:13px;font-weight:500;cursor:pointer;}
+  .toggle-btn.active{background:#1a1a1a;color:#ffffff;border-color:#1a1a1a;}
+  .stage{position:relative;border-radius:12px;overflow:hidden;border:1px solid #e2e2e2;}
+  .stage .card{border:none;}
+  .info-toggle{position:absolute;top:14px;right:14px;z-index:30;background:#1a1a1a;color:#ffffff;border:none;border-radius:999px;padding:7px 14px;font-size:13px;font-weight:500;cursor:pointer;}
+  .info-toggle:hover{background:#333333;}
+  .info-backdrop{position:absolute;inset:0;background:rgba(0,0,0,0.22);opacity:0;visibility:hidden;transition:opacity .2s ease;z-index:25;}
+  .info-backdrop.open{opacity:1;visibility:visible;}
+  .info-drawer{position:absolute;top:0;right:0;height:100%;width:320px;max-width:88%;background:#ffffff;border-left:1px solid #e2e2e2;box-shadow:-8px 0 24px rgba(0,0,0,0.14);padding:22px 20px;overflow-y:auto;transform:translateX(100%);transition:transform .25s ease;z-index:28;box-sizing:border-box;}
+  .info-drawer.open{transform:translateX(0);}
+  .info-close{position:absolute;top:14px;right:14px;background:#f4f4f5;border:1px solid #e2e2e2;border-radius:50%;width:28px;height:28px;font-size:14px;cursor:pointer;color:#555555;}
+  .info-drawer h3{font-size:17px;margin:6px 0 12px;padding-right:30px;color:#1a1a1a;}
+  .info-drawer h4{font-size:12px;margin:18px 0 6px;color:#666666;text-transform:uppercase;letter-spacing:.04em;}
+  .info-drawer p{font-size:13.5px;line-height:1.55;color:#333333;margin:0 0 10px;}
+  .formula-box{background:#f4f4f5;border-radius:8px;padding:10px 12px;text-align:center;font-size:15px;font-weight:600;margin:10px 0;color:#1a1a1a;}
+  .widget svg text{paint-order:stroke;stroke:#ffffff;stroke-width:3px;stroke-linejoin:round;stroke-opacity:0.92;}
+</style>
+</head>
+<body>
+<div class="widget">
+<div style="margin-bottom:12px;"><a href="index.html" style="font-size:14px;color:#1a1a1a;text-decoration:none;">&larr; GeoProof</a></div>
+<div class="stage">
+<div class="card">
+<h2 class="sr-only">Drag the three vertices of a triangle to explore Carnot's theorem. The circumcenter O is found, and a perpendicular is dropped from O to each side, landing on the side's midpoint. The signed lengths of these three perpendiculars always add up to the circumradius R plus the inradius r. A perpendicular counts as negative when the circumcenter lies on the far side of that edge, which happens for the obtuse triangle. Toggles show the circumcircle, the incircle, and the perpendiculars. An info button opens a drawer explaining the theorem.</h2>
+<svg id="carnot-svg" viewBox="0 0 680 560" aria-hidden="true">
+  <circle id="circumcircle" fill="none" stroke="#c9b8e6" stroke-width="1.5"></circle>
+  <circle id="incircle" fill="none" stroke="#1d9e75" stroke-width="1.5" stroke-dasharray="5,4" stroke-opacity="0.8"></circle>
+  <line id="radius-line" stroke="#9a7fce" stroke-width="1.5" stroke-dasharray="4,3"></line>
+  <text id="radius-label" text-anchor="middle" dominant-baseline="middle" fill="#5b3886" font-size="13" font-weight="600"></text>
+
+  <line id="edge-a" stroke="#378ADD" stroke-width="5" stroke-linecap="round"></line>
+  <line id="edge-b" stroke="#639922" stroke-width="5" stroke-linecap="round"></line>
+  <line id="edge-c" stroke="#D4537E" stroke-width="5" stroke-linecap="round"></line>
+
+  <line id="dist-a" stroke="#378ADD" stroke-width="2.5"></line>
+  <line id="dist-b" stroke="#639922" stroke-width="2.5"></line>
+  <line id="dist-c" stroke="#D4537E" stroke-width="2.5"></line>
+  <polygon id="foot-a" fill="none" stroke="#9aa0a6" stroke-width="1.5"></polygon>
+  <polygon id="foot-b" fill="none" stroke="#9aa0a6" stroke-width="1.5"></polygon>
+  <polygon id="foot-c" fill="none" stroke="#9aa0a6" stroke-width="1.5"></polygon>
+  <text id="dist-a-label" text-anchor="middle" dominant-baseline="middle" fill="#042C53" font-size="13.5" font-weight="600"></text>
+  <text id="dist-b-label" text-anchor="middle" dominant-baseline="middle" fill="#173404" font-size="13.5" font-weight="600"></text>
+  <text id="dist-c-label" text-anchor="middle" dominant-baseline="middle" fill="#4B1528" font-size="13.5" font-weight="600"></text>
+
+  <circle id="mid-a" r="3.5" fill="#378ADD"></circle>
+  <circle id="mid-b" r="3.5" fill="#639922"></circle>
+  <circle id="mid-c" r="3.5" fill="#D4537E"></circle>
+
+  <circle id="incenter-dot" r="3" fill="#1d9e75" style="display:none"></circle>
+  <circle id="circum-dot" r="5.5" fill="#5b3886" stroke="#ffffff" stroke-width="2"></circle>
+  <text id="o-label" text-anchor="middle" dominant-baseline="middle" fill="#5b3886" font-size="13" font-weight="700"></text>
+
+  <text id="vlabel-A" text-anchor="middle" dominant-baseline="middle" fill="#1a1a1a" font-size="15" font-weight="700"></text>
+  <text id="vlabel-B" text-anchor="middle" dominant-baseline="middle" fill="#1a1a1a" font-size="15" font-weight="700"></text>
+  <text id="vlabel-C" text-anchor="middle" dominant-baseline="middle" fill="#1a1a1a" font-size="15" font-weight="700"></text>
+
+  <circle id="handle-A" class="handle" r="12" fill="#ffffff" stroke="#1a1a1a" stroke-width="2"></circle>
+  <circle id="handle-B" class="handle" r="12" fill="#ffffff" stroke="#1a1a1a" stroke-width="2"></circle>
+  <circle id="handle-C" class="handle" r="12" fill="#ffffff" stroke="#1a1a1a" stroke-width="2"></circle>
+</svg>
+
+<div style="display:flex; justify-content:center; gap:10px; flex-wrap:wrap; margin-top:0.75rem;">
+  <button type="button" id="toggle-circum" class="toggle-btn active">Circumcircle (R)</button>
+  <button type="button" id="toggle-incircle" class="toggle-btn active">Incircle (r)</button>
+  <button type="button" id="toggle-perp" class="toggle-btn active">Perpendiculars</button>
+</div>
+
+<div style="display:flex; justify-content:center; margin-top:0.75rem;">
+  <span id="tri-type-badge" style="display:inline-block; padding:4px 14px; border-radius:999px; font-size:14px; font-weight:500;"></span>
+</div>
+
+<div style="text-align:center; font-size:12px; color:#888888; margin-top:1.1rem; text-transform:uppercase; letter-spacing:.04em;">Carnot's sum of signed distances</div>
+<div id="sum-row" style="display:flex; align-items:center; justify-content:center; gap:8px; flex-wrap:wrap; margin-top:0.45rem; font-size:15px; color:#1a1a1a;"></div>
+<div id="eq-row" style="display:flex; align-items:center; justify-content:center; gap:8px; flex-wrap:wrap; margin-top:0.55rem; font-size:15px; color:#1a1a1a;"></div>
+<div id="sign-note" style="text-align:center; font-size:12.5px; color:#777777; margin-top:0.6rem;"></div>
+</div>
+
+<button type="button" id="info-toggle-btn" class="info-toggle">ⓘ About this theorem</button>
+<div id="info-backdrop" class="info-backdrop"></div>
+<aside id="info-drawer" class="info-drawer">
+  <button type="button" id="info-close" class="info-close" aria-label="Close">✕</button>
+  <h3>Carnot's Theorem</h3>
+  <p>Drop a perpendicular from the circumcenter O onto each side of a triangle. Carnot's theorem says the three (signed) lengths always add up to the circumradius plus the inradius:</p>
+  <div class="formula-box">d<sub>a</sub> + d<sub>b</sub> + d<sub>c</sub> = R + r</div>
+  <p>Each foot lands exactly on the <b>midpoint</b> of its side — that's just because O is equidistant from the two endpoints of every chord of the circumcircle.</p>
+  <h4>The signs</h4>
+  <p>A distance is counted as <b>negative</b> when O lies on the opposite side of that edge from the triangle. This happens for the side opposite an obtuse angle, since an obtuse triangle's circumcenter falls outside it. With the signs included, the identity holds for every triangle.</p>
+  <h4>Why it works</h4>
+  <p>The signed distance from O to the side opposite vertex A is exactly R·cos(A). So the sum is R(cos A + cos B + cos C). A standard identity says cos A + cos B + cos C = 1 + r/R, and multiplying by R gives R + r.</p>
+  <h4>Right triangles</h4>
+  <p>When one angle is 90°, its cosine is 0, so the perpendicular to the hypotenuse has length 0 — the circumcenter sits exactly on the hypotenuse's midpoint. The other two distances then add to R + r on their own.</p>
+  <h4>A bit of history</h4>
+  <p>It's named for the French mathematician and statesman <i>Lazare Carnot</i> (1753–1823), who developed signed-length methods in his work on the geometry of position.</p>
+</aside>
+</div>
+</div>
+
+<script>
+(function(){
+  var svg=document.getElementById('carnot-svg');
+  var UNIT=30;
+  var pts={ A:{x:340,y:140}, B:{x:196,y:372}, C:{x:486,y:344} };
+  var minX=26,maxX=654,minY=26,maxY=534;
+  var showCircum=true, showIncircle=true, showPerp=true;
+
+  function sub(p,q){return {x:p.x-q.x,y:p.y-q.y};}
+  function add(p,q){return {x:p.x+q.x,y:p.y+q.y};}
+  function scl(p,k){return {x:p.x*k,y:p.y*k};}
+  function len(v){return Math.hypot(v.x,v.y);}
+  function dot(a,b){return a.x*b.x+a.y*b.y;}
+  function mid(p,q){return {x:(p.x+q.x)/2,y:(p.y+q.y)/2};}
+  function unit(v){var l=len(v)||1;return {x:v.x/l,y:v.y/l};}
+  function angleDeg(P,Q,R){var u=sub(Q,P),v=sub(R,P);var c=dot(u,v)/((len(u)*len(v))||1);return Math.acos(Math.min(1,Math.max(-1,c)))*180/Math.PI;}
+  function fmt(n){var r=Math.round(n*100)/100;return (Math.abs(r-Math.round(r))<1e-9)?String(Math.round(r)):r.toFixed(2);}
+  function fmtS(n){return (n<0?'−':'')+fmt(Math.abs(n));}
+  function ptsToStr(arr){return arr.map(function(p){return p.x.toFixed(1)+','+p.y.toFixed(1);}).join(' ');}
+
+  function circumcenter(A,B,C){
+    var d=2*(A.x*(B.y-C.y)+B.x*(C.y-A.y)+C.x*(A.y-B.y));
+    if(Math.abs(d)<1e-9)return null;
+    var a2=A.x*A.x+A.y*A.y, b2=B.x*B.x+B.y*B.y, c2=C.x*C.x+C.y*C.y;
+    return {x:(a2*(B.y-C.y)+b2*(C.y-A.y)+c2*(A.y-B.y))/d,
+            y:(a2*(C.x-B.x)+b2*(A.x-C.x)+c2*(B.x-A.x))/d};
+  }
+  function rightAngleMark(corner,toA,toB,size){
+    var u=scl(unit(toA),size), v=scl(unit(toB),size);
+    return [corner,add(corner,u),add(add(corner,u),v),add(corner,v)];
+  }
+  // signed distance from O to line PQ, positive if O on same side as W (opposite vertex)
+  function signedDist(O,P,Q,W){
+    var d=sub(Q,P), n={x:-d.y,y:d.x};
+    var no=dot(sub(O,P),n), nw=dot(sub(W,P),n);
+    var dist=Math.abs(no)/(len(n)||1);
+    return (no===0?0:(Math.sign(no)===Math.sign(nw)?1:-1))*dist;
+  }
+
+  var el={};
+  ['circumcircle','incircle','radius-line','radius-label','edge-a','edge-b','edge-c',
+   'dist-a','dist-b','dist-c','foot-a','foot-b','foot-c','dist-a-label','dist-b-label','dist-c-label',
+   'mid-a','mid-b','mid-c','incenter-dot','circum-dot','o-label',
+   'vlabel-A','vlabel-B','vlabel-C','handle-A','handle-B','handle-C'].forEach(function(id){el[id]=document.getElementById(id);});
+
+  var sumRow=document.getElementById('sum-row');
+  var eqRow=document.getElementById('eq-row');
+  var signNote=document.getElementById('sign-note');
+  var triBadge=document.getElementById('tri-type-badge');
+
+  var COL={a:'#378ADD',b:'#639922',c:'#D4537E'};
+
+  function setLine(e,P,Q){e.setAttribute('x1',P.x);e.setAttribute('y1',P.y);e.setAttribute('x2',Q.x);e.setAttribute('y2',Q.y);}
+  function setPt(e,P){e.setAttribute('cx',P.x);e.setAttribute('cy',P.y);}
+  function setText(e,P,s){e.setAttribute('x',P.x);e.setAttribute('y',P.y);if(s!==undefined)e.textContent=s;}
+
+  function update(){
+    var A=pts.A,B=pts.B,C=pts.C;
+    var O=circumcenter(A,B,C);
+    if(!O){O={x:340,y:280};}
+
+    // edges
+    setLine(el['edge-a'],B,C); setLine(el['edge-b'],C,A); setLine(el['edge-c'],A,B);
+
+    // circumcircle + R
+    var R=len(sub(O,A));
+    el['circumcircle'].setAttribute('cx',O.x);el['circumcircle'].setAttribute('cy',O.y);el['circumcircle'].setAttribute('r',R);
+    el['circumcircle'].style.display=showCircum?'block':'none';
+    setLine(el['radius-line'],O,A);
+    setText(el['radius-label'],add(mid(O,A),{x:0,y:-12}),'R = '+fmt(R/UNIT));
+    el['radius-line'].style.display=showCircum?'block':'none';
+    el['radius-label'].style.display=showCircum?'block':'none';
+
+    // incircle + r
+    var a=len(sub(B,C)), b=len(sub(C,A)), c=len(sub(A,B));
+    var per=a+b+c, s=per/2;
+    var area=Math.abs((B.x-A.x)*(C.y-A.y)-(B.y-A.y)*(C.x-A.x))/2;
+    var r=area/(s||1);
+    var I=scl(add(add(scl(A,a),scl(B,b)),scl(C,c)),1/(per||1));
+    el['incircle'].setAttribute('cx',I.x);el['incircle'].setAttribute('cy',I.y);el['incircle'].setAttribute('r',r);
+    el['incircle'].style.display=showIncircle?'block':'none';
+    setPt(el['incenter-dot'],I); el['incenter-dot'].style.display=showIncircle?'block':'none';
+
+    // midpoints (feet of perpendiculars from O)
+    var Ma=mid(B,C), Mb=mid(C,A), Mc=mid(A,B);
+    setPt(el['mid-a'],Ma);setPt(el['mid-b'],Mb);setPt(el['mid-c'],Mc);
+
+    // perpendiculars O -> midpoint, signed
+    var dA=signedDist(O,B,C,A), dB=signedDist(O,C,A,B), dC=signedDist(O,A,B,C);
+    function drawPerp(line,foot,lbl,O,M,side,signedVal,color){
+      setLine(line,O,M);
+      line.setAttribute('stroke',color);
+      line.setAttribute('stroke-dasharray', signedVal<0 ? '5,4' : 'none');
+      line.style.display=showPerp?'block':'none';
+      // right-angle mark at foot
+      var toO=sub(O,M), along=sub(side[1],side[0]);
+      foot.setAttribute('points',ptsToStr(rightAngleMark(M,toO,along,12)));
+      foot.style.display=(showPerp && Math.abs(signedVal)>0.5)?'block':'none';
+      // label offset away from triangle centroid
+      var ctr=scl(add(add(A,B),C),1/3);
+      var mseg=mid(O,M); var off=scl(unit(sub(mseg,ctr)),14);
+      setText(lbl,add(mseg,off),fmtS(signedVal/UNIT));
+      lbl.style.display=showPerp?'block':'none';
+    }
+    drawPerp(el['dist-a'],el['foot-a'],el['dist-a-label'],O,Ma,[B,C],dA,COL.a);
+    drawPerp(el['dist-b'],el['foot-b'],el['dist-b-label'],O,Mb,[C,A],dB,COL.b);
+    drawPerp(el['dist-c'],el['foot-c'],el['dist-c-label'],O,Mc,[A,B],dC,COL.c);
+
+    // circumcenter + label
+    setPt(el['circum-dot'],O);
+    setText(el['o-label'],add(O,{x:0,y:18}),'O');
+
+    // vertex labels (outward from centroid)
+    var ctr=scl(add(add(A,B),C),1/3);
+    setText(el['vlabel-A'],add(A,scl(unit(sub(A,ctr)),20)),'A');
+    setText(el['vlabel-B'],add(B,scl(unit(sub(B,ctr)),20)),'B');
+    setText(el['vlabel-C'],add(C,scl(unit(sub(C,ctr)),20)),'C');
+
+    // handles
+    setPt(el['handle-A'],A);setPt(el['handle-B'],B);setPt(el['handle-C'],C);
+
+    // triangle type badge
+    var angA=angleDeg(A,B,C),angB=angleDeg(B,A,C),angC=angleDeg(C,A,B);
+    var mx=Math.max(angA,angB,angC), triType,bg,fg;
+    if(Math.abs(mx-90)<1.0){triType='Right triangle — O on a side';bg='#EAF3DE';fg='#173404';}
+    else if(mx>90){triType='Obtuse triangle — O outside';bg='#FAECE7';fg='#4A1B0C';}
+    else{triType='Acute triangle — O inside';bg='#E1F5EE';fg='#04342C';}
+    triBadge.textContent=triType;triBadge.style.background=bg;triBadge.style.color=fg;
+
+    // rows
+    var sum=dA+dB+dC, Rr=R+r;
+    function term(val,color){return '<span><span class="swatch" style="background:'+color+'"></span>'+fmtS(val/UNIT)+'</span>';}
+    sumRow.innerHTML=
+      term(dA,COL.a)+'<span style="color:#888;">+</span>'+term(dB,COL.b)+'<span style="color:#888;">+</span>'+term(dC,COL.c)+
+      '<b style="font-size:18px;">=</b><span><b>'+fmt(sum/UNIT)+'</b></span>';
+    var match=Math.abs(sum-Rr)<0.5;
+    eqRow.innerHTML=
+      '<span>R + r = '+fmt(R/UNIT)+' + '+fmt(r/UNIT)+'</span>'+
+      '<b style="font-size:18px;color:#1d9e75;">=</b>'+
+      '<span><b>'+fmt(Rr/UNIT)+'</b></span>'+
+      '<span style="color:#1d9e75;font-weight:700;">'+(match?'✓':'')+'</span>';
+    if(dA<0||dB<0||dC<0){
+      var which=(dA<0?'a':dB<0?'b':'c');
+      signNote.innerHTML='One perpendicular is <b>negative</b> (dashed): the circumcenter lies on the far side of side '+which+', opposite the obtuse angle.';
+    } else {
+      signNote.textContent='All three perpendiculars are positive — the circumcenter sits inside the triangle.';
+    }
+  }
+
+  function toSvgPoint(evt){
+    var rect=svg.getBoundingClientRect(), vb=svg.viewBox.baseVal;
+    return {x:(evt.clientX-rect.left)/rect.width*vb.width+vb.x,
+            y:(evt.clientY-rect.top)/rect.height*vb.height+vb.y};
+  }
+  var dragging=null;
+  function onDown(key){return function(e){dragging=key;if(e.target.setPointerCapture){try{e.target.setPointerCapture(e.pointerId);}catch(err){}}e.preventDefault();};}
+  function onMove(e){
+    if(!dragging)return;
+    var p=toSvgPoint(e);
+    pts[dragging]={x:Math.min(maxX,Math.max(minX,p.x)),y:Math.min(maxY,Math.max(minY,p.y))};
+    update();
+  }
+  function onUp(){dragging=null;}
+  el['handle-A'].addEventListener('pointerdown',onDown('A'));
+  el['handle-B'].addEventListener('pointerdown',onDown('B'));
+  el['handle-C'].addEventListener('pointerdown',onDown('C'));
+  svg.addEventListener('pointermove',onMove);
+  window.addEventListener('pointerup',onUp);
+
+  function bind(id,setter){document.getElementById(id).addEventListener('click',function(){setter();update();});}
+  bind('toggle-circum',function(){showCircum=!showCircum;document.getElementById('toggle-circum').classList.toggle('active',showCircum);});
+  bind('toggle-incircle',function(){showIncircle=!showIncircle;document.getElementById('toggle-incircle').classList.toggle('active',showIncircle);});
+  bind('toggle-perp',function(){showPerp=!showPerp;document.getElementById('toggle-perp').classList.toggle('active',showPerp);});
+
+  var infoDrawer=document.getElementById('info-drawer'),infoBackdrop=document.getElementById('info-backdrop');
+  function openDrawer(){infoDrawer.classList.add('open');infoBackdrop.classList.add('open');}
+  function closeDrawer(){infoDrawer.classList.remove('open');infoBackdrop.classList.remove('open');}
+  document.getElementById('info-toggle-btn').addEventListener('click',function(){infoDrawer.classList.contains('open')?closeDrawer():openDrawer();});
+  document.getElementById('info-close').addEventListener('click',closeDrawer);
+  infoBackdrop.addEventListener('click',closeDrawer);
+  document.addEventListener('keydown',function(e){if(e.key==='Escape')closeDrawer();});
+
+  update();
+})();
+</script>
+<script defer src="site-chrome.js"></script>
+</body>
+</html>

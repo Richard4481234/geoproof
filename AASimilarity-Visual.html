@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<script>/*gp-noflash*/(function(){try{var t=localStorage.getItem('gp:theme')||(matchMedia('(prefers-color-scheme:dark)').matches?'dark':'light');document.documentElement.setAttribute('data-theme',t);if(t==='dark'){var s=document.createElement('style');s.textContent='html[data-theme=dark]{background:#14151a}html[data-theme=dark] body{background:#14151a!important;color:#e6e6e8!important}';document.head.appendChild(s);}}catch(e){}})();</script>
+<title>GeoProof — AA Similarity explorer</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="Two equal angles make triangles similar — scale a second triangle and watch every side ratio stay equal.">
+<link rel="canonical" href="https://richard4481234.github.io/geoproof/AASimilarity-Visual.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="GeoProof">
+<meta property="og:title" content="AA Similarity — GeoProof">
+<meta property="og:description" content="Two equal angles make triangles similar — scale a second triangle and watch every side ratio stay equal.">
+<meta property="og:url" content="https://richard4481234.github.io/geoproof/AASimilarity-Visual.html">
+<meta property="og:image" content="https://richard4481234.github.io/geoproof/og/AASimilarity-Visual.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="AA Similarity — GeoProof">
+<meta name="twitter:description" content="Two equal angles make triangles similar — scale a second triangle and watch every side ratio stay equal.">
+<meta name="twitter:image" content="https://richard4481234.github.io/geoproof/og/AASimilarity-Visual.png">
+<style>
+  body{background:#f4f4f5;display:flex;justify-content:center;padding:40px 16px;font-family:sans-serif;}
+  .widget{width:680px;max-width:100%;}
+  .card{background:#ffffff;border:1px solid #e2e2e2;padding:1.25rem;}
+  .sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;}
+  #aa-svg{width:100%;height:auto;display:block;touch-action:none;}
+  .handle{cursor:grab;}
+  .handle:active{cursor:grabbing;}
+  .swatch{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:6px;vertical-align:middle;}
+  .toggle-btn{padding:6px 14px;border-radius:999px;border:1px solid #d8d8d8;background:#f4f4f5;color:#888888;font-size:13px;font-weight:500;cursor:pointer;}
+  .toggle-btn.active{background:#1a1a1a;color:#ffffff;border-color:#1a1a1a;}
+  .stage{position:relative;border-radius:12px;overflow:hidden;border:1px solid #e2e2e2;}
+  .stage .card{border:none;}
+  .info-toggle{position:absolute;top:14px;right:14px;z-index:30;background:#1a1a1a;color:#ffffff;border:none;border-radius:999px;padding:7px 14px;font-size:13px;font-weight:500;cursor:pointer;}
+  .info-toggle:hover{background:#333333;}
+  .info-backdrop{position:absolute;inset:0;background:rgba(0,0,0,0.22);opacity:0;visibility:hidden;transition:opacity .2s ease;z-index:25;}
+  .info-backdrop.open{opacity:1;visibility:visible;}
+  .info-drawer{position:absolute;top:0;right:0;height:100%;width:320px;max-width:88%;background:#ffffff;border-left:1px solid #e2e2e2;box-shadow:-8px 0 24px rgba(0,0,0,0.14);padding:22px 20px;overflow-y:auto;transform:translateX(100%);transition:transform .25s ease;z-index:28;box-sizing:border-box;}
+  .info-drawer.open{transform:translateX(0);}
+  .info-close{position:absolute;top:14px;right:14px;background:#f4f4f5;border:1px solid #e2e2e2;border-radius:50%;width:28px;height:28px;font-size:14px;cursor:pointer;color:#555555;}
+  .info-drawer h3{font-size:17px;margin:6px 0 12px;padding-right:30px;color:#1a1a1a;}
+  .info-drawer h4{font-size:12px;margin:18px 0 6px;color:#666666;text-transform:uppercase;letter-spacing:.04em;}
+  .info-drawer p{font-size:13.5px;line-height:1.55;color:#333333;margin:0 0 10px;}
+  .formula-box{background:#f4f4f5;border-radius:8px;padding:10px 12px;text-align:center;font-size:13px;font-weight:600;margin:10px 0;color:#1a1a1a;}
+  .widget svg text{paint-order:stroke;stroke:#ffffff;stroke-width:3px;stroke-linejoin:round;stroke-opacity:0.92;}
+</style>
+</head>
+<body>
+<div class="widget">
+<div style="margin-bottom:12px;"><a href="index.html" style="font-size:14px;color:#1a1a1a;text-decoration:none;">&larr; GeoProof</a></div>
+<div class="stage">
+<div class="card">
+<h2 class="sr-only">Two triangles are shown side by side. The left triangle ABC can be reshaped by dragging its vertices. The right triangle DEF is built to have the same three angles as ABC, and a slider sets its size. Because the two triangles have equal angles, they are similar, so their corresponding sides are all in the same ratio. The angles and the three side ratios are shown live and stay equal. An info button opens a drawer explaining AA similarity.</h2>
+<svg id="aa-svg" viewBox="0 0 680 560" aria-hidden="true">
+  <polygon id="tri1" fill="#378ADD" fill-opacity="0.12" stroke="#1a1a1a" stroke-width="2.5"></polygon>
+  <polygon id="tri2" fill="#D4537E" fill-opacity="0.12" stroke="#993556" stroke-width="2.5"></polygon>
+  <g id="ang-group"></g>
+  <text id="t1A" text-anchor="middle" dominant-baseline="middle" fill="#1a1a1a" font-size="13" font-weight="700">A</text>
+  <text id="t1B" text-anchor="middle" dominant-baseline="middle" fill="#1a1a1a" font-size="13" font-weight="700">B</text>
+  <text id="t1C" text-anchor="middle" dominant-baseline="middle" fill="#1a1a1a" font-size="13" font-weight="700">C</text>
+  <text id="t2D" text-anchor="middle" dominant-baseline="middle" fill="#993556" font-size="13" font-weight="700">D</text>
+  <text id="t2E" text-anchor="middle" dominant-baseline="middle" fill="#993556" font-size="13" font-weight="700">E</text>
+  <text id="t2F" text-anchor="middle" dominant-baseline="middle" fill="#993556" font-size="13" font-weight="700">F</text>
+  <circle id="hA" class="handle" r="11" fill="#ffffff" stroke="#1a1a1a" stroke-width="2"></circle>
+  <circle id="hB" class="handle" r="11" fill="#ffffff" stroke="#1a1a1a" stroke-width="2"></circle>
+  <circle id="hC" class="handle" r="11" fill="#ffffff" stroke="#1a1a1a" stroke-width="2"></circle>
+  <line id="track" x1="430" y1="525" x2="630" y2="525" stroke="#d0d0d0" stroke-width="4" stroke-linecap="round"></line>
+  <circle id="knob" class="handle" r="10" fill="#ffffff" stroke="#993556" stroke-width="3"></circle>
+  <text id="track-lab" x="530" y="508" text-anchor="middle" fill="#993556" font-size="12.5" font-weight="700"></text>
+</svg>
+
+<div style="display:flex; justify-content:center; gap:10px; flex-wrap:wrap; margin-top:0.75rem;">
+  <button type="button" id="toggle-angles" class="toggle-btn active">Angle marks</button>
+</div>
+
+<div style="display:flex; justify-content:center; margin-top:0.85rem;">
+  <span id="status-badge" style="display:inline-block; padding:4px 14px; border-radius:999px; font-size:14px; font-weight:500;"></span>
+</div>
+
+<div id="formula-symbolic" style="text-align:center; font-size:13.5px; font-weight:600; color:#1a1a1a; margin-top:1.1rem;">equal angles ⟹ similar ⟹ DE/AB = EF/BC = FD/CA</div>
+
+<div id="ratio-row" style="display:flex; align-items:center; justify-content:center; gap:14px; flex-wrap:wrap; margin-top:0.6rem; font-size:14.5px; color:#1a1a1a;"></div>
+<div id="detail-row" style="text-align:center; font-size:12.5px; color:#777777; margin-top:0.5rem;"></div>
+</div>
+
+<button type="button" id="info-toggle-btn" class="info-toggle">ⓘ About this theorem</button>
+<div id="info-backdrop" class="info-backdrop"></div>
+<aside id="info-drawer" class="info-drawer">
+  <button type="button" id="info-close" class="info-close" aria-label="Close">✕</button>
+  <h3>AA Similarity</h3>
+  <p>If two angles of one triangle equal two angles of another, the triangles are <i>similar</i> — the same shape at (possibly) different sizes:</p>
+  <div class="formula-box">two equal angle pairs ⟹ triangles similar ⟹ sides in equal ratio</div>
+  <p>Two equal angles is enough, because the third angles must then match too (all three sum to 180°). That's why it's "AA," not "AAA."</p>
+  <h4>What similar means</h4>
+  <p>Similar triangles have all corresponding angles equal and all corresponding sides in one common ratio — the <i>scale factor</i> k. Here DEF is built with the same angles as ABC, so DE/AB = EF/BC = FD/CA, and the slider just changes that shared k.</p>
+  <h4>Similar vs congruent</h4>
+  <p>Congruent triangles are similar with k = 1 (same size). General similarity allows any k.</p>
+  <h4>Why it's useful</h4>
+  <p>AA is the quickest similarity test and the engine behind indirect measurement (heights from shadows), scale models, and a great deal of trigonometry — the trig ratios only make sense because all right triangles with a given acute angle are similar.</p>
+</aside>
+</div>
+</div>
+
+<script>
+(function(){
+  var svg=document.getElementById('aa-svg');
+  var pts={ A:{x:90,y:150}, B:{x:60,y:330}, C:{x:250,y:300} };  // triangle 1 (left), draggable
+  var minX=24,maxX=330,minY=40,maxY=470;
+  var UNIT=30;
+  var TX0=430,TX1=630,TY=525, kpos=0.5;  // slider for triangle-2 scale parameter
+  var showAngles=true;
+
+  function sub(p,q){return {x:p.x-q.x,y:p.y-q.y};}
+  function len(v){return Math.hypot(v.x,v.y);}
+  function mid(p,q){return {x:(p.x+q.x)/2,y:(p.y+q.y)/2};}
+  function fmt(n){ var r=Math.round(n*100)/100; return (Math.abs(r-Math.round(r))<1e-9)?Math.round(r).toString():r.toFixed(2); }
+  function angleDeg(P,Q,R){ var u=sub(Q,P),v=sub(R,P),lu=len(u),lv=len(v); if(lu<1e-6||lv<1e-6)return 0; var c=(u.x*v.x+u.y*v.y)/(lu*lv); c=Math.min(1,Math.max(-1,c)); return Math.acos(c)*180/Math.PI; }
+  function wedge(P,Q,R,radius){
+    var ua=Math.atan2(Q.y-P.y,Q.x-P.x)*180/Math.PI, ub=Math.atan2(R.y-P.y,R.x-P.x)*180/Math.PI;
+    var diff=((ub-ua+540)%360)-180, steps=Math.max(2,Math.round(Math.abs(diff)/5)), arr=[P];
+    for(var i=0;i<=steps;i++){ var a=(ua+diff*(i/steps))*Math.PI/180; arr.push({x:P.x+radius*Math.cos(a),y:P.y+radius*Math.sin(a)}); }
+    return arr.map(function(p){return p.x.toFixed(1)+','+p.y.toFixed(1);}).join(' ');
+  }
+  function svgEl(tag,attrs){ var el=document.createElementNS('http://www.w3.org/2000/svg',tag); for(var k in attrs){el.setAttribute(k,attrs[k]);} return el; }
+  function clearKids(el){ while(el.firstChild) el.removeChild(el.firstChild); }
+
+  var tri1=document.getElementById('tri1'), tri2=document.getElementById('tri2');
+  var angGroup=document.getElementById('ang-group');
+  var t1A=document.getElementById('t1A'),t1B=document.getElementById('t1B'),t1C=document.getElementById('t1C');
+  var t2D=document.getElementById('t2D'),t2E=document.getElementById('t2E'),t2F=document.getElementById('t2F');
+  var hA=document.getElementById('hA'),hB=document.getElementById('hB'),hC=document.getElementById('hC');
+  var knob=document.getElementById('knob'), trackLab=document.getElementById('track-lab');
+  var statusBadge=document.getElementById('status-badge');
+  var ratioRow=document.getElementById('ratio-row');
+  var detailRow=document.getElementById('detail-row');
+  var toggleAngles=document.getElementById('toggle-angles');
+
+  var COL=['#378ADD','#639922','#D4537E'];
+  function setPoly(el,P){ el.setAttribute('points', P.map(function(p){return p.x.toFixed(1)+','+p.y.toFixed(1);}).join(' ')); }
+  function tagAt(el,V,ref){ var d=sub(V,ref),l=len(d)||1; el.setAttribute('x',V.x+d.x/l*18); el.setAttribute('y',V.y+d.y/l*18); }
+
+  function update(){
+    var A=pts.A,B=pts.B,C=pts.C;
+    hA.setAttribute('cx',A.x); hA.setAttribute('cy',A.y);
+    hB.setAttribute('cx',B.x); hB.setAttribute('cy',B.y);
+    hC.setAttribute('cx',C.x); hC.setAttribute('cy',C.y);
+    setPoly(tri1,[A,B,C]);
+
+    var aA=angleDeg(A,B,C), aB=angleDeg(B,A,C), aC=180-aA-aB;
+    if(aC<1){ aC=1; }
+
+    // build DEF with same angles (D=A, E=B), base DE length L from slider
+    var L=60+kpos*220;
+    var Crad=aC*Math.PI/180;
+    var FD=L*Math.sin(aB*Math.PI/180)/Math.sin(Crad);   // side opposite E(=B) ... = FD? recompute below
+    // place: D at base-left, E to the right; F above
+    // law of sines: DE/sin F = FD/sin E = EF/sin D ; F=C, E=B, D=A
+    var DE=L;
+    var EF=DE*Math.sin(aA*Math.PI/180)/Math.sin(Crad);  // opposite D=A
+    var FDl=DE*Math.sin(aB*Math.PI/180)/Math.sin(Crad); // opposite E=B
+    var D={x:430,y:430}, E={x:D.x+DE,y:D.y};
+    var F={x:D.x+FDl*Math.cos(aA*Math.PI/180), y:D.y-FDl*Math.sin(aA*Math.PI/180)};
+    // shift the whole triangle 2 up so it fits the stage
+    var cy=(D.y+E.y+F.y)/3, dyShift=300-cy;
+    D.y+=dyShift; E.y+=dyShift; F.y+=dyShift;
+    setPoly(tri2,[D,E,F]);
+
+    var c1=mid(mid(A,B),C); tagAt(t1A,A,c1); tagAt(t1B,B,c1); tagAt(t1C,C,c1);
+    var c2=mid(mid(D,E),F); tagAt(t2D,D,c2); tagAt(t2E,E,c2); tagAt(t2F,F,c2);
+
+    clearKids(angGroup);
+    if(showAngles){
+      // matching angle marks: A&D blue, B&E green, C&F pink
+      angGroup.appendChild(svgEl('polygon',{points:wedge(A,B,C,18),fill:COL[0],'fill-opacity':0.3,stroke:'none'}));
+      angGroup.appendChild(svgEl('polygon',{points:wedge(D,E,F,18),fill:COL[0],'fill-opacity':0.3,stroke:'none'}));
+      angGroup.appendChild(svgEl('polygon',{points:wedge(B,A,C,18),fill:COL[1],'fill-opacity':0.3,stroke:'none'}));
+      angGroup.appendChild(svgEl('polygon',{points:wedge(E,D,F,18),fill:COL[1],'fill-opacity':0.3,stroke:'none'}));
+      angGroup.appendChild(svgEl('polygon',{points:wedge(C,A,B,18),fill:COL[2],'fill-opacity':0.3,stroke:'none'}));
+      angGroup.appendChild(svgEl('polygon',{points:wedge(F,D,E,18),fill:COL[2],'fill-opacity':0.3,stroke:'none'}));
+    }
+
+    knob.setAttribute('cx',TX0+kpos*(TX1-TX0)); knob.setAttribute('cy',TY);
+    trackLab.textContent='size of DEF';
+
+    // side ratios (correspondence: DE~AB, EF~BC, FD~CA)
+    var AB=len(sub(A,B))/UNIT, BC=len(sub(B,C))/UNIT, CA=len(sub(C,A))/UNIT;
+    var rDE=DE/UNIT/AB, rEF=EF/UNIT/BC, rFD=FDl/UNIT/CA;
+
+    statusBadge.textContent='Same angles → similar triangles';
+    statusBadge.style.background='#EDE6F6'; statusBadge.style.color='#3F2A5C';
+
+    ratioRow.innerHTML =
+      '<span>DE/AB = '+fmt(rDE)+'</span><span style="color:#888;">=</span>'+
+      '<span>EF/BC = '+fmt(rEF)+'</span><span style="color:#888;">=</span>'+
+      '<span>FD/CA = '+fmt(rFD)+'</span>'+
+      '<span style="color:#1d9e75;font-weight:700;">&check; = scale factor</span>';
+
+    detailRow.textContent='angles A='+Math.round(aA)+'°, B='+Math.round(aB)+'°, C='+Math.round(aC)+'°  (same in both triangles); all corresponding sides share one ratio.';
+  }
+
+  var dragging=null;
+  function toSvgPoint(evt){
+    var rect=svg.getBoundingClientRect();
+    var vb=svg.viewBox.baseVal;
+    return { x:(evt.clientX-rect.left)/rect.width*vb.width+vb.x, y:(evt.clientY-rect.top)/rect.height*vb.height+vb.y };
+  }
+  function onDown(key){
+    return function(e){
+      dragging=key;
+      if(e.target.setPointerCapture){ try{ e.target.setPointerCapture(e.pointerId); }catch(err){} }
+      e.preventDefault();
+    };
+  }
+  function onMove(e){
+    if(!dragging) return;
+    var p=toSvgPoint(e);
+    if(dragging==='knob'){ kpos=Math.min(1,Math.max(0,(p.x-TX0)/(TX1-TX0))); }
+    else { pts[dragging]={x:Math.min(maxX,Math.max(minX,p.x)), y:Math.min(maxY,Math.max(minY,p.y))}; }
+    update();
+  }
+  function onUp(){ dragging=null; }
+  hA.addEventListener('pointerdown',onDown('A'));
+  hB.addEventListener('pointerdown',onDown('B'));
+  hC.addEventListener('pointerdown',onDown('C'));
+  knob.addEventListener('pointerdown',onDown('knob'));
+  svg.addEventListener('pointermove',onMove);
+  window.addEventListener('pointerup',onUp);
+
+  toggleAngles.addEventListener('click',function(){ showAngles=!showAngles; toggleAngles.classList.toggle('active',showAngles); update(); });
+
+  var infoToggle=document.getElementById('info-toggle-btn');
+  var infoDrawer=document.getElementById('info-drawer');
+  var infoBackdrop=document.getElementById('info-backdrop');
+  var infoClose=document.getElementById('info-close');
+  function openDrawer(){ infoDrawer.classList.add('open'); infoBackdrop.classList.add('open'); }
+  function closeDrawer(){ infoDrawer.classList.remove('open'); infoBackdrop.classList.remove('open'); }
+  infoToggle.addEventListener('click',function(){
+    if(infoDrawer.classList.contains('open')) closeDrawer(); else openDrawer();
+  });
+  infoClose.addEventListener('click',closeDrawer);
+  infoBackdrop.addEventListener('click',closeDrawer);
+  document.addEventListener('keydown',function(e){ if(e.key==='Escape') closeDrawer(); });
+
+  update();
+})();
+</script>
+<script defer src="site-chrome.js"></script>
+</body>
+</html>

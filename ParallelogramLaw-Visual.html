@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<script>/*gp-noflash*/(function(){try{var t=localStorage.getItem('gp:theme')||(matchMedia('(prefers-color-scheme:dark)').matches?'dark':'light');document.documentElement.setAttribute('data-theme',t);if(t==='dark'){var s=document.createElement('style');s.textContent='html[data-theme=dark]{background:#14151a}html[data-theme=dark] body{background:#14151a!important;color:#e6e6e8!important}';document.head.appendChild(s);}}catch(e){}})();</script>
+<title>GeoProof — Parallelogram Law explorer</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="Skew a parallelogram and watch its diagonals² always equal twice the sum of its sides².">
+<link rel="canonical" href="https://richard4481234.github.io/geoproof/ParallelogramLaw-Visual.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="GeoProof">
+<meta property="og:title" content="Parallelogram Law — GeoProof">
+<meta property="og:description" content="Skew a parallelogram and watch its diagonals² always equal twice the sum of its sides².">
+<meta property="og:url" content="https://richard4481234.github.io/geoproof/ParallelogramLaw-Visual.html">
+<meta property="og:image" content="https://richard4481234.github.io/geoproof/og/ParallelogramLaw-Visual.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Parallelogram Law — GeoProof">
+<meta name="twitter:description" content="Skew a parallelogram and watch its diagonals² always equal twice the sum of its sides².">
+<meta name="twitter:image" content="https://richard4481234.github.io/geoproof/og/ParallelogramLaw-Visual.png">
+<style>
+  body{background:#f4f4f5;display:flex;justify-content:center;padding:40px 16px;font-family:sans-serif;}
+  .widget{width:680px;max-width:100%;}
+  .card{background:#ffffff;border:1px solid #e2e2e2;padding:1.25rem;}
+  .sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;}
+  #pl-svg{width:100%;height:auto;display:block;touch-action:none;}
+  .handle{cursor:grab;}
+  .handle:active{cursor:grabbing;}
+  .toggle-btn{padding:6px 14px;border-radius:999px;border:1px solid #d8d8d8;background:#f4f4f5;color:#888888;font-size:13px;font-weight:500;cursor:pointer;}
+  .toggle-btn.active{background:#1a1a1a;color:#ffffff;border-color:#1a1a1a;}
+  .stage{position:relative;border-radius:12px;overflow:hidden;border:1px solid #e2e2e2;}
+  .stage .card{border:none;}
+  .info-toggle{position:absolute;top:14px;right:14px;z-index:30;background:#1a1a1a;color:#ffffff;border:none;border-radius:999px;padding:7px 14px;font-size:13px;font-weight:500;cursor:pointer;}
+  .info-toggle:hover{background:#333333;}
+  .info-backdrop{position:absolute;inset:0;background:rgba(0,0,0,0.22);opacity:0;visibility:hidden;transition:opacity .2s ease;z-index:25;}
+  .info-backdrop.open{opacity:1;visibility:visible;}
+  .info-drawer{position:absolute;top:0;right:0;height:100%;width:320px;max-width:88%;background:#ffffff;border-left:1px solid #e2e2e2;box-shadow:-8px 0 24px rgba(0,0,0,0.14);padding:22px 20px;overflow-y:auto;transform:translateX(100%);transition:transform .25s ease;z-index:28;box-sizing:border-box;}
+  .info-drawer.open{transform:translateX(0);}
+  .info-close{position:absolute;top:14px;right:14px;background:#f4f4f5;border:1px solid #e2e2e2;border-radius:50%;width:28px;height:28px;font-size:14px;cursor:pointer;color:#555555;}
+  .info-drawer h3{font-size:17px;margin:6px 0 12px;padding-right:30px;color:#1a1a1a;}
+  .info-drawer h4{font-size:12px;margin:18px 0 6px;color:#666666;text-transform:uppercase;letter-spacing:.04em;}
+  .info-drawer p{font-size:13.5px;line-height:1.55;color:#333333;margin:0 0 10px;}
+  .formula-box{background:#f4f4f5;border-radius:8px;padding:10px 12px;text-align:center;font-size:13px;font-weight:600;margin:10px 0;color:#1a1a1a;}
+  .widget svg text{paint-order:stroke;stroke:#ffffff;stroke-width:3px;stroke-linejoin:round;stroke-opacity:0.92;}
+</style>
+</head>
+<body>
+<div class="widget">
+<div style="margin-bottom:12px;"><a href="index.html" style="font-size:14px;color:#1a1a1a;text-decoration:none;">&larr; GeoProof</a></div>
+<div class="stage">
+<div class="card">
+<h2 class="sr-only">A parallelogram ABCD is shown. You can drag corners A, B, and D; corner C moves automatically to keep the shape a parallelogram. The two adjacent sides have lengths a (side AB) and b (side AD). The two diagonals are AC and BD. The parallelogram law says the sum of the squares of the diagonals equals twice the sum of the squares of the two sides: AC squared plus BD squared equals two times the quantity a squared plus b squared. Both sides of this equation are computed live and stay equal. An info button opens a drawer with the explanation.</h2>
+<svg id="pl-svg" viewBox="0 0 680 560" aria-hidden="true">
+  <polygon id="para" fill="#378ADD" fill-opacity="0.08" stroke="none"></polygon>
+  <line id="sideAB" stroke="#378ADD" stroke-width="3.5" stroke-linecap="round"></line>
+  <line id="sideDC" stroke="#378ADD" stroke-width="3.5" stroke-linecap="round" stroke-opacity="0.45"></line>
+  <line id="sideAD" stroke="#1D9E75" stroke-width="3.5" stroke-linecap="round"></line>
+  <line id="sideBC" stroke="#1D9E75" stroke-width="3.5" stroke-linecap="round" stroke-opacity="0.45"></line>
+  <line id="diag1" stroke="#BA7517" stroke-width="2.6"></line>
+  <line id="diag2" stroke="#993556" stroke-width="2.6"></line>
+  <text id="labA" text-anchor="middle" fill="#185FA5" font-size="12.5" font-weight="700"></text>
+  <text id="labB" text-anchor="middle" fill="#13694e" font-size="12.5" font-weight="700"></text>
+  <text id="labD1" text-anchor="middle" fill="#8a5710" font-size="12.5" font-weight="700"></text>
+  <text id="labD2" text-anchor="middle" fill="#993556" font-size="12.5" font-weight="700"></text>
+  <text id="tA" text-anchor="middle" dominant-baseline="middle" fill="#1a1a1a" font-size="13" font-weight="700">A</text>
+  <text id="tB" text-anchor="middle" dominant-baseline="middle" fill="#1a1a1a" font-size="13" font-weight="700">B</text>
+  <text id="tC" text-anchor="middle" dominant-baseline="middle" fill="#1a1a1a" font-size="13" font-weight="700">C</text>
+  <text id="tD" text-anchor="middle" dominant-baseline="middle" fill="#1a1a1a" font-size="13" font-weight="700">D</text>
+  <circle id="hA" class="handle" r="11" fill="#ffffff" stroke="#1a1a1a" stroke-width="2"></circle>
+  <circle id="hB" class="handle" r="11" fill="#ffffff" stroke="#1a1a1a" stroke-width="2"></circle>
+  <circle id="hD" class="handle" r="11" fill="#ffffff" stroke="#1a1a1a" stroke-width="2"></circle>
+  <circle id="cDot" r="5.5" fill="#ffffff" stroke="#999999" stroke-width="2.5"></circle>
+</svg>
+
+<div style="display:flex; justify-content:center; gap:10px; flex-wrap:wrap; margin-top:0.75rem;">
+  <button type="button" id="toggle-rect" class="toggle-btn">Snap to rectangle</button>
+</div>
+
+<div style="display:flex; justify-content:center; margin-top:0.85rem;">
+  <span id="status-badge" style="display:inline-block; padding:4px 14px; border-radius:999px; font-size:14px; font-weight:500;"></span>
+</div>
+
+<div id="formula-symbolic" style="text-align:center; font-size:14px; font-weight:600; color:#1a1a1a; margin-top:1.1rem;">AC² + BD² = 2(a² + b²)</div>
+<div id="eq-row" style="display:flex; align-items:center; justify-content:center; gap:16px; flex-wrap:wrap; margin-top:0.6rem; font-size:14.5px; color:#1a1a1a;"></div>
+<div id="detail-row" style="text-align:center; font-size:12.5px; color:#777777; margin-top:0.5rem;"></div>
+</div>
+
+<button type="button" id="info-toggle-btn" class="info-toggle">ⓘ About this theorem</button>
+<div id="info-backdrop" class="info-backdrop"></div>
+<aside id="info-drawer" class="info-drawer">
+  <button type="button" id="info-close" class="info-close" aria-label="Close">✕</button>
+  <h3>Parallelogram Law</h3>
+  <p>In any parallelogram, the two diagonals and the two sides are tied together by one identity:</p>
+  <div class="formula-box">AC² + BD² = 2(a² + b²)</div>
+  <p>The sum of the squares of the diagonals equals twice the sum of the squares of a pair of adjacent sides — no matter how you skew or stretch the shape.</p>
+  <h4>Where it comes from</h4>
+  <p>Write the sides as vectors u and v. The diagonals are u + v and u − v. Then |u+v|² + |u−v|² = 2|u|² + 2|v|², because the cross terms (±2u·v) cancel. That cancellation is the whole theorem.</p>
+  <h4>The rectangle case</h4>
+  <p>In a rectangle the diagonals are equal, so AC² + BD² = 2·AC², giving AC² = a² + b² — the Pythagorean theorem. Use the snap button to see it.</p>
+  <h4>Why it matters</h4>
+  <p>It characterizes "Euclidean" length itself: a way of measuring distance comes from a true inner product exactly when it obeys this law. It's foundational in linear algebra and analysis.</p>
+</aside>
+</div>
+</div>
+
+<script>
+(function(){
+  var svg=document.getElementById('pl-svg');
+  var A={x:170,y:380}, B={x:430,y:380}, D={x:270,y:150};
+  var minX=40,maxX=640,minY=50,maxY=470;
+  var UNIT=30, snapRect=false;
+
+  function sub(p,q){return {x:p.x-q.x,y:p.y-q.y};}
+  function add(p,q){return {x:p.x+q.x,y:p.y+q.y};}
+  function len(v){return Math.hypot(v.x,v.y);}
+  function mid(p,q){return {x:(p.x+q.x)/2,y:(p.y+q.y)/2};}
+  function fmt(n){ var r=Math.round(n*100)/100; return (Math.abs(r-Math.round(r))<1e-9)?Math.round(r).toString():r.toFixed(2); }
+  function fmt1(n){ var r=Math.round(n*10)/10; return (Math.abs(r-Math.round(r))<1e-9)?Math.round(r).toString():r.toFixed(1); }
+
+  var para=document.getElementById('para');
+  var sideAB=document.getElementById('sideAB'),sideDC=document.getElementById('sideDC');
+  var sideAD=document.getElementById('sideAD'),sideBC=document.getElementById('sideBC');
+  var diag1=document.getElementById('diag1'),diag2=document.getElementById('diag2');
+  var labA=document.getElementById('labA'),labB=document.getElementById('labB'),labD1=document.getElementById('labD1'),labD2=document.getElementById('labD2');
+  var tA=document.getElementById('tA'),tB=document.getElementById('tB'),tC=document.getElementById('tC'),tD=document.getElementById('tD');
+  var hA=document.getElementById('hA'),hB=document.getElementById('hB'),hD=document.getElementById('hD'),cDot=document.getElementById('cDot');
+  var statusBadge=document.getElementById('status-badge');
+  var eqRow=document.getElementById('eq-row'), detailRow=document.getElementById('detail-row');
+  var toggleRect=document.getElementById('toggle-rect');
+
+  function setLine(el,p,q){ el.setAttribute('x1',p.x);el.setAttribute('y1',p.y);el.setAttribute('x2',q.x);el.setAttribute('y2',q.y); }
+  function tagOut(el,V,ref,dist){ var d=sub(V,ref),l=len(d)||1; el.setAttribute('x',V.x+d.x/l*dist); el.setAttribute('y',V.y+d.y/l*dist); }
+
+  function update(){
+    if(snapRect){
+      // make AD perpendicular to AB, keeping their current lengths
+      var ab=sub(B,A), bb=len(ab)||1; var nx=-ab.y/bb, ny=ab.x/bb;
+      var bLen=len(sub(D,A));
+      if((D.x-A.x)*nx+(D.y-A.y)*ny<0){ nx=-nx; ny=-ny; }
+      D={x:A.x+nx*bLen, y:A.y+ny*bLen};
+    }
+    var C=add(B,sub(D,A));   // C = B + D - A  (parallelogram)
+
+    hA.setAttribute('cx',A.x);hA.setAttribute('cy',A.y);
+    hB.setAttribute('cx',B.x);hB.setAttribute('cy',B.y);
+    hD.setAttribute('cx',D.x);hD.setAttribute('cy',D.y);
+    cDot.setAttribute('cx',C.x);cDot.setAttribute('cy',C.y);
+
+    para.setAttribute('points',[A,B,C,D].map(function(p){return p.x.toFixed(1)+','+p.y.toFixed(1);}).join(' '));
+    setLine(sideAB,A,B); setLine(sideDC,D,C);
+    setLine(sideAD,A,D); setLine(sideBC,B,C);
+    setLine(diag1,A,C); setLine(diag2,B,D);
+
+    var cen=mid(mid(A,B),mid(C,D));
+    tagOut(tA,A,cen,18); tagOut(tB,B,cen,18); tagOut(tC,C,cen,18); tagOut(tD,D,cen,18);
+    tagOut(labA,mid(A,B),cen,16); tagOut(labB,mid(A,D),cen,16);
+    tagOut(labD1,mid(A,C),C,-22); tagOut(labD2,mid(B,D),A,-22);
+
+    var a=len(sub(B,A))/UNIT, b=len(sub(D,A))/UNIT;
+    var d1=len(sub(C,A))/UNIT, d2=len(sub(D,B))/UNIT;
+
+    labA.textContent='a='+fmt1(a); labB.textContent='b='+fmt1(b);
+    labD1.textContent='AC='+fmt1(d1); labD2.textContent='BD='+fmt1(d2);
+
+    var lhs=d1*d1 + d2*d2, rhs=2*(a*a + b*b);
+    var ok=Math.abs(lhs-rhs)<0.05*Math.max(1,rhs);
+
+    statusBadge.textContent = ok ? (snapRect?'Rectangle: AC²=a²+b² (Pythagoras)':'Both sides equal') : 'computing…';
+    statusBadge.style.background = ok ? '#E3F4EC' : '#FBECEC';
+    statusBadge.style.color = ok ? '#1d7a4d' : '#a23b3b';
+
+    eqRow.innerHTML =
+      '<span>AC² + BD² = <b>'+fmt(lhs)+'</b></span>'+
+      '<span style="color:#1d9e75;font-weight:700;">=</span>'+
+      '<span>2(a² + b²) = <b>'+fmt(rhs)+'</b></span>';
+
+    detailRow.textContent='sides a='+fmt1(a)+', b='+fmt1(b)+';  diagonals AC='+fmt1(d1)+', BD='+fmt1(d2)+'  (units; equation values in units²).';
+  }
+
+  var dragging=null;
+  function toSvgPoint(evt){
+    var rect=svg.getBoundingClientRect(), vb=svg.viewBox.baseVal;
+    return { x:(evt.clientX-rect.left)/rect.width*vb.width+vb.x, y:(evt.clientY-rect.top)/rect.height*vb.height+vb.y };
+  }
+  function onDown(key){ return function(e){ dragging=key; if(e.target.setPointerCapture){try{e.target.setPointerCapture(e.pointerId);}catch(err){}} e.preventDefault(); }; }
+  function onMove(e){
+    if(!dragging) return;
+    if(dragging==='D' && snapRect){ snapRect=false; toggleRect.classList.remove('active'); }
+    var p=toSvgPoint(e);
+    var np={x:Math.min(maxX,Math.max(minX,p.x)), y:Math.min(maxY,Math.max(minY,p.y))};
+    if(dragging==='A') A=np; else if(dragging==='B') B=np; else if(dragging==='D') D=np;
+    update();
+  }
+  function onUp(){ dragging=null; }
+  hA.addEventListener('pointerdown',onDown('A'));
+  hB.addEventListener('pointerdown',onDown('B'));
+  hD.addEventListener('pointerdown',onDown('D'));
+  svg.addEventListener('pointermove',onMove);
+  window.addEventListener('pointerup',onUp);
+
+  toggleRect.addEventListener('click',function(){ snapRect=!snapRect; toggleRect.classList.toggle('active',snapRect); update(); });
+
+  var infoToggle=document.getElementById('info-toggle-btn');
+  var infoDrawer=document.getElementById('info-drawer');
+  var infoBackdrop=document.getElementById('info-backdrop');
+  var infoClose=document.getElementById('info-close');
+  function openDrawer(){ infoDrawer.classList.add('open'); infoBackdrop.classList.add('open'); }
+  function closeDrawer(){ infoDrawer.classList.remove('open'); infoBackdrop.classList.remove('open'); }
+  infoToggle.addEventListener('click',function(){ if(infoDrawer.classList.contains('open')) closeDrawer(); else openDrawer(); });
+  infoClose.addEventListener('click',closeDrawer);
+  infoBackdrop.addEventListener('click',closeDrawer);
+  document.addEventListener('keydown',function(e){ if(e.key==='Escape') closeDrawer(); });
+
+  update();
+})();
+</script>
+<script defer src="site-chrome.js"></script>
+</body>
+</html>

@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<script>/*gp-noflash*/(function(){try{var t=localStorage.getItem('gp:theme')||(matchMedia('(prefers-color-scheme:dark)').matches?'dark':'light');document.documentElement.setAttribute('data-theme',t);if(t==='dark'){var s=document.createElement('style');s.textContent='html[data-theme=dark]{background:#14151a}html[data-theme=dark] body{background:#14151a!important;color:#e6e6e8!important}';document.head.appendChild(s);}}catch(e){}})();</script>
+<title>GeoProof — Geometric Mean (altitude on hypotenuse) explorer</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="The altitude to a right triangle's hypotenuse gives h²=pq and each leg²=segment·hypotenuse.">
+<link rel="canonical" href="https://richard4481234.github.io/geoproof/GeometricMean-Visual.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="GeoProof">
+<meta property="og:title" content="Geometric Mean — GeoProof">
+<meta property="og:description" content="The altitude to a right triangle's hypotenuse gives h²=pq and each leg²=segment·hypotenuse.">
+<meta property="og:url" content="https://richard4481234.github.io/geoproof/GeometricMean-Visual.html">
+<meta property="og:image" content="https://richard4481234.github.io/geoproof/og/GeometricMean-Visual.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Geometric Mean — GeoProof">
+<meta name="twitter:description" content="The altitude to a right triangle's hypotenuse gives h²=pq and each leg²=segment·hypotenuse.">
+<meta name="twitter:image" content="https://richard4481234.github.io/geoproof/og/GeometricMean-Visual.png">
+<style>
+  body{background:#f4f4f5;display:flex;justify-content:center;padding:40px 16px;font-family:sans-serif;}
+  .widget{width:680px;max-width:100%;}
+  .card{background:#ffffff;border:1px solid #e2e2e2;padding:1.25rem;}
+  .sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;}
+  #gm-svg{width:100%;height:auto;display:block;touch-action:none;}
+  .handle{cursor:grab;}
+  .handle:active{cursor:grabbing;}
+  .toggle-btn{padding:6px 14px;border-radius:999px;border:1px solid #d8d8d8;background:#f4f4f5;color:#888888;font-size:13px;font-weight:500;cursor:pointer;}
+  .toggle-btn.active{background:#1a1a1a;color:#ffffff;border-color:#1a1a1a;}
+  .stage{position:relative;border-radius:12px;overflow:hidden;border:1px solid #e2e2e2;}
+  .stage .card{border:none;}
+  .info-toggle{position:absolute;top:14px;right:14px;z-index:30;background:#1a1a1a;color:#ffffff;border:none;border-radius:999px;padding:7px 14px;font-size:13px;font-weight:500;cursor:pointer;}
+  .info-toggle:hover{background:#333333;}
+  .info-backdrop{position:absolute;inset:0;background:rgba(0,0,0,0.22);opacity:0;visibility:hidden;transition:opacity .2s ease;z-index:25;}
+  .info-backdrop.open{opacity:1;visibility:visible;}
+  .info-drawer{position:absolute;top:0;right:0;height:100%;width:320px;max-width:88%;background:#ffffff;border-left:1px solid #e2e2e2;box-shadow:-8px 0 24px rgba(0,0,0,0.14);padding:22px 20px;overflow-y:auto;transform:translateX(100%);transition:transform .25s ease;z-index:28;box-sizing:border-box;}
+  .info-drawer.open{transform:translateX(0);}
+  .info-close{position:absolute;top:14px;right:14px;background:#f4f4f5;border:1px solid #e2e2e2;border-radius:50%;width:28px;height:28px;font-size:14px;cursor:pointer;color:#555555;}
+  .info-drawer h3{font-size:17px;margin:6px 0 12px;padding-right:30px;color:#1a1a1a;}
+  .info-drawer h4{font-size:12px;margin:18px 0 6px;color:#666666;text-transform:uppercase;letter-spacing:.04em;}
+  .info-drawer p{font-size:13.5px;line-height:1.55;color:#333333;margin:0 0 10px;}
+  .formula-box{background:#f4f4f5;border-radius:8px;padding:10px 12px;text-align:center;font-size:13px;font-weight:600;margin:10px 0;color:#1a1a1a;}
+  .widget svg text{paint-order:stroke;stroke:#ffffff;stroke-width:3px;stroke-linejoin:round;stroke-opacity:0.92;}
+</style>
+</head>
+<body>
+<div class="widget">
+<div style="margin-bottom:12px;"><a href="index.html" style="font-size:14px;color:#1a1a1a;text-decoration:none;">&larr; GeoProof</a></div>
+<div class="stage">
+<div class="card">
+<h2 class="sr-only">A right triangle ABC has its right angle at C. The vertex C stays on the circle whose diameter is the hypotenuse AB, which keeps the angle at C exactly 90 degrees. An altitude is dropped from C straight down to the hypotenuse, meeting it at foot D and splitting the hypotenuse into two parts: p from A to D and q from D to B. Three geometric-mean relations hold: the altitude squared equals p times q; leg AC squared equals p times the whole hypotenuse; leg BC squared equals q times the whole hypotenuse. You can drag A and B along the base and drag C around the circle. All three relations are shown live and stay true. An info button opens a drawer with the explanation.</h2>
+<svg id="gm-svg" viewBox="0 0 680 560" aria-hidden="true">
+  <circle id="circ" fill="none" stroke="#dddddd" stroke-width="1.5"></circle>
+  <polygon id="triAC" fill="#378ADD" fill-opacity="0.10" stroke="none"></polygon>
+  <polygon id="triBC" fill="#1D9E75" fill-opacity="0.10" stroke="none"></polygon>
+  <polygon id="tri" fill="none" stroke="#1a1a1a" stroke-width="2.5"></polygon>
+  <line id="alt" stroke="#993556" stroke-width="2.5"></line>
+  <line id="segP" stroke="#378ADD" stroke-width="4" stroke-linecap="round"></line>
+  <line id="segQ" stroke="#1D9E75" stroke-width="4" stroke-linecap="round"></line>
+  <rect id="rightC" fill="none" stroke="#993556" stroke-width="1.6"></rect>
+  <rect id="rightD" fill="none" stroke="#993556" stroke-width="1.4"></rect>
+  <text id="labP" text-anchor="middle" fill="#185FA5" font-size="12.5" font-weight="700"></text>
+  <text id="labQ" text-anchor="middle" fill="#13694e" font-size="12.5" font-weight="700"></text>
+  <text id="labH" text-anchor="middle" fill="#993556" font-size="12.5" font-weight="700"></text>
+  <text id="tA" text-anchor="middle" dominant-baseline="middle" fill="#1a1a1a" font-size="13" font-weight="700">A</text>
+  <text id="tB" text-anchor="middle" dominant-baseline="middle" fill="#1a1a1a" font-size="13" font-weight="700">B</text>
+  <text id="tC" text-anchor="middle" dominant-baseline="middle" fill="#1a1a1a" font-size="13" font-weight="700">C</text>
+  <text id="tD" text-anchor="middle" dominant-baseline="middle" fill="#993556" font-size="13" font-weight="700">D</text>
+  <circle id="hA" class="handle" r="11" fill="#ffffff" stroke="#1a1a1a" stroke-width="2"></circle>
+  <circle id="hB" class="handle" r="11" fill="#ffffff" stroke="#1a1a1a" stroke-width="2"></circle>
+  <circle id="hC" class="handle" r="11" fill="#ffffff" stroke="#993556" stroke-width="2.5"></circle>
+</svg>
+
+<div style="display:flex; justify-content:center; gap:10px; flex-wrap:wrap; margin-top:0.75rem;">
+  <button type="button" id="toggle-sub" class="toggle-btn active">Shade the two sub-triangles</button>
+</div>
+
+<div style="display:flex; justify-content:center; margin-top:0.85rem;">
+  <span id="status-badge" style="display:inline-block; padding:4px 14px; border-radius:999px; font-size:14px; font-weight:500;"></span>
+</div>
+
+<div id="rel-row" style="display:flex; align-items:center; justify-content:center; gap:18px; flex-wrap:wrap; margin-top:1rem; font-size:14px; color:#1a1a1a;"></div>
+<div id="detail-row" style="text-align:center; font-size:12.5px; color:#777777; margin-top:0.55rem;"></div>
+</div>
+
+<button type="button" id="info-toggle-btn" class="info-toggle">ⓘ About this theorem</button>
+<div id="info-backdrop" class="info-backdrop"></div>
+<aside id="info-drawer" class="info-drawer">
+  <button type="button" id="info-close" class="info-close" aria-label="Close">✕</button>
+  <h3>Geometric Mean Theorem</h3>
+  <p>Drop the altitude from the right angle of a right triangle to the hypotenuse. It splits the hypotenuse into p and q and creates three similar triangles, giving three "geometric mean" relations:</p>
+  <div class="formula-box">h² = p·q &nbsp;•&nbsp; b² = p·c &nbsp;•&nbsp; a² = q·c</div>
+  <p>Here the altitude is h, its foot splits hypotenuse c into p (next to A) and q (next to B), and a = BC, b = AC are the legs.</p>
+  <h4>"Geometric mean"</h4>
+  <p>h = √(p·q): the altitude is the geometric mean of the two hypotenuse pieces. Each leg is the geometric mean of the whole hypotenuse and the piece touching it.</p>
+  <h4>Why the right angle is automatic</h4>
+  <p>C rides on the circle whose diameter is AB. By Thales' theorem, any point on that circle sees the diameter at a right angle — so ∠C is always 90°.</p>
+  <h4>A bonus</h4>
+  <p>Add the two leg relations: b² + a² = pc + qc = (p+q)c = c². That's the Pythagorean theorem, falling straight out of these.</p>
+</aside>
+</div>
+</div>
+
+<script>
+(function(){
+  var svg=document.getElementById('gm-svg');
+  var A={x:150,y:360}, B={x:560,y:360};
+  var cAng=-2.2;          // C position as angle on the circle (diameter AB)
+  var minX=40,maxX=640, baseY=360;
+  var UNIT=30, showSub=true;
+
+  function sub(p,q){return {x:p.x-q.x,y:p.y-q.y};}
+  function add(p,q){return {x:p.x+q.x,y:p.y+q.y};}
+  function scl(p,s){return {x:p.x*s,y:p.y*s};}
+  function len(v){return Math.hypot(v.x,v.y);}
+  function mid(p,q){return {x:(p.x+q.x)/2,y:(p.y+q.y)/2};}
+  function fmt(n){ var r=Math.round(n*100)/100; return (Math.abs(r-Math.round(r))<1e-9)?Math.round(r).toString():r.toFixed(2); }
+  function fmt1(n){ var r=Math.round(n*10)/10; return (Math.abs(r-Math.round(r))<1e-9)?Math.round(r).toString():r.toFixed(1); }
+
+  var circ=document.getElementById('circ'), tri=document.getElementById('tri');
+  var triAC=document.getElementById('triAC'), triBC=document.getElementById('triBC');
+  var alt=document.getElementById('alt'), segP=document.getElementById('segP'), segQ=document.getElementById('segQ');
+  var rightC=document.getElementById('rightC'), rightD=document.getElementById('rightD');
+  var labP=document.getElementById('labP'),labQ=document.getElementById('labQ'),labH=document.getElementById('labH');
+  var tA=document.getElementById('tA'),tB=document.getElementById('tB'),tC=document.getElementById('tC'),tD=document.getElementById('tD');
+  var hA=document.getElementById('hA'),hB=document.getElementById('hB'),hC=document.getElementById('hC');
+  var statusBadge=document.getElementById('status-badge');
+  var relRow=document.getElementById('rel-row'), detailRow=document.getElementById('detail-row');
+  var toggleSub=document.getElementById('toggle-sub');
+
+  function poly(el,arr){ el.setAttribute('points',arr.map(function(p){return p.x.toFixed(1)+','+p.y.toFixed(1);}).join(' ')); }
+  function tagOut(el,V,ref,dist){ var d=sub(V,ref),l=len(d)||1; el.setAttribute('x',V.x+d.x/l*dist); el.setAttribute('y',V.y+d.y/l*dist); }
+
+  function update(){
+    var O=mid(A,B), Rr=len(sub(B,A))/2;
+    circ.setAttribute('cx',O.x); circ.setAttribute('cy',O.y); circ.setAttribute('r',Rr);
+    var C={x:O.x+Rr*Math.cos(cAng), y:O.y+Rr*Math.sin(cAng)};
+
+    hA.setAttribute('cx',A.x);hA.setAttribute('cy',A.y);
+    hB.setAttribute('cx',B.x);hB.setAttribute('cy',B.y);
+    hC.setAttribute('cx',C.x);hC.setAttribute('cy',C.y);
+
+    // foot of altitude D on line AB
+    var ab=sub(B,A), L2=ab.x*ab.x+ab.y*ab.y||1;
+    var tt=((C.x-A.x)*ab.x+(C.y-A.y)*ab.y)/L2;
+    var D=add(A,scl(ab,tt));
+
+    poly(tri,[A,B,C]);
+    poly(triAC,[A,D,C]); poly(triBC,[B,D,C]);
+    triAC.style.display=showSub?'':'none'; triBC.style.display=showSub?'':'none';
+    alt.setAttribute('x1',C.x);alt.setAttribute('y1',C.y);alt.setAttribute('x2',D.x);alt.setAttribute('y2',D.y);
+    segP.setAttribute('x1',A.x);segP.setAttribute('y1',A.y);segP.setAttribute('x2',D.x);segP.setAttribute('y2',D.y);
+    segQ.setAttribute('x1',D.x);segQ.setAttribute('y1',D.y);segQ.setAttribute('x2',B.x);segQ.setAttribute('y2',B.y);
+
+    // right-angle marks at C (legs to A and B) and at D (altitude vs base)
+    drawRight(rightC,C,A,B,13);
+    drawRight(rightD,D,C,A,11);
+
+    var cen=mid(mid(A,B),C);
+    tagOut(tA,A,cen,18); tagOut(tB,B,cen,18); tagOut(tC,C,cen,18); tagOut(tD,D,C,15);
+    tagOut(labP,mid(A,D),cen,15); tagOut(labQ,mid(D,B),cen,15);
+    labH.setAttribute('x',mid(C,D).x+14); labH.setAttribute('y',mid(C,D).y);
+
+    var a=len(sub(B,C))/UNIT, b=len(sub(A,C))/UNIT, c=len(sub(A,B))/UNIT;
+    var p=len(sub(A,D))/UNIT, q=len(sub(D,B))/UNIT, h=len(sub(C,D))/UNIT;
+
+    labP.textContent='p='+fmt1(p); labQ.textContent='q='+fmt1(q); labH.textContent='h='+fmt1(h);
+
+    var ok = Math.abs(h*h-p*q)<0.05*Math.max(1,p*q)
+          && Math.abs(b*b-p*c)<0.05*Math.max(1,p*c)
+          && Math.abs(a*a-q*c)<0.05*Math.max(1,q*c);
+
+    statusBadge.textContent = ok ? 'All three geometric means hold' : 'computing…';
+    statusBadge.style.background = ok ? '#E3F4EC' : '#FBECEC';
+    statusBadge.style.color = ok ? '#1d7a4d' : '#a23b3b';
+
+    relRow.innerHTML =
+      '<span style="border-bottom:3px solid #993556;padding-bottom:2px;">h² = '+fmt(h*h)+' = p·q = '+fmt(p*q)+'</span>'+
+      '<span style="border-bottom:3px solid #378ADD;padding-bottom:2px;">b² = '+fmt(b*b)+' = p·c = '+fmt(p*c)+'</span>'+
+      '<span style="border-bottom:3px solid #1D9E75;padding-bottom:2px;">a² = '+fmt(a*a)+' = q·c = '+fmt(q*c)+'</span>';
+
+    detailRow.textContent='legs a='+fmt1(a)+', b='+fmt1(b)+'; hypotenuse c='+fmt1(c)+'; pieces p='+fmt1(p)+', q='+fmt1(q)+'; altitude h='+fmt1(h)+'  (units).';
+  }
+
+  // draw a right-angle square at V with arms toward P and Q, as a polygon stored in a <rect>'s sibling — simpler: use the rect's points via a path
+  function drawRight(rectEl,V,P,Q,s){
+    var u=sub(P,V),v=sub(Q,V); u=scl(u,s/(len(u)||1)); v=scl(v,s/(len(v)||1));
+    var p1=add(V,u), p2=add(add(V,u),v), p3=add(V,v);
+    // repurpose the rect as a polyline by replacing it with a path-like polygon: set as 4-point via 'points' won't work on rect.
+    // Instead store on a hidden attribute and render through a shared polygon overlay:
+    rectEl.setAttribute('x',-1000); rectEl.setAttribute('y',-1000); rectEl.setAttribute('width',0); rectEl.setAttribute('height',0);
+    var id=rectEl.id+'-poly';
+    var pg=document.getElementById(id);
+    if(!pg){ pg=document.createElementNS('http://www.w3.org/2000/svg','polyline'); pg.id=id; pg.setAttribute('fill','none'); pg.setAttribute('stroke','#993556'); pg.setAttribute('stroke-width','1.6'); rectEl.parentNode.insertBefore(pg, rectEl.nextSibling); }
+    pg.setAttribute('points',[p1,p2,p3].map(function(p){return p.x.toFixed(1)+','+p.y.toFixed(1);}).join(' '));
+  }
+
+  var dragging=null;
+  function toSvgPoint(evt){
+    var rect=svg.getBoundingClientRect(), vb=svg.viewBox.baseVal;
+    return { x:(evt.clientX-rect.left)/rect.width*vb.width+vb.x, y:(evt.clientY-rect.top)/rect.height*vb.height+vb.y };
+  }
+  function onDown(key){ return function(e){ dragging=key; if(e.target.setPointerCapture){try{e.target.setPointerCapture(e.pointerId);}catch(err){}} e.preventDefault(); }; }
+  function onMove(e){
+    if(!dragging) return;
+    var p=toSvgPoint(e);
+    if(dragging==='A'){ A={x:Math.min(B.x-60,Math.max(minX,p.x)), y:baseY}; }
+    else if(dragging==='B'){ B={x:Math.max(A.x+60,Math.min(maxX,p.x)), y:baseY}; }
+    else if(dragging==='C'){ var O=mid(A,B); cAng=Math.atan2(p.y-O.y,p.x-O.x); if(Math.sin(cAng)>-0.05) cAng = (Math.cos(cAng)>=0?-0.05:-Math.PI+0.05); }
+    update();
+  }
+  function onUp(){ dragging=null; }
+  hA.addEventListener('pointerdown',onDown('A'));
+  hB.addEventListener('pointerdown',onDown('B'));
+  hC.addEventListener('pointerdown',onDown('C'));
+  svg.addEventListener('pointermove',onMove);
+  window.addEventListener('pointerup',onUp);
+
+  toggleSub.addEventListener('click',function(){ showSub=!showSub; toggleSub.classList.toggle('active',showSub); update(); });
+
+  var infoToggle=document.getElementById('info-toggle-btn');
+  var infoDrawer=document.getElementById('info-drawer');
+  var infoBackdrop=document.getElementById('info-backdrop');
+  var infoClose=document.getElementById('info-close');
+  function openDrawer(){ infoDrawer.classList.add('open'); infoBackdrop.classList.add('open'); }
+  function closeDrawer(){ infoDrawer.classList.remove('open'); infoBackdrop.classList.remove('open'); }
+  infoToggle.addEventListener('click',function(){ if(infoDrawer.classList.contains('open')) closeDrawer(); else openDrawer(); });
+  infoClose.addEventListener('click',closeDrawer);
+  infoBackdrop.addEventListener('click',closeDrawer);
+  document.addEventListener('keydown',function(e){ if(e.key==='Escape') closeDrawer(); });
+
+  update();
+})();
+</script>
+<script defer src="site-chrome.js"></script>
+</body>
+</html>

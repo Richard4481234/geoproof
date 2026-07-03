@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<script>/*gp-noflash*/(function(){try{var t=localStorage.getItem('gp:theme')||(matchMedia('(prefers-color-scheme:dark)').matches?'dark':'light');document.documentElement.setAttribute('data-theme',t);if(t==='dark'){var s=document.createElement('style');s.textContent='html[data-theme=dark]{background:#14151a}html[data-theme=dark] body{background:#14151a!important;color:#e6e6e8!important}';document.head.appendChild(s);}}catch(e){}})();</script>
+<title>GeoProof — Arc Length &amp; Sector Area explorer</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="Sweep a central angle and see the arc and sector as a fraction of the whole circle.">
+<link rel="canonical" href="https://richard4481234.github.io/geoproof/ArcSector-Visual.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="GeoProof">
+<meta property="og:title" content="Arc Length &amp; Sector Area — GeoProof">
+<meta property="og:description" content="Sweep a central angle and see the arc and sector as a fraction of the whole circle.">
+<meta property="og:url" content="https://richard4481234.github.io/geoproof/ArcSector-Visual.html">
+<meta property="og:image" content="https://richard4481234.github.io/geoproof/og/ArcSector-Visual.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Arc Length &amp; Sector Area — GeoProof">
+<meta name="twitter:description" content="Sweep a central angle and see the arc and sector as a fraction of the whole circle.">
+<meta name="twitter:image" content="https://richard4481234.github.io/geoproof/og/ArcSector-Visual.png">
+<style>
+  body{background:#f4f4f5;display:flex;justify-content:center;padding:40px 16px;font-family:sans-serif;}
+  .widget{width:680px;max-width:100%;}
+  .card{background:#ffffff;border:1px solid #e2e2e2;padding:1.25rem;}
+  .sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;}
+  #as-svg{width:100%;height:auto;display:block;touch-action:none;}
+  .handle{cursor:grab;}
+  .handle:active{cursor:grabbing;}
+  .swatch{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:6px;vertical-align:middle;}
+  .toggle-btn{padding:6px 14px;border-radius:999px;border:1px solid #d8d8d8;background:#f4f4f5;color:#888888;font-size:13px;font-weight:500;cursor:pointer;}
+  .toggle-btn.active{background:#1a1a1a;color:#ffffff;border-color:#1a1a1a;}
+  .stage{position:relative;border-radius:12px;overflow:hidden;border:1px solid #e2e2e2;}
+  .stage .card{border:none;}
+  .info-toggle{position:absolute;top:14px;right:14px;z-index:30;background:#1a1a1a;color:#ffffff;border:none;border-radius:999px;padding:7px 14px;font-size:13px;font-weight:500;cursor:pointer;}
+  .info-toggle:hover{background:#333333;}
+  .info-backdrop{position:absolute;inset:0;background:rgba(0,0,0,0.22);opacity:0;visibility:hidden;transition:opacity .2s ease;z-index:25;}
+  .info-backdrop.open{opacity:1;visibility:visible;}
+  .info-drawer{position:absolute;top:0;right:0;height:100%;width:320px;max-width:88%;background:#ffffff;border-left:1px solid #e2e2e2;box-shadow:-8px 0 24px rgba(0,0,0,0.14);padding:22px 20px;overflow-y:auto;transform:translateX(100%);transition:transform .25s ease;z-index:28;box-sizing:border-box;}
+  .info-drawer.open{transform:translateX(0);}
+  .info-close{position:absolute;top:14px;right:14px;background:#f4f4f5;border:1px solid #e2e2e2;border-radius:50%;width:28px;height:28px;font-size:14px;cursor:pointer;color:#555555;}
+  .info-drawer h3{font-size:17px;margin:6px 0 12px;padding-right:30px;color:#1a1a1a;}
+  .info-drawer h4{font-size:12px;margin:18px 0 6px;color:#666666;text-transform:uppercase;letter-spacing:.04em;}
+  .info-drawer p{font-size:13.5px;line-height:1.55;color:#333333;margin:0 0 10px;}
+  .formula-box{background:#f4f4f5;border-radius:8px;padding:10px 12px;text-align:center;font-size:13px;font-weight:600;margin:10px 0;color:#1a1a1a;}
+  .widget svg text{paint-order:stroke;stroke:#ffffff;stroke-width:3px;stroke-linejoin:round;stroke-opacity:0.92;}
+</style>
+</head>
+<body>
+<div class="widget">
+<div style="margin-bottom:12px;"><a href="index.html" style="font-size:14px;color:#1a1a1a;text-decoration:none;">&larr; GeoProof</a></div>
+<div class="stage">
+<div class="card">
+<h2 class="sr-only">A circle of radius r has a sector marked off by a central angle. Drag the angle handle around the circle to change the angle, or drag the rim handle to change the radius. The arc along the rim is highlighted and the pie-slice sector is shaded. The arc length is the fraction angle-over-360 of the whole circumference, and the sector area is the same fraction of the whole circle's area. The angle, that fraction, the arc length and the sector area are all shown live. An info button opens a drawer with the formulas.</h2>
+<svg id="as-svg" viewBox="0 0 680 560" aria-hidden="true">
+  <circle id="circle" fill="none" stroke="#c8c8cc" stroke-width="2"></circle>
+  <path id="sector" fill="#378ADD" fill-opacity="0.18" stroke="none"></path>
+  <path id="arc" fill="none" stroke="#D4537E" stroke-width="6" stroke-linecap="round"></path>
+  <line id="ray0" stroke="#1a1a1a" stroke-width="2.5" stroke-linecap="round"></line>
+  <line id="ray1" stroke="#1a1a1a" stroke-width="2.5" stroke-linecap="round"></line>
+  <text id="ang-label" text-anchor="middle" dominant-baseline="middle" fill="#185FA5" font-size="14" font-weight="700"></text>
+  <text id="r-label" text-anchor="middle" dominant-baseline="middle" fill="#7A4D0B" font-size="12.5" font-weight="600"></text>
+  <circle id="dot-O" r="4.5" fill="#1a1a1a"></circle>
+  <circle id="handle-ang" class="handle" r="11" fill="#ffffff" stroke="#1a1a1a" stroke-width="2.5"></circle>
+  <circle id="handle-r" class="handle" r="10" fill="#ffffff" stroke="#BA7517" stroke-width="2.5"></circle>
+</svg>
+
+<div style="display:flex; justify-content:center; gap:10px; flex-wrap:wrap; margin-top:0.75rem;">
+  <button type="button" id="snap90" class="toggle-btn">90°</button>
+  <button type="button" id="snap180" class="toggle-btn">180°</button>
+  <button type="button" id="snap270" class="toggle-btn">270°</button>
+</div>
+
+<div style="display:flex; justify-content:center; margin-top:0.85rem;">
+  <span id="status-badge" style="display:inline-block; padding:4px 14px; border-radius:999px; font-size:14px; font-weight:500;"></span>
+</div>
+
+<div id="formula-symbolic" style="text-align:center; font-size:13.5px; font-weight:600; color:#1a1a1a; margin-top:1.1rem;">arc = (θ/360)·2πr &nbsp;·&nbsp; sector area = (θ/360)·πr²</div>
+
+<div id="arc-row" style="text-align:center; font-size:14.5px; color:#1a1a1a; margin-top:0.6rem;"></div>
+<div id="area-row" style="text-align:center; font-size:14.5px; color:#1a1a1a; margin-top:0.4rem;"></div>
+<div id="detail-row" style="text-align:center; font-size:12.5px; color:#777777; margin-top:0.5rem;"></div>
+</div>
+
+<button type="button" id="info-toggle-btn" class="info-toggle">ⓘ About these formulas</button>
+<div id="info-backdrop" class="info-backdrop"></div>
+<aside id="info-drawer" class="info-drawer">
+  <button type="button" id="info-close" class="info-close" aria-label="Close">✕</button>
+  <h3>Arc Length &amp; Sector Area</h3>
+  <p>A central angle θ cuts off a slice of a circle. The arc and the sector are each just a <i>fraction</i> — θ out of the full 360° — of the whole circle:</p>
+  <div class="formula-box">arc length = (θ/360) · 2πr<br>sector area = (θ/360) · πr²</div>
+  <p>So a 90° slice is one-quarter of the circumference and one-quarter of the area; a 180° slice is half of each, and so on.</p>
+  <h4>In radians it's even simpler</h4>
+  <p>If the angle is measured in radians (where a full turn is 2π), the formulas shrink to arc = rθ and sector area = ½r²θ. Radians are "built for" circle measure.</p>
+  <h4>Arc vs. chord</h4>
+  <p>The arc is the curved rim of the slice; don't confuse it with the straight chord joining the two endpoints, which is shorter.</p>
+  <h4>Where it's used</h4>
+  <p>Pie charts, gears and pulleys, the distance a wheel rolls, fields of view, and any "slice of a circle" calculation rely on these two formulas.</p>
+</aside>
+</div>
+</div>
+
+<script>
+(function(){
+  var svg=document.getElementById('as-svg');
+  var O={x:300,y:285}, R=170;
+  var theta=110;     // central angle in degrees, swept from 0° (right) going clockwise on screen
+  var UNIT=30;
+
+  function fmt(n){ var r=Math.round(n*10)/10; return (Math.abs(r-Math.round(r))<1e-9)?Math.round(r).toString():r.toFixed(1); }
+  function pt(deg,r){ var a=deg*Math.PI/180; return {x:O.x+r*Math.cos(a), y:O.y+r*Math.sin(a)}; }
+  function arcPath(r,fromDeg,sweepDeg,move){
+    // build an SVG arc path from fromDeg sweeping sweepDeg (CCW in our deg convention)
+    var p0=pt(fromDeg,r), p1=pt(fromDeg+sweepDeg,r);
+    var large=(sweepDeg>180)?1:0;
+    // screen y-down: increasing angle goes clockwise visually; use sweep-flag 1
+    return (move?('M'+O.x+','+O.y+' L'+p0.x.toFixed(1)+','+p0.y.toFixed(1)+' '):('M'+p0.x.toFixed(1)+','+p0.y.toFixed(1)+' '))
+      + 'A'+r+','+r+' 0 '+large+' 1 '+p1.x.toFixed(1)+','+p1.y.toFixed(1)
+      + (move?' Z':'');
+  }
+
+  var circle=document.getElementById('circle');
+  var sector=document.getElementById('sector'), arc=document.getElementById('arc');
+  var ray0=document.getElementById('ray0'), ray1=document.getElementById('ray1');
+  var angLabel=document.getElementById('ang-label'), rLabel=document.getElementById('r-label');
+  var dotO=document.getElementById('dot-O');
+  var hAng=document.getElementById('handle-ang'), hR=document.getElementById('handle-r');
+  var statusBadge=document.getElementById('status-badge');
+  var arcRow=document.getElementById('arc-row'), areaRow=document.getElementById('area-row'), detailRow=document.getElementById('detail-row');
+  var snap90=document.getElementById('snap90'), snap180=document.getElementById('snap180'), snap270=document.getElementById('snap270');
+
+  function setLine(el,p,q){ el.setAttribute('x1',p.x); el.setAttribute('y1',p.y); el.setAttribute('x2',q.x); el.setAttribute('y2',q.y); }
+
+  function update(){
+    circle.setAttribute('cx',O.x); circle.setAttribute('cy',O.y); circle.setAttribute('r',R);
+    dotO.setAttribute('cx',O.x); dotO.setAttribute('cy',O.y);
+
+    sector.setAttribute('d', arcPath(R,0,theta,true));
+    arc.setAttribute('d', arcPath(R,0,theta,false));
+    var e0=pt(0,R), e1=pt(theta,R);
+    setLine(ray0,O,e0); setLine(ray1,O,e1);
+    hAng.setAttribute('cx',e1.x); hAng.setAttribute('cy',e1.y);
+    hR.setAttribute('cx',e0.x); hR.setAttribute('cy',e0.y);
+
+    var lp=pt(theta/2, R*0.42);
+    angLabel.setAttribute('x',lp.x); angLabel.setAttribute('y',lp.y); angLabel.textContent=Math.round(theta)+'°';
+    var rp=pt(0, R*0.5); rLabel.setAttribute('x',rp.x); rLabel.setAttribute('y',rp.y-12); rLabel.textContent='r='+fmt(R/UNIT);
+
+    var r=R/UNIT, frac=theta/360;
+    var circ=2*Math.PI*r, area=Math.PI*r*r;
+    var arcLen=frac*circ, sectorArea=frac*area;
+
+    statusBadge.textContent='A '+Math.round(theta)+'° slice is '+fmt(frac*100)+'% of the circle';
+    statusBadge.style.background='#E1F0FB'; statusBadge.style.color='#0E3F66';
+
+    arcRow.innerHTML='<b>Arc</b> = (θ/360)·2πr = ('+Math.round(theta)+'/360)·'+fmt(circ)+' = <b style="color:#993556">'+fmt(arcLen)+'</b>';
+    areaRow.innerHTML='<b>Sector area</b> = (θ/360)·πr² = ('+Math.round(theta)+'/360)·'+fmt(area)+' = <b style="color:#185FA5">'+fmt(sectorArea)+'</b>';
+    detailRow.textContent='fraction θ/360 = '+fmt(frac)+'   ·   in radians: arc = rθ, area = ½r²θ';
+  }
+
+  var dragging=null;
+  function toSvgPoint(evt){
+    var rect=svg.getBoundingClientRect();
+    var vb=svg.viewBox.baseVal;
+    return { x:(evt.clientX-rect.left)/rect.width*vb.width+vb.x, y:(evt.clientY-rect.top)/rect.height*vb.height+vb.y };
+  }
+  function onDown(key){
+    return function(e){
+      dragging=key;
+      if(e.target.setPointerCapture){ try{ e.target.setPointerCapture(e.pointerId); }catch(err){} }
+      e.preventDefault();
+    };
+  }
+  function onMove(e){
+    if(!dragging) return;
+    var p=toSvgPoint(e), vx=p.x-O.x, vy=p.y-O.y;
+    if(dragging==='ang'){
+      var a=((Math.atan2(vy,vx)*180/Math.PI)%360+360)%360;
+      theta=(a<1)?360:a;
+    } else if(dragging==='r'){
+      R=Math.min(230,Math.max(60,Math.hypot(vx,vy)));
+    }
+    update();
+  }
+  function onUp(){ dragging=null; }
+  hAng.addEventListener('pointerdown',onDown('ang'));
+  hR.addEventListener('pointerdown',onDown('r'));
+  svg.addEventListener('pointermove',onMove);
+  window.addEventListener('pointerup',onUp);
+
+  snap90.addEventListener('click',function(){ theta=90; update(); });
+  snap180.addEventListener('click',function(){ theta=180; update(); });
+  snap270.addEventListener('click',function(){ theta=270; update(); });
+
+  var infoToggle=document.getElementById('info-toggle-btn');
+  var infoDrawer=document.getElementById('info-drawer');
+  var infoBackdrop=document.getElementById('info-backdrop');
+  var infoClose=document.getElementById('info-close');
+  function openDrawer(){ infoDrawer.classList.add('open'); infoBackdrop.classList.add('open'); }
+  function closeDrawer(){ infoDrawer.classList.remove('open'); infoBackdrop.classList.remove('open'); }
+  infoToggle.addEventListener('click',function(){
+    if(infoDrawer.classList.contains('open')) closeDrawer(); else openDrawer();
+  });
+  infoClose.addEventListener('click',closeDrawer);
+  infoBackdrop.addEventListener('click',closeDrawer);
+  document.addEventListener('keydown',function(e){ if(e.key==='Escape') closeDrawer(); });
+
+  update();
+})();
+</script>
+<script defer src="site-chrome.js"></script>
+</body>
+</html>

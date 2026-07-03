@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<script>/*gp-noflash*/(function(){try{var t=localStorage.getItem('gp:theme')||(matchMedia('(prefers-color-scheme:dark)').matches?'dark':'light');document.documentElement.setAttribute('data-theme',t);if(t==='dark'){var s=document.createElement('style');s.textContent='html[data-theme=dark]{background:#14151a}html[data-theme=dark] body{background:#14151a!important;color:#e6e6e8!important}';document.head.appendChild(s);}}catch(e){}})();</script>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SAS Similarity — GeoProof</title>
+<meta name="description" content="Make two sides proportional with equal included angles and watch the triangles become similar — every side ratio matching.">
+<link rel="canonical" href="https://richard4481234.github.io/geoproof/SASSimilarity-Visual.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="GeoProof">
+<meta property="og:title" content="SAS Similarity — GeoProof">
+<meta property="og:description" content="Make two sides proportional with equal included angles and watch the triangles become similar — every side ratio matching.">
+<meta property="og:url" content="https://richard4481234.github.io/geoproof/SASSimilarity-Visual.html">
+<meta property="og:image" content="https://richard4481234.github.io/geoproof/og/SASSimilarity-Visual.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="SAS Similarity — GeoProof">
+<meta name="twitter:description" content="Make two sides proportional with equal included angles and watch the triangles become similar — every side ratio matching.">
+<meta name="twitter:image" content="https://richard4481234.github.io/geoproof/og/SASSimilarity-Visual.png">
+<style>
+  body{background:#f4f4f5;display:flex;justify-content:center;padding:40px 16px;font-family:sans-serif;}
+  .widget{width:680px;max-width:100%;}
+  .card{background:#ffffff;border:1px solid #e2e2e2;padding:1.25rem;}
+  .sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;}
+  #sas-svg{width:100%;height:auto;display:block;touch-action:none;}
+  .handle{cursor:grab;}
+  .handle:active{cursor:grabbing;}
+  .swatch{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:6px;vertical-align:middle;}
+  .toggle-btn{padding:6px 14px;border-radius:999px;border:1px solid #d8d8d8;background:#f4f4f5;color:#888888;font-size:13px;font-weight:500;cursor:pointer;}
+  .toggle-btn.active{background:#1a1a1a;color:#ffffff;border-color:#1a1a1a;}
+  .slider{display:inline-flex;align-items:center;gap:8px;font-size:13px;font-weight:500;color:#555555;border:1px solid #d8d8d8;background:#f4f4f5;border-radius:999px;padding:5px 14px;}
+  .slider input{accent-color:#1a1a1a;}
+  .stage{position:relative;border-radius:12px;overflow:hidden;border:1px solid #e2e2e2;}
+  .stage .card{border:none;}
+  .info-toggle{position:absolute;top:14px;right:14px;z-index:30;background:#1a1a1a;color:#ffffff;border:none;border-radius:999px;padding:7px 14px;font-size:13px;font-weight:500;cursor:pointer;}
+  .info-toggle:hover{background:#333333;}
+  .info-backdrop{position:absolute;inset:0;background:rgba(0,0,0,0.22);opacity:0;visibility:hidden;transition:opacity .2s ease;z-index:25;}
+  .info-backdrop.open{opacity:1;visibility:visible;}
+  .info-drawer{position:absolute;top:0;right:0;height:100%;width:320px;max-width:88%;background:#ffffff;border-left:1px solid #e2e2e2;box-shadow:-8px 0 24px rgba(0,0,0,0.14);padding:22px 20px;overflow-y:auto;transform:translateX(100%);transition:transform .25s ease;z-index:28;box-sizing:border-box;}
+  .info-drawer.open{transform:translateX(0);}
+  .info-close{position:absolute;top:14px;right:14px;background:#f4f4f5;border:1px solid #e2e2e2;border-radius:50%;width:28px;height:28px;font-size:14px;cursor:pointer;color:#555555;}
+  .info-drawer h3{font-size:17px;margin:6px 0 12px;padding-right:30px;color:#1a1a1a;}
+  .info-drawer h4{font-size:12px;margin:18px 0 6px;color:#666666;text-transform:uppercase;letter-spacing:.04em;}
+  .info-drawer p{font-size:13.5px;line-height:1.55;color:#333333;margin:0 0 10px;}
+  .formula-box{background:#f4f4f5;border-radius:8px;padding:10px 12px;text-align:center;font-size:15px;font-weight:600;margin:10px 0;color:#1a1a1a;}
+  .widget svg text{paint-order:stroke;stroke:#ffffff;stroke-width:3px;stroke-linejoin:round;stroke-opacity:0.92;}
+</style>
+</head>
+<body>
+<div class="widget">
+<div style="margin-bottom:12px;"><a href="index.html" style="font-size:14px;color:#1a1a1a;text-decoration:none;">&larr; GeoProof</a></div>
+<div class="stage">
+<div class="card">
+<h2 class="sr-only">Drag triangle ABC, where A is the included-angle vertex, drag D to move the second triangle, drag E to rotate it, or use the scale slider. The second triangle DEF is built with only two facts forced: the angle at D equals the angle at A, and the two sides DE and DF are k times the sides AB and AC. The theorem guarantees the rest follows automatically — the third side comes out k times BC, and the remaining angles match — so every side ratio equals the same k and the triangles are similar. Toggles show all side lengths and all equal angles. An info button opens a drawer explaining the theorem.</h2>
+<svg id="sas-svg" viewBox="0 0 680 560" aria-hidden="true">
+  <polygon id="sas-t1" fill="#378ADD" fill-opacity="0.06" stroke="none"></polygon>
+  <polygon id="sas-t2" fill="#1D9E75" fill-opacity="0.06" stroke="none"></polygon>
+  <path id="sas-wA" fill="#D4537E" fill-opacity="0.22" stroke="#D4537E" stroke-width="1.6"></path>
+  <path id="sas-wD" fill="#D4537E" fill-opacity="0.22" stroke="#D4537E" stroke-width="1.6"></path>
+  <path id="sas-wB" fill="#185FA5" fill-opacity="0.18" stroke="#185FA5" stroke-width="1.4"></path>
+  <path id="sas-wE" fill="#185FA5" fill-opacity="0.18" stroke="#185FA5" stroke-width="1.4"></path>
+  <path id="sas-wC" fill="#13694e" fill-opacity="0.18" stroke="#13694e" stroke-width="1.4"></path>
+  <path id="sas-wF" fill="#13694e" fill-opacity="0.18" stroke="#13694e" stroke-width="1.4"></path>
+  <line id="sas-ab" stroke="#378ADD" stroke-width="4" stroke-linecap="round"></line>
+  <line id="sas-de" stroke="#378ADD" stroke-width="4" stroke-linecap="round"></line>
+  <line id="sas-ac" stroke="#1D9E75" stroke-width="4" stroke-linecap="round"></line>
+  <line id="sas-df" stroke="#1D9E75" stroke-width="4" stroke-linecap="round"></line>
+  <line id="sas-bc" stroke="#BA7517" stroke-width="4" stroke-linecap="round"></line>
+  <line id="sas-ef" stroke="#BA7517" stroke-width="4" stroke-linecap="round"></line>
+  <text id="sas-lab-ab" text-anchor="middle" dominant-baseline="middle" fill="#185FA5" font-size="12.5" font-weight="600"></text>
+  <text id="sas-lab-ac" text-anchor="middle" dominant-baseline="middle" fill="#13694e" font-size="12.5" font-weight="600"></text>
+  <text id="sas-lab-bc" text-anchor="middle" dominant-baseline="middle" fill="#8a5512" font-size="12.5" font-weight="600"></text>
+  <text id="sas-lab-de" text-anchor="middle" dominant-baseline="middle" fill="#185FA5" font-size="12.5" font-weight="600"></text>
+  <text id="sas-lab-df" text-anchor="middle" dominant-baseline="middle" fill="#13694e" font-size="12.5" font-weight="600"></text>
+  <text id="sas-lab-ef" text-anchor="middle" dominant-baseline="middle" fill="#8a5512" font-size="12.5" font-weight="600"></text>
+  <text id="sas-A" text-anchor="middle" dominant-baseline="middle" fill="#185FA5" font-size="15" font-weight="700">A</text>
+  <text id="sas-B" text-anchor="middle" dominant-baseline="middle" fill="#185FA5" font-size="15" font-weight="700">B</text>
+  <text id="sas-C" text-anchor="middle" dominant-baseline="middle" fill="#185FA5" font-size="15" font-weight="700">C</text>
+  <text id="sas-D" text-anchor="middle" dominant-baseline="middle" fill="#13694e" font-size="15" font-weight="700">D</text>
+  <text id="sas-E" text-anchor="middle" dominant-baseline="middle" fill="#13694e" font-size="15" font-weight="700">E</text>
+  <text id="sas-F" text-anchor="middle" dominant-baseline="middle" fill="#13694e" font-size="15" font-weight="700">F</text>
+  <circle id="sas-hA" class="handle" r="12" fill="#ffffff" stroke="#185FA5" stroke-width="2.5"></circle>
+  <circle id="sas-hB" class="handle" r="12" fill="#ffffff" stroke="#185FA5" stroke-width="2.5"></circle>
+  <circle id="sas-hC" class="handle" r="12" fill="#ffffff" stroke="#185FA5" stroke-width="2.5"></circle>
+  <rect id="sas-hD" class="handle" width="13" height="13" rx="2" fill="#ffffff" stroke="#13694e" stroke-width="2.5"></rect>
+  <circle id="sas-hE" class="handle" r="11" fill="#ffffff" stroke="#13694e" stroke-width="2.5"></circle>
+</svg>
+
+<div style="display:flex; justify-content:center; gap:10px; flex-wrap:wrap; align-items:center; margin-top:0.75rem;">
+  <label class="slider">scale k <input type="range" id="sas-k" min="0.3" max="2.2" step="0.01" value="0.72"> <span id="sas-kval">0.72</span></label>
+  <button type="button" id="sas-tSides" class="toggle-btn active">Side lengths</button>
+  <button type="button" id="sas-tAngles" class="toggle-btn">All equal angles</button>
+</div>
+
+<div style="display:flex; justify-content:center; margin-top:0.85rem;">
+  <span id="sas-badge" style="display:inline-block; padding:4px 14px; border-radius:999px; font-size:14px; font-weight:500;"></span>
+</div>
+
+<div id="sas-formula" style="text-align:center; font-size:15px; font-weight:600; color:#1a1a1a; margin-top:1.1rem;">DE / AB = DF / AC&nbsp;&nbsp;and&nbsp;&nbsp;∠D = ∠A&nbsp;&nbsp;⟹&nbsp;&nbsp;triangles similar</div>
+<div id="sas-row" style="display:flex; align-items:center; justify-content:center; gap:8px; flex-wrap:wrap; margin-top:0.6rem; font-size:15px; color:#1a1a1a;"></div>
+<div id="sas-row2" style="text-align:center; font-size:13.5px; color:#555555; margin-top:0.6rem;"></div>
+</div>
+
+<button type="button" id="sas-info-btn" class="info-toggle">ⓘ About this theorem</button>
+<div id="sas-backdrop" class="info-backdrop"></div>
+<aside id="sas-drawer" class="info-drawer">
+  <button type="button" id="sas-close" class="info-close" aria-label="Close">✕</button>
+  <h3>SAS Similarity</h3>
+  <p>If two sides of one triangle are <b>proportional</b> to two sides of another, and the <b>included angles</b> between those sides are <b>equal</b>, then the triangles are <b>similar</b> (SAS ~ Side-Angle-Side).</p>
+  <div class="formula-box">∠D = ∠A,&nbsp; DE = k·AB,&nbsp; DF = k·AC&nbsp; ⟹ similar</div>
+  <p>Only those three facts are forced here. The theorem guarantees the rest follows automatically: the third side comes out <i>EF = k·BC</i>, and the remaining angles match (∠E = ∠B, ∠F = ∠C). Every side ratio equals the same <b>k</b>.</p>
+  <h4>Why the third side is forced</h4>
+  <p>By the law of cosines, EF² = DE² + DF² − 2·DE·DF·cos∠D = k²(AB² + AC² − 2·AB·AC·cos∠A) = k²·BC². So EF is exactly k·BC, with no freedom left.</p>
+  <h4>The three similarity criteria</h4>
+  <p>Two triangles are similar if they share two angles (AA), two proportional sides with equal included angle (SAS), or all three sides in proportion (SSS). This explorer shows the SAS case.</p>
+  <h4>Drag to test it</h4>
+  <p>Reshape triangle ABC, move D, rotate the copy with E, or slide k. Notice that orientation doesn't matter — the ratios and angles match no matter how DEF is turned.</p>
+</aside>
+</div>
+</div>
+
+<script>
+(function(){
+  var svg=document.getElementById('sas-svg');
+  var UNIT=30;
+  var ids=['sas-t1','sas-t2','sas-wA','sas-wD','sas-wB','sas-wE','sas-wC','sas-wF',
+    'sas-ab','sas-de','sas-ac','sas-df','sas-bc','sas-ef',
+    'sas-lab-ab','sas-lab-ac','sas-lab-bc','sas-lab-de','sas-lab-df','sas-lab-ef',
+    'sas-A','sas-B','sas-C','sas-D','sas-E','sas-F',
+    'sas-hA','sas-hB','sas-hC','sas-hD','sas-hE'];
+  var el={}; ids.forEach(function(id){ el[id]=document.getElementById(id); });
+  var badge=document.getElementById('sas-badge'), rowEl=document.getElementById('sas-row'), row2El=document.getElementById('sas-row2');
+
+  function sub(a,b){return{x:a.x-b.x,y:a.y-b.y};}
+  function add(a,b){return{x:a.x+b.x,y:a.y+b.y};}
+  function scl(a,k){return{x:a.x*k,y:a.y*k};}
+  function dot(a,b){return a.x*b.x+a.y*b.y;}
+  function len(a){return Math.hypot(a.x,a.y);}
+  function mid(a,b){return{x:(a.x+b.x)/2,y:(a.y+b.y)/2};}
+  function norm(a){var l=len(a)||1;return{x:a.x/l,y:a.y/l};}
+  function cross(a,b){return a.x*b.y-a.y*b.x;}
+  function rot(v,t){return{x:v.x*Math.cos(t)-v.y*Math.sin(t),y:v.x*Math.sin(t)+v.y*Math.cos(t)};}
+  function ang3(P,U,V){var u=sub(U,P),v=sub(V,P);return Math.acos(Math.max(-1,Math.min(1,dot(u,v)/((len(u)*len(v))||1))));}
+  function deg(r){return r*180/Math.PI;}
+  function fmt(n){var r=Math.round(n*100)/100;return (Math.abs(r-Math.round(r))<1e-9)?String(Math.round(r)):r.toFixed(2);}
+  function centroid(a){return scl(a.reduce(add,{x:0,y:0}),1/a.length);}
+  function setPoly(id,pts){el[id].setAttribute('points',pts.map(function(p){return p.x.toFixed(1)+','+p.y.toFixed(1);}).join(' '));}
+  function setLine(id,P,Q){var e=el[id];e.setAttribute('x1',P.x);e.setAttribute('y1',P.y);e.setAttribute('x2',Q.x);e.setAttribute('y2',Q.y);}
+  function setText(id,P,s){var e=el[id];e.setAttribute('x',P.x);e.setAttribute('y',P.y);if(s!==undefined)e.textContent=s;}
+  function setDot(id,P){var e=el[id];e.setAttribute('cx',P.x);e.setAttribute('cy',P.y);}
+  function setRect(id,P){var e=el[id];e.setAttribute('x',P.x-6.5);e.setAttribute('y',P.y-6.5);}
+  function vis(id,on){el[id].style.display=on?'':'none';}
+  function wedge(id,V,P,Q,r){
+    var a=norm(sub(P,V)), b=norm(sub(Q,V)), s=add(V,scl(a,r)), e=add(V,scl(b,r)), sweep=cross(a,b)<0?1:0;
+    el[id].setAttribute('d','M'+V.x.toFixed(1)+','+V.y.toFixed(1)+' L'+s.x.toFixed(1)+','+s.y.toFixed(1)+' A'+r+','+r+' 0 0 '+sweep+' '+e.x.toFixed(1)+','+e.y.toFixed(1)+' Z');
+  }
+  function sideLabel(id,P,Q,ctr,str){var m=mid(P,Q),d=norm(sub(Q,P)),nrm={x:-d.y,y:d.x};if(dot(nrm,sub(m,ctr))<0)nrm=scl(nrm,-1);setText(id,add(m,scl(nrm,15)),str);}
+
+  // ---- state ----
+  var A={x:170,y:340}, B={x:120,y:170}, C={x:300,y:250};
+  var D={x:430,y:380};
+  var theta=Math.atan2(B.y-A.y,B.x-A.x);
+  var k=0.72;
+  var opt={sides:true, angles:false};
+
+  function build(){
+    var AB=sub(B,A), AC=sub(C,A);
+    var signedA=Math.atan2(cross(AB,AC),dot(AB,AC));
+    var uDE={x:Math.cos(theta),y:Math.sin(theta)};
+    var E=add(D,scl(uDE,k*len(AB)));
+    var uDF=rot(uDE,signedA);
+    var F=add(D,scl(uDF,k*len(AC)));
+    return {E:E,F:F,AB:AB,AC:AC};
+  }
+
+  function render(){
+    var g=build(), E=g.E, F=g.F;
+    var T1=[A,B,C], T2=[D,E,F], c1=centroid(T1), c2=centroid(T2);
+    setPoly('sas-t1',T1); setPoly('sas-t2',T2);
+
+    wedge('sas-wA',A,B,C,26); wedge('sas-wD',D,E,F,26);
+    wedge('sas-wB',B,A,C,20); wedge('sas-wE',E,D,F,20);
+    wedge('sas-wC',C,A,B,20); wedge('sas-wF',F,D,E,20);
+    ['sas-wB','sas-wE','sas-wC','sas-wF'].forEach(function(id){ vis(id,opt.angles); });
+
+    setLine('sas-ab',A,B); setLine('sas-de',D,E);
+    setLine('sas-ac',A,C); setLine('sas-df',D,F);
+    setLine('sas-bc',B,C); setLine('sas-ef',E,F);
+
+    sideLabel('sas-lab-ab',A,B,c1,'AB '+fmt(len(g.AB)/UNIT));
+    sideLabel('sas-lab-ac',A,C,c1,'AC '+fmt(len(g.AC)/UNIT));
+    sideLabel('sas-lab-bc',B,C,c1,'BC '+fmt(len(sub(C,B))/UNIT));
+    sideLabel('sas-lab-de',D,E,c2,'DE '+fmt(len(sub(E,D))/UNIT));
+    sideLabel('sas-lab-df',D,F,c2,'DF '+fmt(len(sub(F,D))/UNIT));
+    sideLabel('sas-lab-ef',E,F,c2,'EF '+fmt(len(sub(F,E))/UNIT));
+    ['sas-lab-ab','sas-lab-ac','sas-lab-bc','sas-lab-de','sas-lab-df','sas-lab-ef'].forEach(function(id){ vis(id,opt.sides); });
+
+    setText('sas-A',add(A,scl(norm(sub(A,c1)),16))); setText('sas-B',add(B,scl(norm(sub(B,c1)),16))); setText('sas-C',add(C,scl(norm(sub(C,c1)),16)));
+    setText('sas-D',add(D,scl(norm(sub(D,c2)),16))); setText('sas-E',add(E,scl(norm(sub(E,c2)),16))); setText('sas-F',add(F,scl(norm(sub(F,c2)),16)));
+
+    setDot('sas-hA',A); setDot('sas-hB',B); setDot('sas-hC',C); setRect('sas-hD',D); setDot('sas-hE',E);
+
+    var angA=deg(ang3(A,B,C)), angD=deg(ang3(D,E,F));
+    var BC=len(sub(C,B)), EF=len(sub(F,E));
+    var rAB=len(sub(E,D))/(len(g.AB)||1), rAC=len(sub(F,D))/(len(g.AC)||1), rBC=EF/(BC||1);
+    rowEl.innerHTML=
+      '<span><span class="swatch" style="background:#D4537E"></span>∠A = ∠D = '+fmt(angA)+'°</span>'+
+      '<b style="color:#888;">·</b>'+
+      '<span><span class="swatch" style="background:#378ADD"></span>DE/AB = '+fmt(rAB)+'</span>'+
+      '<span><span class="swatch" style="background:#1D9E75"></span>DF/AC = '+fmt(rAC)+'</span>';
+    row2El.innerHTML='<span class="swatch" style="background:#BA7517"></span>EF/BC (forced, not set) = <b>'+fmt(rBC)+'</b> — same ratio k';
+    badge.textContent='Similar by SAS · every side ratio = k = '+fmt(k);
+    badge.style.background='#E1F0FB'; badge.style.color='#0E3F66';
+  }
+
+  // ---- drag ----
+  var dragId=null;
+  function toSvg(evt){var r=svg.getBoundingClientRect(),vb=svg.viewBox.baseVal,s=evt.touches?evt.touches[0]:evt;return{x:(s.clientX-r.left)/r.width*vb.width+vb.x,y:(s.clientY-r.top)/r.height*vb.height+vb.y};}
+  function down(id){return function(e){dragId=id;if(e.target.setPointerCapture){try{e.target.setPointerCapture(e.pointerId);}catch(err){}}e.preventDefault();};}
+  function move(e){
+    if(!dragId)return; e.preventDefault();
+    var p=toSvg(e); p.x=Math.max(8,Math.min(672,p.x)); p.y=Math.max(8,Math.min(552,p.y));
+    if(dragId==='A')A=p; else if(dragId==='B')B=p; else if(dragId==='C')C=p; else if(dragId==='D')D=p;
+    else if(dragId==='E')theta=Math.atan2(p.y-D.y,p.x-D.x);
+    render();
+  }
+  el['sas-hA'].addEventListener('pointerdown',down('A'));
+  el['sas-hB'].addEventListener('pointerdown',down('B'));
+  el['sas-hC'].addEventListener('pointerdown',down('C'));
+  el['sas-hD'].addEventListener('pointerdown',down('D'));
+  el['sas-hE'].addEventListener('pointerdown',down('E'));
+  svg.addEventListener('pointermove',move);
+  window.addEventListener('pointerup',function(){dragId=null;});
+
+  var kS=document.getElementById('sas-k'), kV=document.getElementById('sas-kval');
+  kS.addEventListener('input',function(){k=parseFloat(kS.value);kV.textContent=fmt(k);render();});
+  function tog(id,key){var b=document.getElementById(id);b.addEventListener('click',function(){opt[key]=!opt[key];b.classList.toggle('active',opt[key]);render();});}
+  tog('sas-tSides','sides'); tog('sas-tAngles','angles');
+
+  var drawer=document.getElementById('sas-drawer'), backdrop=document.getElementById('sas-backdrop');
+  function openD(){drawer.classList.add('open');backdrop.classList.add('open');}
+  function closeD(){drawer.classList.remove('open');backdrop.classList.remove('open');}
+  document.getElementById('sas-info-btn').addEventListener('click',function(){drawer.classList.contains('open')?closeD():openD();});
+  document.getElementById('sas-close').addEventListener('click',closeD);
+  backdrop.addEventListener('click',closeD);
+  document.addEventListener('keydown',function(e){if(e.key==='Escape')closeD();});
+
+  render();
+})();
+</script>
+<script defer src="site-chrome.js"></script>
+</body>
+</html>

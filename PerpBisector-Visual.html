@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<script>/*gp-noflash*/(function(){try{var t=localStorage.getItem('gp:theme')||(matchMedia('(prefers-color-scheme:dark)').matches?'dark':'light');document.documentElement.setAttribute('data-theme',t);if(t==='dark'){var s=document.createElement('style');s.textContent='html[data-theme=dark]{background:#14151a}html[data-theme=dark] body{background:#14151a!important;color:#e6e6e8!important}';document.head.appendChild(s);}}catch(e){}})();</script>
+<title>GeoProof — Perpendicular Bisector explorer</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="Drag a point and see it stay equally far from two fixed points exactly when it's on the bisector.">
+<link rel="canonical" href="https://richard4481234.github.io/geoproof/PerpBisector-Visual.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="GeoProof">
+<meta property="og:title" content="Perpendicular Bisector — GeoProof">
+<meta property="og:description" content="Drag a point and see it stay equally far from two fixed points exactly when it's on the bisector.">
+<meta property="og:url" content="https://richard4481234.github.io/geoproof/PerpBisector-Visual.html">
+<meta property="og:image" content="https://richard4481234.github.io/geoproof/og/PerpBisector-Visual.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Perpendicular Bisector — GeoProof">
+<meta name="twitter:description" content="Drag a point and see it stay equally far from two fixed points exactly when it's on the bisector.">
+<meta name="twitter:image" content="https://richard4481234.github.io/geoproof/og/PerpBisector-Visual.png">
+<style>
+  body{background:#f4f4f5;display:flex;justify-content:center;padding:40px 16px;font-family:sans-serif;}
+  .widget{width:680px;max-width:100%;}
+  .card{background:#ffffff;border:1px solid #e2e2e2;padding:1.25rem;}
+  .sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;}
+  #pb-svg{width:100%;height:auto;display:block;touch-action:none;}
+  .handle{cursor:grab;}
+  .handle:active{cursor:grabbing;}
+  .swatch{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:6px;vertical-align:middle;}
+  .toggle-btn{padding:6px 14px;border-radius:999px;border:1px solid #d8d8d8;background:#f4f4f5;color:#888888;font-size:13px;font-weight:500;cursor:pointer;}
+  .toggle-btn.active{background:#1a1a1a;color:#ffffff;border-color:#1a1a1a;}
+  .stage{position:relative;border-radius:12px;overflow:hidden;border:1px solid #e2e2e2;}
+  .stage .card{border:none;}
+  .info-toggle{position:absolute;top:14px;right:14px;z-index:30;background:#1a1a1a;color:#ffffff;border:none;border-radius:999px;padding:7px 14px;font-size:13px;font-weight:500;cursor:pointer;}
+  .info-toggle:hover{background:#333333;}
+  .info-backdrop{position:absolute;inset:0;background:rgba(0,0,0,0.22);opacity:0;visibility:hidden;transition:opacity .2s ease;z-index:25;}
+  .info-backdrop.open{opacity:1;visibility:visible;}
+  .info-drawer{position:absolute;top:0;right:0;height:100%;width:320px;max-width:88%;background:#ffffff;border-left:1px solid #e2e2e2;box-shadow:-8px 0 24px rgba(0,0,0,0.14);padding:22px 20px;overflow-y:auto;transform:translateX(100%);transition:transform .25s ease;z-index:28;box-sizing:border-box;}
+  .info-drawer.open{transform:translateX(0);}
+  .info-close{position:absolute;top:14px;right:14px;background:#f4f4f5;border:1px solid #e2e2e2;border-radius:50%;width:28px;height:28px;font-size:14px;cursor:pointer;color:#555555;}
+  .info-drawer h3{font-size:17px;margin:6px 0 12px;padding-right:30px;color:#1a1a1a;}
+  .info-drawer h4{font-size:12px;margin:18px 0 6px;color:#666666;text-transform:uppercase;letter-spacing:.04em;}
+  .info-drawer p{font-size:13.5px;line-height:1.55;color:#333333;margin:0 0 10px;}
+  .formula-box{background:#f4f4f5;border-radius:8px;padding:10px 12px;text-align:center;font-size:13.5px;font-weight:600;margin:10px 0;color:#1a1a1a;}
+  .widget svg text{paint-order:stroke;stroke:#ffffff;stroke-width:3px;stroke-linejoin:round;stroke-opacity:0.92;}
+</style>
+</head>
+<body>
+<div class="widget">
+<div style="margin-bottom:12px;"><a href="index.html" style="font-size:14px;color:#1a1a1a;text-decoration:none;">&larr; GeoProof</a></div>
+<div class="stage">
+<div class="card">
+<h2 class="sr-only">Two fixed points A and B are joined by a segment. The perpendicular bisector — the line that crosses the segment at its midpoint at a right angle — is drawn. Drag the point P, or the points A and B. The distance from P to A and from P to B are shown. P is the same distance from A and from B exactly when it sits on the perpendicular bisector. A toggle snaps P onto the line so the two distances always match. An info button opens a drawer explaining the idea.</h2>
+<svg id="pb-svg" viewBox="0 0 680 560" aria-hidden="true">
+  <line id="bisector" stroke="#8B5FBF" stroke-width="2.5" stroke-linecap="round"></line>
+  <line id="seg-ab" stroke="#1a1a1a" stroke-width="2.5" stroke-linecap="round"></line>
+  <line id="pa" stroke="#378ADD" stroke-width="3" stroke-linecap="round"></line>
+  <line id="pb" stroke="#D4537E" stroke-width="3" stroke-linecap="round"></line>
+  <polyline id="rt-mark" fill="none" stroke="#999999" stroke-width="1.5"></polyline>
+  <circle id="dot-M" r="3.5" fill="#8B5FBF"></circle>
+  <text id="lab-pa" text-anchor="middle" dominant-baseline="middle" fill="#185FA5" font-size="13" font-weight="600"></text>
+  <text id="lab-pb" text-anchor="middle" dominant-baseline="middle" fill="#993556" font-size="13" font-weight="600"></text>
+  <text id="tag-A" text-anchor="middle" dominant-baseline="middle" fill="#1a1a1a" font-size="14" font-weight="700">A</text>
+  <text id="tag-B" text-anchor="middle" dominant-baseline="middle" fill="#1a1a1a" font-size="14" font-weight="700">B</text>
+  <text id="tag-P" text-anchor="middle" dominant-baseline="middle" fill="#5B3886" font-size="14" font-weight="700">P</text>
+  <circle id="handle-A" class="handle" r="11" fill="#ffffff" stroke="#1a1a1a" stroke-width="2"></circle>
+  <circle id="handle-B" class="handle" r="11" fill="#ffffff" stroke="#1a1a1a" stroke-width="2"></circle>
+  <circle id="handle-P" class="handle" r="12" fill="#ffffff" stroke="#8B5FBF" stroke-width="3"></circle>
+</svg>
+
+<div style="display:flex; justify-content:center; gap:10px; flex-wrap:wrap; margin-top:0.75rem;">
+  <button type="button" id="toggle-snap" class="toggle-btn">Snap P to the bisector</button>
+  <button type="button" id="toggle-labels" class="toggle-btn active">Distance labels</button>
+</div>
+
+<div style="display:flex; justify-content:center; margin-top:0.85rem;">
+  <span id="status-badge" style="display:inline-block; padding:4px 14px; border-radius:999px; font-size:14px; font-weight:500;"></span>
+</div>
+
+<div id="formula-symbolic" style="text-align:center; font-size:14px; font-weight:600; color:#1a1a1a; margin-top:1.1rem;">P is on the perpendicular bisector ⟺ PA = PB</div>
+
+<div id="eq-row" style="display:flex; align-items:center; justify-content:center; gap:10px; flex-wrap:wrap; margin-top:0.6rem; font-size:15px; color:#1a1a1a;"></div>
+<div id="detail-row" style="text-align:center; font-size:12.5px; color:#777777; margin-top:0.55rem;"></div>
+</div>
+
+<button type="button" id="info-toggle-btn" class="info-toggle">ⓘ About this concept</button>
+<div id="info-backdrop" class="info-backdrop"></div>
+<aside id="info-drawer" class="info-drawer">
+  <button type="button" id="info-close" class="info-close" aria-label="Close">✕</button>
+  <h3>The Perpendicular Bisector</h3>
+  <p>The <i>perpendicular bisector</i> of a segment AB is the line that passes through the segment's midpoint at a right angle. Its defining property is about distance:</p>
+  <div class="formula-box">a point is equidistant from A and B ⟺ it lies on the perpendicular bisector</div>
+  <p>So the perpendicular bisector is exactly the set (the "locus") of all points the same distance from A as from B.</p>
+  <h4>Both directions</h4>
+  <p>If P is on the line, then PA = PB (drag P along it and watch the two distances stay equal). And conversely, any point with PA = PB has to be on that line — there is nowhere else to be equidistant.</p>
+  <h4>Why it's true</h4>
+  <p>Joining P to the midpoint M of AB makes two right triangles that share the side PM and have equal halves MA = MB. They are congruent, so PA = PB. Run the argument backwards for the converse.</p>
+  <h4>Where it's used</h4>
+  <p>Three perpendicular bisectors of a triangle's sides meet at the circumcenter — the point equidistant from all three vertices. The idea also drives "nearest-point" partitions (Voronoi diagrams) and many constructions.</p>
+</aside>
+</div>
+</div>
+
+<script>
+(function(){
+  var svg=document.getElementById('pb-svg');
+  var A={x:230,y:330}, B={x:470,y:330}, P={x:340,y:170};
+  var snap=false, showLabels=true;
+
+  function sub(p,q){return {x:p.x-q.x,y:p.y-q.y};}
+  function len(v){return Math.hypot(v.x,v.y);}
+  function mid(p,q){return {x:(p.x+q.x)/2,y:(p.y+q.y)/2};}
+  function fmt(n){ var r=Math.round(n*10)/10; return (Math.abs(r-Math.round(r))<1e-9)?Math.round(r).toString():r.toFixed(1); }
+  var UNIT=30;
+
+  var bisector=document.getElementById('bisector');
+  var segAB=document.getElementById('seg-ab');
+  var paEl=document.getElementById('pa'), pbEl=document.getElementById('pb');
+  var rtMark=document.getElementById('rt-mark');
+  var dotM=document.getElementById('dot-M');
+  var labPA=document.getElementById('lab-pa'), labPB=document.getElementById('lab-pb');
+  var tagA=document.getElementById('tag-A'), tagB=document.getElementById('tag-B'), tagP=document.getElementById('tag-P');
+  var hA=document.getElementById('handle-A'), hB=document.getElementById('handle-B'), hP=document.getElementById('handle-P');
+  var statusBadge=document.getElementById('status-badge');
+  var eqRow=document.getElementById('eq-row');
+  var detailRow=document.getElementById('detail-row');
+  var toggleSnap=document.getElementById('toggle-snap');
+  var toggleLabels=document.getElementById('toggle-labels');
+
+  function setLine(el,p,q){ el.setAttribute('x1',p.x); el.setAttribute('y1',p.y); el.setAttribute('x2',q.x); el.setAttribute('y2',q.y); }
+  function disp(el,on){ el.style.display=on?'block':'none'; }
+
+  function update(){
+    var M=mid(A,B);
+    var d=sub(B,A), l=len(d)||1, u={x:d.x/l,y:d.y/l}, perp={x:-u.y,y:u.x};
+
+    if(snap){ // project P onto the perpendicular bisector (through M along perp)
+      var t=(P.x-M.x)*perp.x+(P.y-M.y)*perp.y;
+      P={x:M.x+perp.x*t, y:M.y+perp.y*t};
+    }
+
+    // perpendicular bisector drawn long
+    setLine(bisector,{x:M.x-perp.x*900,y:M.y-perp.y*900},{x:M.x+perp.x*900,y:M.y+perp.y*900});
+    setLine(segAB,A,B);
+    dotM.setAttribute('cx',M.x); dotM.setAttribute('cy',M.y);
+
+    // right-angle mark at M between the segment and the bisector
+    var m1={x:M.x+u.x*12,y:M.y+u.y*12}, m2={x:M.x+u.x*12+perp.x*12,y:M.y+u.y*12+perp.y*12}, m3={x:M.x+perp.x*12,y:M.y+perp.y*12};
+    rtMark.setAttribute('points', m1.x+','+m1.y+' '+m2.x+','+m2.y+' '+m3.x+','+m3.y);
+
+    setLine(paEl,P,A); setLine(pbEl,P,B);
+    hA.setAttribute('cx',A.x); hA.setAttribute('cy',A.y);
+    hB.setAttribute('cx',B.x); hB.setAttribute('cy',B.y);
+    hP.setAttribute('cx',P.x); hP.setAttribute('cy',P.y);
+    tagA.setAttribute('x',A.x-14); tagA.setAttribute('y',A.y+14);
+    tagB.setAttribute('x',B.x+14); tagB.setAttribute('y',B.y+14);
+    tagP.setAttribute('x',P.x); tagP.setAttribute('y',P.y-18);
+
+    var PA=len(sub(P,A))/UNIT, PB=len(sub(P,B))/UNIT;
+    var mPA=mid(P,A), mPB=mid(P,B);
+    labPA.setAttribute('x',mPA.x-8); labPA.setAttribute('y',mPA.y-8); labPA.textContent='PA='+fmt(PA);
+    labPB.setAttribute('x',mPB.x+8); labPB.setAttribute('y',mPB.y-8); labPB.textContent='PB='+fmt(PB);
+    disp(labPA,showLabels); disp(labPB,showLabels);
+
+    var diff=Math.abs(PA-PB);
+    var onLine=diff<0.06*Math.max(1,PA);
+    statusBadge.textContent=onLine?'P is on the bisector — PA = PB':'P is off the bisector — PA ≠ PB';
+    statusBadge.style.background=onLine?'#EDE6F6':'#FAECE7'; statusBadge.style.color=onLine?'#3F2A5C':'#4A1B0C';
+
+    eqRow.innerHTML =
+      '<span><span class="swatch" style="background:#378ADD"></span>PA = '+fmt(PA)+'</span>'+
+      '<b style="color:'+(onLine?'#1d9e75':'#e24b4a')+';font-size:18px;">'+(onLine?'=':'≠')+'</b>'+
+      '<span><span class="swatch" style="background:#D4537E"></span>PB = '+fmt(PB)+'</span>'+
+      (onLine?'<span style="color:#1d9e75;font-weight:700;">&check;</span>':'<span style="color:#e24b4a;font-size:12.5px;">(off by '+fmt(diff)+')</span>');
+
+    detailRow.textContent=snap?'P is locked on the perpendicular bisector, so PA = PB exactly — drag it along the line.':'Drag P onto the purple line (or snap it) to make PA = PB.';
+  }
+
+  var dragging=null;
+  function toSvgPoint(evt){
+    var rect=svg.getBoundingClientRect();
+    var vb=svg.viewBox.baseVal;
+    return { x:(evt.clientX-rect.left)/rect.width*vb.width+vb.x, y:(evt.clientY-rect.top)/rect.height*vb.height+vb.y };
+  }
+  function onDown(key){
+    return function(e){
+      dragging=key;
+      if(e.target.setPointerCapture){ try{ e.target.setPointerCapture(e.pointerId); }catch(err){} }
+      e.preventDefault();
+    };
+  }
+  function onMove(e){
+    if(!dragging) return;
+    var p=toSvgPoint(e);
+    p={x:Math.min(660,Math.max(20,p.x)), y:Math.min(540,Math.max(20,p.y))};
+    if(dragging==='A') A=p; else if(dragging==='B') B=p; else P=p;
+    update();
+  }
+  function onUp(){ dragging=null; }
+  hA.addEventListener('pointerdown',onDown('A'));
+  hB.addEventListener('pointerdown',onDown('B'));
+  hP.addEventListener('pointerdown',onDown('P'));
+  svg.addEventListener('pointermove',onMove);
+  window.addEventListener('pointerup',onUp);
+
+  toggleSnap.addEventListener('click',function(){ snap=!snap; toggleSnap.classList.toggle('active',snap); update(); });
+  toggleLabels.addEventListener('click',function(){ showLabels=!showLabels; toggleLabels.classList.toggle('active',showLabels); update(); });
+
+  var infoToggle=document.getElementById('info-toggle-btn');
+  var infoDrawer=document.getElementById('info-drawer');
+  var infoBackdrop=document.getElementById('info-backdrop');
+  var infoClose=document.getElementById('info-close');
+  function openDrawer(){ infoDrawer.classList.add('open'); infoBackdrop.classList.add('open'); }
+  function closeDrawer(){ infoDrawer.classList.remove('open'); infoBackdrop.classList.remove('open'); }
+  infoToggle.addEventListener('click',function(){
+    if(infoDrawer.classList.contains('open')) closeDrawer(); else openDrawer();
+  });
+  infoClose.addEventListener('click',closeDrawer);
+  infoBackdrop.addEventListener('click',closeDrawer);
+  document.addEventListener('keydown',function(e){ if(e.key==='Escape') closeDrawer(); });
+
+  update();
+})();
+</script>
+<script defer src="site-chrome.js"></script>
+</body>
+</html>

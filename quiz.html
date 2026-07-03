@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<script>/*gp-noflash*/(function(){try{var t=localStorage.getItem('gp:theme')||(matchMedia('(prefers-color-scheme:dark)').matches?'dark':'light');document.documentElement.setAttribute('data-theme',t);if(t==='dark'){var s=document.createElement('style');s.textContent='html[data-theme=dark]{background:#14151a}html[data-theme=dark] body{background:#14151a!important;color:#e6e6e8!important}';document.head.appendChild(s);}}catch(e){}})();</script>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Quiz — GeoProof</title>
+<meta name="description" content="A quick geometry practice quiz — ten multiple-choice questions on triangles, circles, angles, and more, with instant feedback and links to the matching interactive explorer.">
+<link rel="canonical" href="https://richard4481234.github.io/geoproof/quiz.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="GeoProof">
+<meta property="og:title" content="Quiz — GeoProof">
+<meta property="og:description" content="A quick geometry practice quiz with instant feedback and links to the matching interactive explorer.">
+<meta property="og:url" content="https://richard4481234.github.io/geoproof/quiz.html">
+<meta property="og:image" content="https://richard4481234.github.io/geoproof/og-image.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Quiz — GeoProof">
+<meta name="twitter:description" content="A quick geometry practice quiz with instant feedback and links to the matching explorer.">
+<meta name="twitter:image" content="https://richard4481234.github.io/geoproof/og-image.png">
+<style>
+  *{box-sizing:border-box;}
+  body{margin:0;background:#f4f4f5;color:#1a1a1a;font-family:system-ui,-apple-system,sans-serif;line-height:1.6;}
+  .quiz-wrap{max-width:640px;margin:0 auto;padding:40px 20px 64px;}
+  .eyebrow{font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#8a8f98;}
+  h1{font-size:36px;font-weight:800;letter-spacing:-0.02em;margin:10px 0 10px;}
+  .lead{font-size:17px;color:#444444;margin:0 0 20px;}
+  .quiz-card{background:#ffffff;border:1px solid #e2e2e2;border-radius:14px;padding:22px;}
+  .progress-bar{height:6px;background:#eeeeee;border-radius:3px;overflow:hidden;margin-bottom:16px;}
+  .progress-fill{height:100%;background:#1a1a1a;width:0;transition:width .2s ease;}
+  .q-top{display:flex;justify-content:space-between;font-size:12px;color:#8a8f98;font-weight:700;text-transform:uppercase;letter-spacing:.04em;margin-bottom:12px;}
+  .q-text{font-size:18px;font-weight:600;margin:0 0 16px;line-height:1.4;}
+  .q-choices{display:flex;flex-direction:column;gap:10px;}
+  .q-choice{text-align:left;border:1px solid #d8d8d8;background:#ffffff;border-radius:10px;padding:12px 15px;font-size:15px;cursor:pointer;font-family:inherit;color:#1a1a1a;transition:border-color .12s ease,background .12s ease;}
+  .q-choice:hover:not(:disabled){border-color:#1a1a1a;}
+  .q-choice:disabled{cursor:default;}
+  .q-choice.correct{border-color:#1e7a3c;background:#e6f4ea;color:#11622e;font-weight:600;}
+  .q-choice.wrong{border-color:#b22a28;background:#fce7e7;color:#8a1f1d;}
+  .q-explain{margin-top:15px;font-size:14px;color:#444444;background:#f6f6f7;border-radius:10px;padding:12px 14px;}
+  .q-explain a{color:#185FA5;font-weight:600;text-decoration:none;}
+  .q-explain a:hover{text-decoration:underline;}
+  .q-next{margin-top:16px;background:#1a1a1a;color:#ffffff;border:none;font-weight:600;font-size:15px;padding:11px 22px;border-radius:999px;cursor:pointer;font-family:inherit;}
+  .q-next:hover{background:#000000;}
+  .q-result{text-align:center;padding:10px 0;}
+  .q-score{font-size:46px;font-weight:800;letter-spacing:-0.02em;margin:6px 0;}
+  .q-msg{font-size:16px;color:#444444;margin:0 0 8px;}
+  .q-best{font-size:13px;color:#8a8f98;margin:0 0 18px;}
+  .q-actions{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;}
+  .q-ghost{display:inline-block;text-decoration:none;background:#ffffff;color:#1a1a1a;border:1px solid #d8d8d8;font-weight:600;font-size:14px;padding:10px 18px;border-radius:999px;cursor:pointer;font-family:inherit;}
+  .q-ghost:hover{border-color:#1a1a1a;}
+</style>
+</head>
+<body>
+<main class="quiz-wrap">
+  <div class="eyebrow">Practice</div>
+  <h1>Quick quiz</h1>
+  <p class="lead">Ten random questions to test your geometry. You'll get instant feedback and a link to the matching explorer for anything you want to revisit.</p>
+  <div class="quiz-card" id="quizCard"></div>
+</main>
+
+<script>
+(function(){
+  var BANK=[
+    {q:"In any triangle, the three interior angles add up to:",correct:"180°",others:["360°","90°","It depends on the triangle"],x:"The interior angles of every triangle total exactly 180°.",f:"TriangleAngleSum-Visual.html",t:"Triangle Angle Sum"},
+    {q:"An exterior angle of a triangle equals:",correct:"the sum of the two remote interior angles",others:["the adjacent interior angle","always 90°","half the opposite angle"],x:"Each exterior angle equals the sum of the two interior angles not next to it.",f:"ExteriorAngle-Visual.html",t:"Exterior Angle Theorem"},
+    {q:"An inscribed angle is ___ the central angle subtending the same arc.",correct:"half",others:["twice","equal to","one third of"],x:"The central angle is always exactly twice any inscribed angle on the same arc.",f:"InscribedAngle-Visual.html",t:"Inscribed Angle Theorem"},
+    {q:"For a right triangle with legs a, b and hypotenuse c:",correct:"a² + b² = c²",others:["a + b = c","a² + b² = 2c²","a·b = c²"],x:"The Pythagorean theorem: the squares of the legs sum to the square of the hypotenuse.",f:"GeoProof-Visual.html",t:"Pythagorean Theorem"},
+    {q:"The centroid divides each median in the ratio (vertex : midpoint):",correct:"2 : 1",others:["1 : 1","3 : 1","1 : 2"],x:"The centroid sits two-thirds of the way along each median from the vertex.",f:"CentroidMedians-Visual.html",t:"Centroid & the 2:1 Median"},
+    {q:"The circumcenter of a triangle is equidistant from its:",correct:"three vertices",others:["three sides","two longest sides","side midpoints only"],x:"The circumcenter is the same distance R from all three vertices.",f:"Circumcircle-Visual.html",t:"Circumcenter & Circumcircle"},
+    {q:"The incenter of a triangle is equidistant from its:",correct:"three sides",others:["three vertices","two vertices","circumcircle"],x:"The incenter is the same distance r from all three sides — the inradius.",f:"Incircle-Visual.html",t:"Incenter & Incircle"},
+    {q:"The orthocenter is where a triangle's three ___ meet.",correct:"altitudes",others:["medians","angle bisectors","perpendicular bisectors of the sides"],x:"The three altitudes (vertex ⟂ opposite side) are concurrent at the orthocenter.",f:"Orthocenter-Visual.html",t:"Orthocenter"},
+    {q:"A tangent to a circle meets the radius at the point of contact at:",correct:"90°",others:["45°","0° (they're parallel)","60°"],x:"The radius to the point of tangency is always perpendicular to the tangent.",f:"TangentRadius-Visual.html",t:"Tangent ⟂ Radius"},
+    {q:"The two tangent segments from an external point to a circle are:",correct:"equal in length",others:["perpendicular","parallel","always equal to the radius"],x:"From any outside point the two tangents have the same length, √(OP²−R²).",f:"EqualTangents-Visual.html",t:"Equal Tangents"},
+    {q:"In a cyclic quadrilateral, each pair of opposite angles sums to:",correct:"180°",others:["90°","360°","270°"],x:"Opposite angles of a quadrilateral inscribed in a circle are supplementary.",f:"CyclicQuadrilateral-Visual.html",t:"Cyclic Quadrilateral"},
+    {q:"The Law of Cosines becomes the Pythagorean theorem when the angle is:",correct:"90°",others:["0°","60°","45°"],x:"cos(90°)=0, so the correction term vanishes and a²+b²=c².",f:"LawOfCosines-Visual.html",t:"Law of Cosines"},
+    {q:"In an equilateral triangle, the distances from any interior point to the three sides sum to:",correct:"the triangle's height",others:["the perimeter","one side length","zero"],x:"Viviani's theorem: that sum always equals the altitude, wherever the point is.",f:"Viviani-Visual.html",t:"Viviani's Theorem"},
+    {q:"A glide reflection is a reflection combined with a:",correct:"translation parallel to the mirror",others:["rotation about a point","second reflection across the same line","dilation"],x:"Reflect across a line, then slide along it — that's a glide reflection.",f:"GlideReflection-Visual.html",t:"Glide Reflection"},
+    {q:"Which transformation reverses orientation yet has no fixed point?",correct:"glide reflection",others:["rotation","translation","reflection"],x:"A plain reflection fixes its mirror line; the glide reflection fixes nothing but still flips.",f:"GlideReflection-Visual.html",t:"Glide Reflection"},
+    {q:"A triangle's midsegment (joining two side midpoints) is parallel to the third side and:",correct:"half its length",others:["equal to it","twice its length","one third of it"],x:"Each midsegment is parallel to a side and exactly half as long.",f:"Midsegment-Visual.html",t:"Triangle Midsegment"},
+    {q:"The diagonals of a parallelogram always:",correct:"bisect each other",others:["are equal in length","are perpendicular","bisect the angles"],x:"They cross at their common midpoint, so each diagonal is cut in half.",f:"ParallelogramDiagonals-Visual.html",t:"Diagonals Bisect"},
+    {q:"The diagonals of a rhombus are always:",correct:"perpendicular",others:["equal in length","parallel","cut into unequal halves"],x:"Equal sides force the diagonals to cross at right angles (and bisect each other).",f:"RhombusDiagonals-Visual.html",t:"Rhombus Diagonals"},
+    {q:"Heron's formula finds a triangle's area from its:",correct:"three side lengths",others:["three angles","circumradius only","one side and the height"],x:"Area = √(s(s−a)(s−b)(s−c)), using only the side lengths.",f:"Heron-Visual.html",t:"Heron's Formula"},
+    {q:"Ptolemy's theorem says the product of a cyclic quadrilateral's diagonals equals:",correct:"the sum of the products of opposite sides",others:["the perimeter","the area","the sum of the four sides"],x:"AC·BD = AB·CD + AD·BC for a quadrilateral inscribed in a circle.",f:"Ptolemy-Visual.html",t:"Ptolemy's Theorem"},
+    {q:"An angle bisector from a vertex splits the opposite side in the ratio of:",correct:"the two sides meeting at that vertex",others:["1 : 1","the two opposite angles","2 : 1"],x:"The bisector of ∠A meets BC at D with BD/DC = AB/AC.",f:"AngleBisector-Visual.html",t:"Angle Bisector Theorem"},
+    {q:"Euler's inequality relates the circumradius R and inradius r by:",correct:"R ≥ 2r",others:["R ≤ 2r","R = r","R ≥ r⁄2"],x:"From OI² = R² − 2Rr ≥ 0, the circumradius is at least twice the inradius.",f:"EulerInequality-Visual.html",t:"Euler's Inequality"},
+    {q:"The exterior angles of any convex polygon sum to:",correct:"360°",others:["180°","(n−2)·180°","it depends on the number of sides"],x:"Walk once around any convex polygon and the turns total a full 360°.",f:"PolygonExteriorAngleSum-Visual.html",t:"Sum of Exterior Angles"},
+    {q:"Vertical (opposite) angles formed by two crossing lines are:",correct:"equal",others:["supplementary","complementary","always right angles"],x:"Opposite angles at an intersection are always equal; neighbours are supplementary.",f:"VerticalAngles-Visual.html",t:"Vertical Angles"}
+  ];
+  var ROUND=10, BK='gp:quizbest';
+  var card=document.getElementById('quizCard');
+  var quiz, idx, score;
+
+  function shuffle(a){ for(var i=a.length-1;i>0;i--){ var j=Math.floor(Math.random()*(i+1)), t=a[i]; a[i]=a[j]; a[j]=t; } return a; }
+  function esc(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+  function start(){ quiz=shuffle(BANK.slice()).slice(0,Math.min(ROUND,BANK.length)); idx=0; score=0; renderQ(); }
+
+  function renderQ(){
+    if(idx>=quiz.length){ return renderResult(); }
+    var it=quiz[idx], answered=false;
+    var choices=shuffle([it.correct].concat(it.others));
+    var pct=Math.round(idx/quiz.length*100);
+    var html='<div class="progress-bar"><div class="progress-fill" style="width:'+pct+'%"></div></div>'
+      +'<div class="q-top"><span>Question '+(idx+1)+' of '+quiz.length+'</span><span>Score '+score+'</span></div>'
+      +'<p class="q-text">'+esc(it.q)+'</p><div class="q-choices">';
+    choices.forEach(function(c,i){ html+='<button type="button" class="q-choice" data-i="'+i+'">'+esc(c)+'</button>'; });
+    html+='</div><div id="qFoot"></div>';
+    card.innerHTML=html;
+    var btns=card.querySelectorAll('.q-choice');
+    Array.prototype.forEach.call(btns,function(b){
+      b.addEventListener('click',function(){
+        if(answered) return; answered=true;
+        var chosen=choices[+b.getAttribute('data-i')], ok=(chosen===it.correct);
+        if(ok) score++;
+        Array.prototype.forEach.call(btns,function(x){
+          x.disabled=true;
+          var cv=choices[+x.getAttribute('data-i')];
+          if(cv===it.correct) x.classList.add('correct');
+          else if(x===b) x.classList.add('wrong');
+        });
+        var foot=document.getElementById('qFoot');
+        foot.innerHTML='<div class="q-explain">'+(ok?'<b style="color:#1e7a3c">Correct.</b> ':'<b style="color:#b22a28">Not quite.</b> ')
+          +esc(it.x)+' <a href="'+it.f+'">Open the '+esc(it.t)+' explorer →</a></div>'
+          +'<button type="button" class="q-next" id="qNext">'+(idx+1>=quiz.length?'See results':'Next question')+'</button>';
+        document.getElementById('qNext').addEventListener('click',function(){ idx++; renderQ(); });
+      });
+    });
+  }
+
+  function renderResult(){
+    var best=0; try{ best=parseInt(localStorage.getItem(BK)||'0',10)||0; }catch(e){}
+    if(score>best){ best=score; try{ localStorage.setItem(BK,String(best)); }catch(e){} }
+    var pct=Math.round(score/quiz.length*100);
+    var msg = pct===100?"Perfect score! ⭐" : pct>=80?"Great work." : pct>=50?"Nice — keep going." : "Worth another round.";
+    card.innerHTML='<div class="q-result">'
+      +'<div class="q-top" style="justify-content:center">Round complete</div>'
+      +'<div class="q-score">'+score+' / '+quiz.length+'</div>'
+      +'<p class="q-msg">'+msg+'</p>'
+      +'<p class="q-best">Best so far: '+best+' / '+quiz.length+'</p>'
+      +'<div class="q-actions"><button type="button" class="q-next" id="qAgain">Play again</button>'
+      +'<a class="q-ghost" href="index.html">Browse explorers</a></div></div>';
+    document.getElementById('qAgain').addEventListener('click',start);
+  }
+
+  start();
+})();
+</script>
+<script defer src="site-chrome.js"></script>
+</body>
+</html>

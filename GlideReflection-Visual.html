@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<script>/*gp-noflash*/(function(){try{var t=localStorage.getItem('gp:theme')||(matchMedia('(prefers-color-scheme:dark)').matches?'dark':'light');document.documentElement.setAttribute('data-theme',t);if(t==='dark'){var s=document.createElement('style');s.textContent='html[data-theme=dark]{background:#14151a}html[data-theme=dark] body{background:#14151a!important;color:#e6e6e8!important}';document.head.appendChild(s);}}catch(e){}})();</script>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Glide Reflection — GeoProof</title>
+<meta name="description" content="Reflect a triangle across a line, then slide it along that line — the flipped image whose P→P″ midpoints all land on the mirror.">
+<link rel="canonical" href="https://richard4481234.github.io/geoproof/GlideReflection-Visual.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="GeoProof">
+<meta property="og:title" content="Glide Reflection — GeoProof">
+<meta property="og:description" content="Reflect a triangle across a line, then slide it along that line — the flipped image whose P→P″ midpoints all land on the mirror.">
+<meta property="og:url" content="https://richard4481234.github.io/geoproof/GlideReflection-Visual.html">
+<meta property="og:image" content="https://richard4481234.github.io/geoproof/og/GlideReflection-Visual.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Glide Reflection — GeoProof">
+<meta name="twitter:description" content="Reflect a triangle across a line, then slide it along that line — the flipped image whose P→P″ midpoints all land on the mirror.">
+<meta name="twitter:image" content="https://richard4481234.github.io/geoproof/og/GlideReflection-Visual.png">
+<style>
+  body{background:#f4f4f5;display:flex;justify-content:center;padding:40px 16px;font-family:sans-serif;}
+  .widget{width:680px;max-width:100%;}
+  .card{background:#ffffff;border:1px solid #e2e2e2;padding:1.25rem;}
+  .sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;}
+  #gr-svg{width:100%;height:auto;display:block;touch-action:none;}
+  .handle{cursor:grab;}
+  .handle:active{cursor:grabbing;}
+  .swatch{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:6px;vertical-align:middle;}
+  .toggle-btn{padding:6px 14px;border-radius:999px;border:1px solid #d8d8d8;background:#f4f4f5;color:#888888;font-size:13px;font-weight:500;cursor:pointer;}
+  .toggle-btn.active{background:#1a1a1a;color:#ffffff;border-color:#1a1a1a;}
+  .stage{position:relative;border-radius:12px;overflow:hidden;border:1px solid #e2e2e2;}
+  .stage .card{border:none;}
+  .info-toggle{position:absolute;top:14px;right:14px;z-index:30;background:#1a1a1a;color:#ffffff;border:none;border-radius:999px;padding:7px 14px;font-size:13px;font-weight:500;cursor:pointer;}
+  .info-toggle:hover{background:#333333;}
+  .info-backdrop{position:absolute;inset:0;background:rgba(0,0,0,0.22);opacity:0;visibility:hidden;transition:opacity .2s ease;z-index:25;}
+  .info-backdrop.open{opacity:1;visibility:visible;}
+  .info-drawer{position:absolute;top:0;right:0;height:100%;width:320px;max-width:88%;background:#ffffff;border-left:1px solid #e2e2e2;box-shadow:-8px 0 24px rgba(0,0,0,0.14);padding:22px 20px;overflow-y:auto;transform:translateX(100%);transition:transform .25s ease;z-index:28;box-sizing:border-box;}
+  .info-drawer.open{transform:translateX(0);}
+  .info-close{position:absolute;top:14px;right:14px;background:#f4f4f5;border:1px solid #e2e2e2;border-radius:50%;width:28px;height:28px;font-size:14px;cursor:pointer;color:#555555;}
+  .info-drawer h3{font-size:17px;margin:6px 0 12px;padding-right:30px;color:#1a1a1a;}
+  .info-drawer h4{font-size:12px;margin:18px 0 6px;color:#666666;text-transform:uppercase;letter-spacing:.04em;}
+  .info-drawer p{font-size:13.5px;line-height:1.55;color:#333333;margin:0 0 10px;}
+  .formula-box{background:#f4f4f5;border-radius:8px;padding:10px 12px;text-align:center;font-size:15px;font-weight:600;margin:10px 0;color:#1a1a1a;}
+  .widget svg text{paint-order:stroke;stroke:#ffffff;stroke-width:3px;stroke-linejoin:round;stroke-opacity:0.92;}
+</style>
+</head>
+<body>
+<div class="widget">
+<div style="margin-bottom:12px;"><a href="index.html" style="font-size:14px;color:#1a1a1a;text-decoration:none;">&larr; GeoProof</a></div>
+<div class="stage">
+<div class="card">
+<h2 class="sr-only">Drag triangle ABC, the two square handles that define the mirror line m, or the amber handle that sets the glide distance. The image A double-prime B double-prime C double-prime is the triangle reflected across m and then slid along it by a vector parallel to m. This is the fourth plane isometry: orientation is reversed and there is no fixed point. The midpoint of every point and its image lands exactly on the mirror line. Toggles show the reflection step, those midpoints, and the result of applying the glide reflection twice, which is a pure translation. An info button opens a drawer explaining the theorem.</h2>
+<svg id="gr-svg" viewBox="0 0 680 560" aria-hidden="true">
+  <line id="gr-mirror" stroke="#8B5FBF" stroke-width="2.5"></line>
+  <line id="gr-gvec" stroke="#BA7517" stroke-width="4" stroke-linecap="round"></line>
+  <polygon id="gr-gvhead" fill="#BA7517"></polygon>
+  <text id="gr-vlabel" text-anchor="middle" dominant-baseline="middle" fill="#8a5512" font-size="15" font-weight="700">v</text>
+
+  <polygon id="gr-reftri" fill="none" stroke="#9a9a9a" stroke-width="2" stroke-dasharray="5 4"></polygon>
+  <line id="gr-rc0" stroke="#BA7517" stroke-width="1.2" stroke-dasharray="3 3"></line>
+  <line id="gr-rc1" stroke="#BA7517" stroke-width="1.2" stroke-dasharray="3 3"></line>
+  <line id="gr-rc2" stroke="#BA7517" stroke-width="1.2" stroke-dasharray="3 3"></line>
+  <text id="gr-reflabel" text-anchor="middle" dominant-baseline="middle" fill="#777777" font-size="12" font-weight="700">reflected</text>
+
+  <polygon id="gr-img2" fill="#1D9E75" fill-opacity="0.10" stroke="#13694e" stroke-width="2" stroke-dasharray="2 4"></polygon>
+  <line id="gr-t2c0" stroke="#1D9E75" stroke-width="1" stroke-dasharray="2 3"></line>
+  <line id="gr-t2c1" stroke="#1D9E75" stroke-width="1" stroke-dasharray="2 3"></line>
+  <line id="gr-t2c2" stroke="#1D9E75" stroke-width="1" stroke-dasharray="2 3"></line>
+  <text id="gr-img2label" text-anchor="middle" dominant-baseline="middle" fill="#13694e" font-size="12" font-weight="700">2v translation</text>
+
+  <polygon id="gr-orig" fill="#378ADD" fill-opacity="0.14" stroke="#185FA5" stroke-width="2.5"></polygon>
+  <polygon id="gr-img" fill="#D4537E" fill-opacity="0.14" stroke="#993556" stroke-width="2.5"></polygon>
+
+  <line id="gr-mc0" stroke="#5b3886" stroke-width="1" stroke-dasharray="2 3" stroke-opacity="0.7"></line>
+  <line id="gr-mc1" stroke="#5b3886" stroke-width="1" stroke-dasharray="2 3" stroke-opacity="0.7"></line>
+  <line id="gr-mc2" stroke="#5b3886" stroke-width="1" stroke-dasharray="2 3" stroke-opacity="0.7"></line>
+
+  <text id="gr-la0" text-anchor="middle" dominant-baseline="middle" fill="#185FA5" font-size="15" font-weight="700">A</text>
+  <text id="gr-la1" text-anchor="middle" dominant-baseline="middle" fill="#185FA5" font-size="15" font-weight="700">B</text>
+  <text id="gr-la2" text-anchor="middle" dominant-baseline="middle" fill="#185FA5" font-size="15" font-weight="700">C</text>
+  <text id="gr-li0" text-anchor="middle" dominant-baseline="middle" fill="#993556" font-size="15" font-weight="700">A&#8243;</text>
+  <text id="gr-li1" text-anchor="middle" dominant-baseline="middle" fill="#993556" font-size="15" font-weight="700">B&#8243;</text>
+  <text id="gr-li2" text-anchor="middle" dominant-baseline="middle" fill="#993556" font-size="15" font-weight="700">C&#8243;</text>
+  <text id="gr-mlabel" text-anchor="middle" dominant-baseline="middle" fill="#5b3886" font-size="15" font-weight="700">m</text>
+
+  <circle id="gr-md0" r="4.5" fill="#5b3886" stroke="#ffffff" stroke-width="2"></circle>
+  <circle id="gr-md1" r="4.5" fill="#5b3886" stroke="#ffffff" stroke-width="2"></circle>
+  <circle id="gr-md2" r="4.5" fill="#5b3886" stroke="#ffffff" stroke-width="2"></circle>
+
+  <rect id="gr-hM1" class="handle" width="13" height="13" rx="2" fill="#ffffff" stroke="#8B5FBF" stroke-width="2.5"></rect>
+  <rect id="gr-hM2" class="handle" width="13" height="13" rx="2" fill="#ffffff" stroke="#8B5FBF" stroke-width="2.5"></rect>
+  <circle id="gr-hG" class="handle" r="11" fill="#ffffff" stroke="#BA7517" stroke-width="2.5"></circle>
+  <circle id="gr-hA" class="handle" r="12" fill="#ffffff" stroke="#185FA5" stroke-width="2.5"></circle>
+  <circle id="gr-hB" class="handle" r="12" fill="#ffffff" stroke="#185FA5" stroke-width="2.5"></circle>
+  <circle id="gr-hC" class="handle" r="12" fill="#ffffff" stroke="#185FA5" stroke-width="2.5"></circle>
+</svg>
+
+<div style="display:flex; justify-content:center; gap:10px; flex-wrap:wrap; margin-top:0.75rem;">
+  <button type="button" id="gr-tReflect" class="toggle-btn">Reflection step</button>
+  <button type="button" id="gr-tMid" class="toggle-btn active">P→P&#8243; midpoints</button>
+  <button type="button" id="gr-tTwice" class="toggle-btn">Apply twice (→ translation)</button>
+</div>
+
+<div style="display:flex; justify-content:center; margin-top:0.85rem;">
+  <span id="gr-badge" style="display:inline-block; padding:4px 14px; border-radius:999px; font-size:14px; font-weight:500;"></span>
+</div>
+
+<div id="gr-formula" style="text-align:center; font-size:15px; font-weight:600; color:#1a1a1a; margin-top:1.1rem;">glide reflection = reflect across m, then slide by v (∥ m)</div>
+<div id="gr-row" style="display:flex; align-items:center; justify-content:center; gap:10px; flex-wrap:wrap; margin-top:0.6rem; font-size:15px; color:#1a1a1a;"></div>
+<div id="gr-hint" style="text-align:center; font-size:13px; color:#777777; margin-top:0.7rem;">Drag the triangle, the square mirror handles, or the amber handle to change the glide distance.</div>
+</div>
+
+<button type="button" id="gr-info-btn" class="info-toggle">ⓘ About this theorem</button>
+<div id="gr-backdrop" class="info-backdrop"></div>
+<aside id="gr-drawer" class="info-drawer">
+  <button type="button" id="gr-close" class="info-close" aria-label="Close">✕</button>
+  <h3>Glide Reflection</h3>
+  <p>A <b>glide reflection</b> is the composition of a reflection across a line <i>m</i> with a translation by a vector <b>v</b> that is <b>parallel to m</b>. The order doesn't matter — reflect-then-slide and slide-then-reflect give the same result.</p>
+  <div class="formula-box">glide = (reflect over m) + (slide by v ∥ m)</div>
+  <h4>The fourth isometry</h4>
+  <p>Reflection, rotation, and translation are the other three rigid motions of the plane. The glide reflection is the only one that <b>reverses orientation</b> (the image is "flipped") yet has <b>no fixed point</b>. The classic picture is a line of footprints: each step is the previous one reflected and slid forward.</p>
+  <h4>The defining property</h4>
+  <p>For every point P, the midpoint of P and its image P″ lies <b>exactly on the mirror line m</b>. Toggle "P→P″ midpoints" and watch the three midpoints sit on the line wherever you drag.</p>
+  <h4>Apply it twice</h4>
+  <p>Doing a glide reflection twice cancels the two reflections and leaves a pure <b>translation by 2v</b> — no flip, no rotation. Toggle "Apply twice" to see it.</p>
+  <h4>Why it completes the set</h4>
+  <p>Every rigid motion of the plane is one of exactly four kinds: translation, rotation, reflection, or glide reflection. This is the classification of plane isometries.</p>
+</aside>
+</div>
+</div>
+
+<script>
+(function(){
+  var svg=document.getElementById('gr-svg');
+  var UNIT=30;
+  var ids=['gr-mirror','gr-gvec','gr-gvhead','gr-vlabel','gr-reftri','gr-rc0','gr-rc1','gr-rc2','gr-reflabel',
+    'gr-img2','gr-t2c0','gr-t2c1','gr-t2c2','gr-img2label','gr-orig','gr-img','gr-mc0','gr-mc1','gr-mc2',
+    'gr-la0','gr-la1','gr-la2','gr-li0','gr-li1','gr-li2','gr-mlabel','gr-md0','gr-md1','gr-md2',
+    'gr-hM1','gr-hM2','gr-hG','gr-hA','gr-hB','gr-hC'];
+  var el={}; ids.forEach(function(id){ el[id]=document.getElementById(id); });
+  var badge=document.getElementById('gr-badge'), rowEl=document.getElementById('gr-row');
+
+  function sub(a,b){return{x:a.x-b.x,y:a.y-b.y};}
+  function add(a,b){return{x:a.x+b.x,y:a.y+b.y};}
+  function scl(a,k){return{x:a.x*k,y:a.y*k};}
+  function dot(a,b){return a.x*b.x+a.y*b.y;}
+  function len(a){return Math.hypot(a.x,a.y);}
+  function mid(a,b){return{x:(a.x+b.x)/2,y:(a.y+b.y)/2};}
+  function norm(a){var l=len(a)||1;return{x:a.x/l,y:a.y/l};}
+  function cross(a,b){return a.x*b.y-a.y*b.x;}
+  function fmt(n){var r=Math.round(n*100)/100;return (Math.abs(r-Math.round(r))<1e-9)?String(Math.round(r)):r.toFixed(2);}
+  function centroid(a){return scl(a.reduce(add,{x:0,y:0}),1/a.length);}
+  function setLine(id,P,Q){var e=el[id];e.setAttribute('x1',P.x);e.setAttribute('y1',P.y);e.setAttribute('x2',Q.x);e.setAttribute('y2',Q.y);}
+  function setPoly(id,pts){el[id].setAttribute('points',pts.map(function(p){return p.x.toFixed(1)+','+p.y.toFixed(1);}).join(' '));}
+  function setText(id,P,s){var e=el[id];e.setAttribute('x',P.x);e.setAttribute('y',P.y);if(s!==undefined)e.textContent=s;}
+  function setDot(id,P){var e=el[id];e.setAttribute('cx',P.x);e.setAttribute('cy',P.y);}
+  function setRect(id,P){var e=el[id];e.setAttribute('x',P.x-6.5);e.setAttribute('y',P.y-6.5);}
+  function vis(id,on){el[id].style.display=on?'':'none';}
+
+  // ---- state ----
+  var tri=[{x:208,y:150},{x:300,y:118},{x:248,y:236}];
+  var M1={x:150,y:360}, M2={x:540,y:268};
+  var glideD=140;
+  var opt={reflect:false, mids:true, twice:false};
+
+  function geom(){
+    var u=norm(sub(M2,M1)); if(len(sub(M2,M1))<1) u={x:1,y:0};
+    var n={x:-u.y,y:u.x}, P0=M1;
+    return {u:u,n:n,P0:P0,
+      reflect:function(X){var t=dot(sub(X,P0),n);return sub(X,scl(n,2*t));},
+      glide:function(X){var t=dot(sub(X,P0),n);return add(sub(X,scl(n,2*t)),scl(u,glideD));}};
+  }
+  function lineSpan(P0,u){
+    var W=680,H=560,cand=[];
+    if(Math.abs(u.x)>1e-9){cand.push((0-P0.x)/u.x);cand.push((W-P0.x)/u.x);}
+    if(Math.abs(u.y)>1e-9){cand.push((0-P0.y)/u.y);cand.push((H-P0.y)/u.y);}
+    var pts=[];cand.forEach(function(s){var p=add(P0,scl(u,s));if(p.x>=-0.5&&p.x<=W+0.5&&p.y>=-0.5&&p.y<=H+0.5)pts.push(p);});
+    if(pts.length<2)return[add(P0,scl(u,-1000)),add(P0,scl(u,1000))];
+    var a=pts[0],b=pts[1],best=-1;
+    for(var i=0;i<pts.length;i++)for(var j=i+1;j<pts.length;j++){var d=len(sub(pts[i],pts[j]));if(d>best){best=d;a=pts[i];b=pts[j];}}
+    return[a,b];
+  }
+
+  function render(){
+    var g=geom(), u=g.u, n=g.n, P0=g.P0;
+    var img=[g.glide(tri[0]),g.glide(tri[1]),g.glide(tri[2])];
+    var ref=[g.reflect(tri[0]),g.reflect(tri[1]),g.reflect(tri[2])];
+
+    var span=lineSpan(P0,u); setLine('gr-mirror',span[0],span[1]);
+    setText('gr-mlabel',add(span[1],scl(u,-18)));
+
+    // glide vector
+    var gv=add(P0,scl(u,glideD));
+    setLine('gr-gvec',P0,gv);
+    if(Math.abs(glideD)>14){ var ah=scl(u,12),ap=scl(n,6),base=sub(gv,ah);
+      setPoly('gr-gvhead',[gv,add(base,ap),sub(base,ap)]); vis('gr-gvhead',true);
+    } else vis('gr-gvhead',false);
+    setText('gr-vlabel',add(mid(P0,gv),scl(n,-16)));
+
+    // reflection step
+    setPoly('gr-reftri',ref);
+    setLine('gr-rc0',tri[0],ref[0]); setLine('gr-rc1',tri[1],ref[1]); setLine('gr-rc2',tri[2],ref[2]);
+    setText('gr-reflabel',add(centroid(ref),scl(n,-16)));
+    ['gr-reftri','gr-rc0','gr-rc1','gr-rc2','gr-reflabel'].forEach(function(id){ vis(id,opt.reflect); });
+
+    // apply twice
+    var img2=[g.glide(img[0]),g.glide(img[1]),g.glide(img[2])];
+    setPoly('gr-img2',img2);
+    setLine('gr-t2c0',tri[0],img2[0]); setLine('gr-t2c1',tri[1],img2[1]); setLine('gr-t2c2',tri[2],img2[2]);
+    setText('gr-img2label',add(centroid(img2),{x:0,y:22}));
+    ['gr-img2','gr-t2c0','gr-t2c1','gr-t2c2','gr-img2label'].forEach(function(id){ vis(id,opt.twice); });
+
+    // triangles
+    setPoly('gr-orig',tri); setPoly('gr-img',img);
+
+    // midpoints
+    var maxOff=0;
+    for(var i=0;i<3;i++){ var m=mid(tri[i],img[i]); maxOff=Math.max(maxOff,Math.abs(dot(sub(m,P0),n)));
+      setLine('gr-mc'+i,tri[i],img[i]); setDot('gr-md'+i,m); }
+    ['gr-mc0','gr-mc1','gr-mc2','gr-md0','gr-md1','gr-md2'].forEach(function(id){ vis(id,opt.mids); });
+
+    // labels
+    var cT=centroid(tri), cI=centroid(img);
+    for(var k=0;k<3;k++){
+      setText('gr-la'+k,add(tri[k],scl(norm(sub(tri[k],cT)),16)));
+      setText('gr-li'+k,add(img[k],scl(norm(sub(img[k],cI)),16)));
+    }
+
+    // handles
+    setDot('gr-hA',tri[0]); setDot('gr-hB',tri[1]); setDot('gr-hC',tri[2]);
+    setRect('gr-hM1',M1); setRect('gr-hM2',M2); setDot('gr-hG',gv);
+
+    // badge + rows
+    var oT=Math.sign(cross(sub(tri[1],tri[0]),sub(tri[2],tri[0])));
+    var oI=Math.sign(cross(sub(img[1],img[0]),sub(img[2],img[0])));
+    var reversed=(oT!==0&&oI!==0&&oT!==oI);
+    badge.textContent=reversed?'Orientation reversed · no fixed point':'Degenerate — spread the triangle out';
+    badge.style.background=reversed?'#F3EEFA':'#FBF3D9';
+    badge.style.color=reversed?'#4A2B7A':'#5C4813';
+    rowEl.innerHTML=
+      '<span><span class="swatch" style="background:#BA7517"></span>glide distance |v| = '+fmt(Math.abs(glideD)/UNIT)+' units</span>'+
+      '<b style="color:#1d9e75;">·</b>'+
+      '<span>each P→P″ midpoint to m: <b>'+fmt(maxOff)+' px</b> '+(maxOff<0.5?'<span style="color:#1d9e75;font-weight:700;">✓ on the mirror</span>':'')+'</span>';
+  }
+
+  // ---- drag ----
+  var dragId=null;
+  function toSvg(evt){var r=svg.getBoundingClientRect(),vb=svg.viewBox.baseVal,s=evt.touches?evt.touches[0]:evt;return{x:(s.clientX-r.left)/r.width*vb.width+vb.x,y:(s.clientY-r.top)/r.height*vb.height+vb.y};}
+  function down(id){return function(e){dragId=id;if(e.target.setPointerCapture){try{e.target.setPointerCapture(e.pointerId);}catch(err){}}e.preventDefault();};}
+  function move(e){
+    if(!dragId)return; e.preventDefault();
+    var p=toSvg(e); p.x=Math.max(8,Math.min(672,p.x)); p.y=Math.max(8,Math.min(552,p.y));
+    if(dragId==='A')tri[0]=p; else if(dragId==='B')tri[1]=p; else if(dragId==='C')tri[2]=p;
+    else if(dragId==='M1')M1=p; else if(dragId==='M2')M2=p;
+    else if(dragId==='G'){var u=norm(sub(M2,M1));glideD=dot(sub(p,M1),u);}
+    render();
+  }
+  el['gr-hA'].addEventListener('pointerdown',down('A'));
+  el['gr-hB'].addEventListener('pointerdown',down('B'));
+  el['gr-hC'].addEventListener('pointerdown',down('C'));
+  el['gr-hM1'].addEventListener('pointerdown',down('M1'));
+  el['gr-hM2'].addEventListener('pointerdown',down('M2'));
+  el['gr-hG'].addEventListener('pointerdown',down('G'));
+  svg.addEventListener('pointermove',move);
+  window.addEventListener('pointerup',function(){dragId=null;});
+
+  function tog(id,key){var b=document.getElementById(id);b.addEventListener('click',function(){opt[key]=!opt[key];b.classList.toggle('active',opt[key]);render();});}
+  tog('gr-tReflect','reflect'); tog('gr-tMid','mids'); tog('gr-tTwice','twice');
+
+  var drawer=document.getElementById('gr-drawer'), backdrop=document.getElementById('gr-backdrop');
+  function openD(){drawer.classList.add('open');backdrop.classList.add('open');}
+  function closeD(){drawer.classList.remove('open');backdrop.classList.remove('open');}
+  document.getElementById('gr-info-btn').addEventListener('click',function(){drawer.classList.contains('open')?closeD():openD();});
+  document.getElementById('gr-close').addEventListener('click',closeD);
+  backdrop.addEventListener('click',closeD);
+  document.addEventListener('keydown',function(e){if(e.key==='Escape')closeD();});
+
+  render();
+})();
+</script>
+<script defer src="site-chrome.js"></script>
+</body>
+</html>

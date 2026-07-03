@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<script>/*gp-noflash*/(function(){try{var t=localStorage.getItem('gp:theme')||(matchMedia('(prefers-color-scheme:dark)').matches?'dark':'light');document.documentElement.setAttribute('data-theme',t);if(t==='dark'){var s=document.createElement('style');s.textContent='html[data-theme=dark]{background:#14151a}html[data-theme=dark] body{background:#14151a!important;color:#e6e6e8!important}';document.head.appendChild(s);}}catch(e){}})();</script>
+<title>GeoProof — Regular Polygon Area explorer</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="Change the number of sides and see Area = ½·apothem·perimeter approach a circle.">
+<link rel="canonical" href="https://richard4481234.github.io/geoproof/RegularPolygonArea-Visual.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="GeoProof">
+<meta property="og:title" content="Regular Polygon Area — GeoProof">
+<meta property="og:description" content="Change the number of sides and see Area = ½·apothem·perimeter approach a circle.">
+<meta property="og:url" content="https://richard4481234.github.io/geoproof/RegularPolygonArea-Visual.html">
+<meta property="og:image" content="https://richard4481234.github.io/geoproof/og/RegularPolygonArea-Visual.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Regular Polygon Area — GeoProof">
+<meta name="twitter:description" content="Change the number of sides and see Area = ½·apothem·perimeter approach a circle.">
+<meta name="twitter:image" content="https://richard4481234.github.io/geoproof/og/RegularPolygonArea-Visual.png">
+<style>
+  body{background:#f4f4f5;display:flex;justify-content:center;padding:40px 16px;font-family:sans-serif;}
+  .widget{width:680px;max-width:100%;}
+  .card{background:#ffffff;border:1px solid #e2e2e2;padding:1.25rem;}
+  .sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;}
+  #rp-svg{width:100%;height:auto;display:block;touch-action:none;}
+  .handle{cursor:grab;}
+  .handle:active{cursor:grabbing;}
+  .swatch{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:6px;vertical-align:middle;}
+  .toggle-btn{padding:6px 14px;border-radius:999px;border:1px solid #d8d8d8;background:#f4f4f5;color:#888888;font-size:13px;font-weight:500;cursor:pointer;}
+  .toggle-btn.active{background:#1a1a1a;color:#ffffff;border-color:#1a1a1a;}
+  .stage{position:relative;border-radius:12px;overflow:hidden;border:1px solid #e2e2e2;}
+  .stage .card{border:none;}
+  .info-toggle{position:absolute;top:14px;right:14px;z-index:30;background:#1a1a1a;color:#ffffff;border:none;border-radius:999px;padding:7px 14px;font-size:13px;font-weight:500;cursor:pointer;}
+  .info-toggle:hover{background:#333333;}
+  .info-backdrop{position:absolute;inset:0;background:rgba(0,0,0,0.22);opacity:0;visibility:hidden;transition:opacity .2s ease;z-index:25;}
+  .info-backdrop.open{opacity:1;visibility:visible;}
+  .info-drawer{position:absolute;top:0;right:0;height:100%;width:320px;max-width:88%;background:#ffffff;border-left:1px solid #e2e2e2;box-shadow:-8px 0 24px rgba(0,0,0,0.14);padding:22px 20px;overflow-y:auto;transform:translateX(100%);transition:transform .25s ease;z-index:28;box-sizing:border-box;}
+  .info-drawer.open{transform:translateX(0);}
+  .info-close{position:absolute;top:14px;right:14px;background:#f4f4f5;border:1px solid #e2e2e2;border-radius:50%;width:28px;height:28px;font-size:14px;cursor:pointer;color:#555555;}
+  .info-drawer h3{font-size:17px;margin:6px 0 12px;padding-right:30px;color:#1a1a1a;}
+  .info-drawer h4{font-size:12px;margin:18px 0 6px;color:#666666;text-transform:uppercase;letter-spacing:.04em;}
+  .info-drawer p{font-size:13.5px;line-height:1.55;color:#333333;margin:0 0 10px;}
+  .formula-box{background:#f4f4f5;border-radius:8px;padding:10px 12px;text-align:center;font-size:13px;font-weight:600;margin:10px 0;color:#1a1a1a;}
+  .widget svg text{paint-order:stroke;stroke:#ffffff;stroke-width:3px;stroke-linejoin:round;stroke-opacity:0.92;}
+</style>
+</head>
+<body>
+<div class="widget">
+<div style="margin-bottom:12px;"><a href="index.html" style="font-size:14px;color:#1a1a1a;text-decoration:none;">&larr; GeoProof</a></div>
+<div class="stage">
+<div class="card">
+<h2 class="sr-only">A regular polygon is centred at a point. Use the stepper to change the number of sides, or drag the rim handle to change its size. From the centre, the apothem is drawn perpendicular to one side, and a radius is drawn to a corner. The polygon's area equals one half times the apothem times the perimeter. The number of sides, side length, apothem, perimeter and area are shown live. As the number of sides grows, the polygon and its area approach the circle through the corners. An info button opens a drawer with the formula.</h2>
+<svg id="rp-svg" viewBox="0 0 680 560" aria-hidden="true">
+  <circle id="circumcircle" fill="none" stroke="#cccccc" stroke-width="1.2" stroke-dasharray="4,4" style="display:none"></circle>
+  <circle id="incircle" fill="none" stroke="#BA7517" stroke-width="1.2" stroke-dasharray="4,4" style="display:none"></circle>
+  <polygon id="poly" fill="#1D9E75" fill-opacity="0.12" stroke="#1a1a1a" stroke-width="2.5"></polygon>
+  <line id="apothem" stroke="#BA7517" stroke-width="3" stroke-linecap="round"></line>
+  <line id="radius" stroke="#378ADD" stroke-width="3" stroke-linecap="round"></line>
+  <polyline id="rt-mark" fill="none" stroke="#999999" stroke-width="1.5"></polyline>
+  <text id="lab-a" text-anchor="middle" dominant-baseline="middle" fill="#7A4D0B" font-size="12.5" font-weight="600"></text>
+  <text id="lab-R" text-anchor="middle" dominant-baseline="middle" fill="#185FA5" font-size="12.5" font-weight="600"></text>
+  <circle id="dot-O" r="4.5" fill="#1a1a1a"></circle>
+  <circle id="handle-R" class="handle" r="11" fill="#ffffff" stroke="#378ADD" stroke-width="2.5"></circle>
+</svg>
+
+<div style="display:flex; align-items:center; justify-content:center; gap:12px; margin-top:0.85rem; flex-wrap:wrap;">
+  <button type="button" id="dec" class="toggle-btn" aria-label="Fewer sides">−</button>
+  <span id="count-label" style="font-size:15px;font-weight:600;min-width:90px;text-align:center;color:#1a1a1a;">n = 6</span>
+  <button type="button" id="inc" class="toggle-btn" aria-label="More sides">+</button>
+  <button type="button" id="toggle-circles" class="toggle-btn">In/out circles</button>
+</div>
+
+<div style="display:flex; justify-content:center; margin-top:0.85rem;">
+  <span id="status-badge" style="display:inline-block; padding:4px 14px; border-radius:999px; font-size:14px; font-weight:500;"></span>
+</div>
+
+<div id="formula-symbolic" style="text-align:center; font-size:13.5px; font-weight:600; color:#1a1a1a; margin-top:1.1rem;">Area = ½ · apothem · perimeter</div>
+
+<div id="area-row" style="text-align:center; font-size:15px; color:#1a1a1a; margin-top:0.6rem;"></div>
+<div id="detail-row" style="text-align:center; font-size:12.5px; color:#777777; margin-top:0.5rem;"></div>
+</div>
+
+<button type="button" id="info-toggle-btn" class="info-toggle">ⓘ About this formula</button>
+<div id="info-backdrop" class="info-backdrop"></div>
+<aside id="info-drawer" class="info-drawer">
+  <button type="button" id="info-close" class="info-close" aria-label="Close">✕</button>
+  <h3>Area of a Regular Polygon</h3>
+  <p>A regular polygon (all sides and angles equal) has an <i>apothem</i> a — the perpendicular distance from the centre to the middle of a side. Its area is:</p>
+  <div class="formula-box">Area = ½ · a · P &nbsp;(P = perimeter)</div>
+  <p>Equivalently, with n sides of length s, Area = ½·a·(n·s).</p>
+  <h4>Why it works</h4>
+  <p>Join the centre to every corner. This splits the polygon into n identical triangles, each with base s (a side) and height a (the apothem). Each has area ½·a·s, and n of them give ½·a·(n·s) = ½·a·P.</p>
+  <h4>It becomes a circle</h4>
+  <p>As n grows, the apothem approaches the radius R and the perimeter approaches the circumference 2πR, so the area ½·a·P approaches ½·R·2πR = πR². Step n up and watch the polygon hug the circle.</p>
+  <h4>Useful relations</h4>
+  <p>With circumradius R: side s = 2R·sin(180°/n), apothem a = R·cos(180°/n). So everything follows from R and n.</p>
+</aside>
+</div>
+</div>
+
+<script>
+(function(){
+  var svg=document.getElementById('rp-svg');
+  var O={x:340,y:285}, R=180, n=6;
+  var UNIT=30;
+  var showCircles=false;
+
+  function fmt(v){ var r=Math.round(v*10)/10; return (Math.abs(r-Math.round(r))<1e-9)?Math.round(r).toString():r.toFixed(1); }
+  function vert(i){ var a=(-90 + i*360/n)*Math.PI/180; return {x:O.x+R*Math.cos(a), y:O.y+R*Math.sin(a)}; }
+
+  var circum=document.getElementById('circumcircle'), incirc=document.getElementById('incircle');
+  var poly=document.getElementById('poly');
+  var apo=document.getElementById('apothem'), rad=document.getElementById('radius');
+  var rtMark=document.getElementById('rt-mark');
+  var labA=document.getElementById('lab-a'), labR=document.getElementById('lab-R');
+  var dotO=document.getElementById('dot-O'), hR=document.getElementById('handle-R');
+  var countLabel=document.getElementById('count-label');
+  var statusBadge=document.getElementById('status-badge');
+  var areaRow=document.getElementById('area-row'), detailRow=document.getElementById('detail-row');
+  var decBtn=document.getElementById('dec'), incBtn=document.getElementById('inc'), toggleCircles=document.getElementById('toggle-circles');
+
+  function setLine(el,p,q){ el.setAttribute('x1',p.x); el.setAttribute('y1',p.y); el.setAttribute('x2',q.x); el.setAttribute('y2',q.y); }
+  function disp(el,on){ el.style.display=on?'block':'none'; }
+
+  function update(){
+    dotO.setAttribute('cx',O.x); dotO.setAttribute('cy',O.y);
+    var pxs=[]; for(var i=0;i<n;i++){ pxs.push(vert(i)); }
+    poly.setAttribute('points', pxs.map(function(p){return p.x.toFixed(1)+','+p.y.toFixed(1);}).join(' '));
+
+    var V0=pxs[0], V1=pxs[1%n];
+    var mid={x:(V0.x+V1.x)/2,y:(V0.y+V1.y)/2};        // midpoint of a side -> apothem foot
+    setLine(apo,O,mid); setLine(rad,O,V1);
+    hR.setAttribute('cx',vert(0).x); hR.setAttribute('cy',vert(0).y);
+
+    // right-angle mark at mid (apothem ⟂ side)
+    var ua={x:O.x-mid.x,y:O.y-mid.y}, lua=Math.hypot(ua.x,ua.y)||1; ua={x:ua.x/lua*12,y:ua.y/lua*12};
+    var us={x:V1.x-mid.x,y:V1.y-mid.y}, lus=Math.hypot(us.x,us.y)||1; us={x:us.x/lus*12,y:us.y/lus*12};
+    var c1={x:mid.x+ua.x,y:mid.y+ua.y}, c2={x:mid.x+ua.x+us.x,y:mid.y+ua.y+us.y}, c3={x:mid.x+us.x,y:mid.y+us.y};
+    rtMark.setAttribute('points', c1.x+','+c1.y+' '+c2.x+','+c2.y+' '+c3.x+','+c3.y);
+
+    var r=R/UNIT;
+    var apothem=r*Math.cos(Math.PI/n);
+    var side=2*r*Math.sin(Math.PI/n);
+    var perim=n*side;
+    var area=0.5*apothem*perim;
+
+    var ma={x:(O.x+mid.x)/2,y:(O.y+mid.y)/2};
+    labA.setAttribute('x',ma.x-10); labA.setAttribute('y',ma.y); labA.textContent='a='+fmt(apothem);
+    var mr={x:(O.x+V1.x)/2,y:(O.y+V1.y)/2};
+    labR.setAttribute('x',mr.x+12); labR.setAttribute('y',mr.y); labR.textContent='R='+fmt(r);
+
+    disp(circum,showCircles); disp(incirc,showCircles);
+    if(showCircles){
+      circum.setAttribute('cx',O.x); circum.setAttribute('cy',O.y); circum.setAttribute('r',R);
+      incirc.setAttribute('cx',O.x); incirc.setAttribute('cy',O.y); incirc.setAttribute('r',apothem*UNIT);
+    }
+
+    countLabel.textContent='n = '+n;
+    var circleArea=Math.PI*r*r;
+    statusBadge.textContent='n = '+n+'  →  '+fmt(area/circleArea*100)+'% of the circle through the corners';
+    statusBadge.style.background='#E1F5EE'; statusBadge.style.color='#04342C';
+
+    areaRow.innerHTML='<b>Area</b> = ½ · a · P = ½ · '+fmt(apothem)+' · '+fmt(perim)+' = <b style="color:#0F5A3D">'+fmt(area)+'</b>';
+    detailRow.textContent='side s = '+fmt(side)+',  apothem a = '+fmt(apothem)+',  perimeter P = '+fmt(perim)+'   ·   circle (πR²) = '+fmt(circleArea);
+  }
+
+  var dragging=false;
+  function toSvgPoint(evt){
+    var rect=svg.getBoundingClientRect();
+    var vb=svg.viewBox.baseVal;
+    return { x:(evt.clientX-rect.left)/rect.width*vb.width+vb.x, y:(evt.clientY-rect.top)/rect.height*vb.height+vb.y };
+  }
+  hR.addEventListener('pointerdown',function(e){ dragging=true; if(e.target.setPointerCapture){try{e.target.setPointerCapture(e.pointerId);}catch(err){}} e.preventDefault(); });
+  svg.addEventListener('pointermove',function(e){
+    if(!dragging) return;
+    var p=toSvgPoint(e);
+    R=Math.min(235,Math.max(70,Math.hypot(p.x-O.x,p.y-O.y)));
+    update();
+  });
+  window.addEventListener('pointerup',function(){ dragging=false; });
+
+  decBtn.addEventListener('click',function(){ n=Math.max(3,n-1); update(); });
+  incBtn.addEventListener('click',function(){ n=Math.min(20,n+1); update(); });
+  toggleCircles.addEventListener('click',function(){ showCircles=!showCircles; toggleCircles.classList.toggle('active',showCircles); update(); });
+
+  var infoToggle=document.getElementById('info-toggle-btn');
+  var infoDrawer=document.getElementById('info-drawer');
+  var infoBackdrop=document.getElementById('info-backdrop');
+  var infoClose=document.getElementById('info-close');
+  function openDrawer(){ infoDrawer.classList.add('open'); infoBackdrop.classList.add('open'); }
+  function closeDrawer(){ infoDrawer.classList.remove('open'); infoBackdrop.classList.remove('open'); }
+  infoToggle.addEventListener('click',function(){
+    if(infoDrawer.classList.contains('open')) closeDrawer(); else openDrawer();
+  });
+  infoClose.addEventListener('click',closeDrawer);
+  infoBackdrop.addEventListener('click',closeDrawer);
+  document.addEventListener('keydown',function(e){ if(e.key==='Escape') closeDrawer(); });
+
+  update();
+})();
+</script>
+<script defer src="site-chrome.js"></script>
+</body>
+</html>

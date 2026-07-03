@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<script>/*gp-noflash*/(function(){try{var t=localStorage.getItem('gp:theme')||(matchMedia('(prefers-color-scheme:dark)').matches?'dark':'light');document.documentElement.setAttribute('data-theme',t);if(t==='dark'){var s=document.createElement('style');s.textContent='html[data-theme=dark]{background:#14151a}html[data-theme=dark] body{background:#14151a!important;color:#e6e6e8!important}';document.head.appendChild(s);}}catch(e){}})();</script>
+<title>GeoProof — Distance &amp; Midpoint explorer</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="Drag two points on a grid and read off their distance and midpoint from the coordinates.">
+<link rel="canonical" href="https://richard4481234.github.io/geoproof/DistanceMidpoint-Visual.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="GeoProof">
+<meta property="og:title" content="Distance &amp; Midpoint — GeoProof">
+<meta property="og:description" content="Drag two points on a grid and read off their distance and midpoint from the coordinates.">
+<meta property="og:url" content="https://richard4481234.github.io/geoproof/DistanceMidpoint-Visual.html">
+<meta property="og:image" content="https://richard4481234.github.io/geoproof/og/DistanceMidpoint-Visual.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Distance &amp; Midpoint — GeoProof">
+<meta name="twitter:description" content="Drag two points on a grid and read off their distance and midpoint from the coordinates.">
+<meta name="twitter:image" content="https://richard4481234.github.io/geoproof/og/DistanceMidpoint-Visual.png">
+<style>
+  body{background:#f4f4f5;display:flex;justify-content:center;padding:40px 16px;font-family:sans-serif;}
+  .widget{width:680px;max-width:100%;}
+  .card{background:#ffffff;border:1px solid #e2e2e2;padding:1.25rem;}
+  .sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;}
+  #dm-svg{width:100%;height:auto;display:block;touch-action:none;}
+  .handle{cursor:grab;}
+  .handle:active{cursor:grabbing;}
+  .swatch{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:6px;vertical-align:middle;}
+  .toggle-btn{padding:6px 14px;border-radius:999px;border:1px solid #d8d8d8;background:#f4f4f5;color:#888888;font-size:13px;font-weight:500;cursor:pointer;}
+  .toggle-btn.active{background:#1a1a1a;color:#ffffff;border-color:#1a1a1a;}
+  .stage{position:relative;border-radius:12px;overflow:hidden;border:1px solid #e2e2e2;}
+  .stage .card{border:none;}
+  .info-toggle{position:absolute;top:14px;right:14px;z-index:30;background:#1a1a1a;color:#ffffff;border:none;border-radius:999px;padding:7px 14px;font-size:13px;font-weight:500;cursor:pointer;}
+  .info-toggle:hover{background:#333333;}
+  .info-backdrop{position:absolute;inset:0;background:rgba(0,0,0,0.22);opacity:0;visibility:hidden;transition:opacity .2s ease;z-index:25;}
+  .info-backdrop.open{opacity:1;visibility:visible;}
+  .info-drawer{position:absolute;top:0;right:0;height:100%;width:320px;max-width:88%;background:#ffffff;border-left:1px solid #e2e2e2;box-shadow:-8px 0 24px rgba(0,0,0,0.14);padding:22px 20px;overflow-y:auto;transform:translateX(100%);transition:transform .25s ease;z-index:28;box-sizing:border-box;}
+  .info-drawer.open{transform:translateX(0);}
+  .info-close{position:absolute;top:14px;right:14px;background:#f4f4f5;border:1px solid #e2e2e2;border-radius:50%;width:28px;height:28px;font-size:14px;cursor:pointer;color:#555555;}
+  .info-drawer h3{font-size:17px;margin:6px 0 12px;padding-right:30px;color:#1a1a1a;}
+  .info-drawer h4{font-size:12px;margin:18px 0 6px;color:#666666;text-transform:uppercase;letter-spacing:.04em;}
+  .info-drawer p{font-size:13.5px;line-height:1.55;color:#333333;margin:0 0 10px;}
+  .formula-box{background:#f4f4f5;border-radius:8px;padding:10px 12px;text-align:center;font-size:13px;font-weight:600;margin:10px 0;color:#1a1a1a;}
+  .widget svg text{paint-order:stroke;stroke:#ffffff;stroke-width:3px;stroke-linejoin:round;stroke-opacity:0.92;}
+</style>
+</head>
+<body>
+<div class="widget">
+<div style="margin-bottom:12px;"><a href="index.html" style="font-size:14px;color:#1a1a1a;text-decoration:none;">&larr; GeoProof</a></div>
+<div class="stage">
+<div class="card">
+<h2 class="sr-only">A coordinate grid with x and y axes is shown. Two points A and B sit on the grid and snap to whole-number coordinates; drag them. The segment AB is drawn, along with a right triangle whose horizontal leg is the change in x and whose vertical leg is the change in y. The distance from A to B is the square root of the sum of those squared changes. The midpoint of AB is the average of the two points' coordinates. Both the distance and the midpoint are shown live with the numbers from the current points. An info button opens a drawer with the formulas.</h2>
+<svg id="dm-svg" viewBox="0 0 680 560" aria-hidden="true">
+  <g id="grid"></g>
+  <line id="axis-x" stroke="#9a9a9a" stroke-width="1.5"></line>
+  <line id="axis-y" stroke="#9a9a9a" stroke-width="1.5"></line>
+  <line id="leg-dx" stroke="#378ADD" stroke-width="3" stroke-dasharray="5,3"></line>
+  <line id="leg-dy" stroke="#639922" stroke-width="3" stroke-dasharray="5,3"></line>
+  <line id="seg-ab" stroke="#D4537E" stroke-width="3.5" stroke-linecap="round"></line>
+  <text id="lab-dx" text-anchor="middle" dominant-baseline="middle" fill="#185FA5" font-size="12.5" font-weight="600"></text>
+  <text id="lab-dy" text-anchor="middle" dominant-baseline="middle" fill="#3B6D11" font-size="12.5" font-weight="600"></text>
+  <text id="lab-d" text-anchor="middle" dominant-baseline="middle" fill="#993556" font-size="12.5" font-weight="600"></text>
+  <circle id="dot-M" r="5" fill="#BA7517"></circle>
+  <text id="tag-A" text-anchor="middle" dominant-baseline="middle" fill="#1a1a1a" font-size="12.5" font-weight="700"></text>
+  <text id="tag-B" text-anchor="middle" dominant-baseline="middle" fill="#1a1a1a" font-size="12.5" font-weight="700"></text>
+  <text id="tag-M" text-anchor="middle" dominant-baseline="middle" fill="#7A4D0B" font-size="12.5" font-weight="700"></text>
+  <circle id="handle-A" class="handle" r="11" fill="#ffffff" stroke="#1a1a1a" stroke-width="2.5"></circle>
+  <circle id="handle-B" class="handle" r="11" fill="#ffffff" stroke="#1a1a1a" stroke-width="2.5"></circle>
+</svg>
+
+<div style="display:flex; justify-content:center; gap:10px; flex-wrap:wrap; margin-top:0.75rem;">
+  <button type="button" id="toggle-tri" class="toggle-btn active">Right triangle (Δx, Δy)</button>
+  <button type="button" id="toggle-mid" class="toggle-btn active">Midpoint</button>
+</div>
+
+<div style="display:flex; justify-content:center; margin-top:0.85rem;">
+  <span id="status-badge" style="display:inline-block; padding:4px 14px; border-radius:999px; font-size:14px; font-weight:500;"></span>
+</div>
+
+<div id="dist-row" style="text-align:center; font-size:14.5px; color:#1a1a1a; margin-top:1rem;"></div>
+<div id="mid-row" style="text-align:center; font-size:14.5px; color:#1a1a1a; margin-top:0.5rem;"></div>
+</div>
+
+<button type="button" id="info-toggle-btn" class="info-toggle">ⓘ About these formulas</button>
+<div id="info-backdrop" class="info-backdrop"></div>
+<aside id="info-drawer" class="info-drawer">
+  <button type="button" id="info-close" class="info-close" aria-label="Close">✕</button>
+  <h3>Distance &amp; Midpoint</h3>
+  <p>On the coordinate plane, two points A = (x₁, y₁) and B = (x₂, y₂) have a distance and a midpoint given by simple formulas:</p>
+  <div class="formula-box">distance = √((x₂−x₁)² + (y₂−y₁)²)<br>midpoint = ( (x₁+x₂)/2 , (y₁+y₂)/2 )</div>
+  <h4>Distance is the Pythagorean theorem</h4>
+  <p>The horizontal gap Δx = x₂−x₁ and the vertical gap Δy = y₂−y₁ are the two legs of a right triangle whose hypotenuse is the segment AB. So AB² = Δx² + Δy² — the distance formula is just the Pythagorean theorem in coordinates. Turn on "Right triangle" to see the legs.</p>
+  <h4>Midpoint is the average</h4>
+  <p>The midpoint sits halfway along AB, so each of its coordinates is simply the average of the corresponding coordinates of A and B.</p>
+  <h4>Try it</h4>
+  <p>Drag A and B (they snap to whole-number grid points). A 3-4-5 example: put A at (0,0) and B at (3,4) — the distance reads 5, and the midpoint is (1.5, 2).</p>
+</aside>
+</div>
+</div>
+
+<script>
+(function(){
+  var svg=document.getElementById('dm-svg');
+  var origin={x:340,y:295}, S=42;     // pixels per unit
+  var A={x:-3,y:-1}, B={x:3,y:2};      // unit coordinates
+  var showTri=true, showMid=true;
+
+  function toPx(u){ return {x:origin.x+u.x*S, y:origin.y-u.y*S}; }
+  function snap(px){ return {x:Math.round((px.x-origin.x)/S), y:Math.round((origin.y-px.y)/S)}; }
+  function fmt(n){ var r=Math.round(n*100)/100; return (Math.abs(r-Math.round(r))<1e-9)?Math.round(r).toString():r.toFixed(2); }
+  function svgEl(tag,attrs){ var el=document.createElementNS('http://www.w3.org/2000/svg',tag); for(var k in attrs){el.setAttribute(k,attrs[k]);} return el; }
+  function clearKids(el){ while(el.firstChild) el.removeChild(el.firstChild); }
+
+  var grid=document.getElementById('grid');
+  var axisX=document.getElementById('axis-x'), axisY=document.getElementById('axis-y');
+  var legDx=document.getElementById('leg-dx'), legDy=document.getElementById('leg-dy'), segAB=document.getElementById('seg-ab');
+  var labDx=document.getElementById('lab-dx'), labDy=document.getElementById('lab-dy'), labD=document.getElementById('lab-d');
+  var dotM=document.getElementById('dot-M');
+  var tagA=document.getElementById('tag-A'), tagB=document.getElementById('tag-B'), tagM=document.getElementById('tag-M');
+  var hA=document.getElementById('handle-A'), hB=document.getElementById('handle-B');
+  var statusBadge=document.getElementById('status-badge');
+  var distRow=document.getElementById('dist-row'), midRow=document.getElementById('mid-row');
+  var toggleTri=document.getElementById('toggle-tri'), toggleMid=document.getElementById('toggle-mid');
+
+  function setLine(el,p,q){ el.setAttribute('x1',p.x); el.setAttribute('y1',p.y); el.setAttribute('x2',q.x); el.setAttribute('y2',q.y); }
+  function disp(el,on){ el.style.display=on?'block':'none'; }
+
+  // static grid
+  (function buildGrid(){
+    clearKids(grid);
+    var x0=20,x1=660,y0=20,y1=540;
+    for(var gx=Math.ceil((x0-origin.x)/S); gx*S+origin.x<=x1; gx++){ var X=origin.x+gx*S; grid.appendChild(svgEl('line',{x1:X,y1:y0,x2:X,y2:y1,stroke:'#ececec','stroke-width':1})); }
+    for(var gy=Math.ceil((origin.y-y1)/S); origin.y-gy*S>=y0; gy++){ var Y=origin.y-gy*S; grid.appendChild(svgEl('line',{x1:x0,y1:Y,x2:x1,y2:Y,stroke:'#ececec','stroke-width':1})); }
+    axisX.setAttribute('x1',x0); axisX.setAttribute('y1',origin.y); axisX.setAttribute('x2',x1); axisX.setAttribute('y2',origin.y);
+    axisY.setAttribute('x1',origin.x); axisY.setAttribute('y1',y0); axisY.setAttribute('x2',origin.x); axisY.setAttribute('y2',y1);
+  })();
+
+  function update(){
+    var Ap=toPx(A), Bp=toPx(B), corner=toPx({x:B.x,y:A.y});
+    hA.setAttribute('cx',Ap.x); hA.setAttribute('cy',Ap.y);
+    hB.setAttribute('cx',Bp.x); hB.setAttribute('cy',Bp.y);
+    setLine(segAB,Ap,Bp);
+
+    setLine(legDx,Ap,corner); setLine(legDy,corner,Bp);
+    disp(legDx,showTri); disp(legDy,showTri);
+
+    var dx=B.x-A.x, dy=B.y-A.y, dist=Math.sqrt(dx*dx+dy*dy);
+    var mDx={x:(Ap.x+corner.x)/2,y:(Ap.y+corner.y)/2+(dy>=0?16:-16)};
+    var mDy={x:(corner.x+Bp.x)/2+(dx>=0?22:-22),y:(corner.y+Bp.y)/2};
+    labDx.setAttribute('x',mDx.x); labDx.setAttribute('y',mDx.y); labDx.textContent='Δx='+fmt(Math.abs(dx));
+    labDy.setAttribute('x',mDy.x); labDy.setAttribute('y',mDy.y); labDy.textContent='Δy='+fmt(Math.abs(dy));
+    var mAB={x:(Ap.x+Bp.x)/2,y:(Ap.y+Bp.y)/2};
+    labD.setAttribute('x',mAB.x-18); labD.setAttribute('y',mAB.y-12); labD.textContent='d='+fmt(dist);
+    disp(labDx,showTri); disp(labDy,showTri); disp(labD,true);
+
+    var M={x:(A.x+B.x)/2,y:(A.y+B.y)/2}, Mp=toPx(M);
+    disp(dotM,showMid); disp(tagM,showMid);
+    dotM.setAttribute('cx',Mp.x); dotM.setAttribute('cy',Mp.y);
+    tagM.setAttribute('x',Mp.x+10); tagM.setAttribute('y',Mp.y+20); tagM.textContent='M('+fmt(M.x)+', '+fmt(M.y)+')';
+
+    tagA.setAttribute('x',Ap.x-6); tagA.setAttribute('y',Ap.y-16); tagA.textContent='A('+A.x+', '+A.y+')';
+    tagB.setAttribute('x',Bp.x+6); tagB.setAttribute('y',Bp.y-16); tagB.textContent='B('+B.x+', '+B.y+')';
+
+    statusBadge.textContent='Distance = Pythagoras on Δx, Δy · Midpoint = the average';
+    statusBadge.style.background='#E1F0FB'; statusBadge.style.color='#0E3F66';
+
+    distRow.innerHTML='<b>Distance</b> = √(Δx² + Δy²) = √('+fmt(dx*dx)+' + '+fmt(dy*dy)+') = <b>'+fmt(dist)+'</b>';
+    midRow.innerHTML='<b>Midpoint</b> = ( ('+A.x+'+'+B.x+')/2 , ('+A.y+'+'+B.y+')/2 ) = <b>('+fmt((A.x+B.x)/2)+', '+fmt((A.y+B.y)/2)+')</b>';
+  }
+
+  var dragging=null;
+  function toSvgPoint(evt){
+    var rect=svg.getBoundingClientRect();
+    var vb=svg.viewBox.baseVal;
+    return { x:(evt.clientX-rect.left)/rect.width*vb.width+vb.x, y:(evt.clientY-rect.top)/rect.height*vb.height+vb.y };
+  }
+  function onDown(key){
+    return function(e){
+      dragging=key;
+      if(e.target.setPointerCapture){ try{ e.target.setPointerCapture(e.pointerId); }catch(err){} }
+      e.preventDefault();
+    };
+  }
+  function onMove(e){
+    if(!dragging) return;
+    var u=snap(toSvgPoint(e));
+    u.x=Math.min(7,Math.max(-7,u.x)); u.y=Math.min(5,Math.max(-5,u.y));
+    if(dragging==='A') A=u; else B=u;
+    update();
+  }
+  function onUp(){ dragging=null; }
+  hA.addEventListener('pointerdown',onDown('A'));
+  hB.addEventListener('pointerdown',onDown('B'));
+  svg.addEventListener('pointermove',onMove);
+  window.addEventListener('pointerup',onUp);
+
+  toggleTri.addEventListener('click',function(){ showTri=!showTri; toggleTri.classList.toggle('active',showTri); update(); });
+  toggleMid.addEventListener('click',function(){ showMid=!showMid; toggleMid.classList.toggle('active',showMid); update(); });
+
+  var infoToggle=document.getElementById('info-toggle-btn');
+  var infoDrawer=document.getElementById('info-drawer');
+  var infoBackdrop=document.getElementById('info-backdrop');
+  var infoClose=document.getElementById('info-close');
+  function openDrawer(){ infoDrawer.classList.add('open'); infoBackdrop.classList.add('open'); }
+  function closeDrawer(){ infoDrawer.classList.remove('open'); infoBackdrop.classList.remove('open'); }
+  infoToggle.addEventListener('click',function(){
+    if(infoDrawer.classList.contains('open')) closeDrawer(); else openDrawer();
+  });
+  infoClose.addEventListener('click',closeDrawer);
+  infoBackdrop.addEventListener('click',closeDrawer);
+  document.addEventListener('keydown',function(e){ if(e.key==='Escape') closeDrawer(); });
+
+  update();
+})();
+</script>
+<script defer src="site-chrome.js"></script>
+</body>
+</html>

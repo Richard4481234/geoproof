@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<script>/*gp-noflash*/(function(){try{var t=localStorage.getItem('gp:theme')||(matchMedia('(prefers-color-scheme:dark)').matches?'dark':'light');document.documentElement.setAttribute('data-theme',t);if(t==='dark'){var s=document.createElement('style');s.textContent='html[data-theme=dark]{background:#14151a}html[data-theme=dark] body{background:#14151a!important;color:#e6e6e8!important}';document.head.appendChild(s);}}catch(e){}})();</script>
+<title>GeoProof — Two Reflections Make a Rotation</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="Reflecting across two mirrors that meet equals one rotation by twice the angle between them.">
+<link rel="canonical" href="https://richard4481234.github.io/geoproof/TwoReflections-Visual.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="GeoProof">
+<meta property="og:title" content="Two Reflections — GeoProof">
+<meta property="og:description" content="Reflecting across two mirrors that meet equals one rotation by twice the angle between them.">
+<meta property="og:url" content="https://richard4481234.github.io/geoproof/TwoReflections-Visual.html">
+<meta property="og:image" content="https://richard4481234.github.io/geoproof/og/TwoReflections-Visual.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Two Reflections — GeoProof">
+<meta name="twitter:description" content="Reflecting across two mirrors that meet equals one rotation by twice the angle between them.">
+<meta name="twitter:image" content="https://richard4481234.github.io/geoproof/og/TwoReflections-Visual.png">
+<style>
+  body{background:#f4f4f5;display:flex;justify-content:center;padding:40px 16px;font-family:sans-serif;}
+  .widget{width:680px;max-width:100%;}
+  .card{background:#ffffff;border:1px solid #e2e2e2;padding:1.25rem;}
+  .sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;}
+  #tr-svg{width:100%;height:auto;display:block;touch-action:none;}
+  .handle{cursor:grab;}
+  .handle:active{cursor:grabbing;}
+  .toggle-btn{padding:6px 14px;border-radius:999px;border:1px solid #d8d8d8;background:#f4f4f5;color:#888888;font-size:13px;font-weight:500;cursor:pointer;}
+  .toggle-btn.active{background:#1a1a1a;color:#ffffff;border-color:#1a1a1a;}
+  .stage{position:relative;border-radius:12px;overflow:hidden;border:1px solid #e2e2e2;}
+  .stage .card{border:none;}
+  .info-toggle{position:absolute;top:14px;right:14px;z-index:30;background:#1a1a1a;color:#ffffff;border:none;border-radius:999px;padding:7px 14px;font-size:13px;font-weight:500;cursor:pointer;}
+  .info-toggle:hover{background:#333333;}
+  .info-backdrop{position:absolute;inset:0;background:rgba(0,0,0,0.22);opacity:0;visibility:hidden;transition:opacity .2s ease;z-index:25;}
+  .info-backdrop.open{opacity:1;visibility:visible;}
+  .info-drawer{position:absolute;top:0;right:0;height:100%;width:320px;max-width:88%;background:#ffffff;border-left:1px solid #e2e2e2;box-shadow:-8px 0 24px rgba(0,0,0,0.14);padding:22px 20px;overflow-y:auto;transform:translateX(100%);transition:transform .25s ease;z-index:28;box-sizing:border-box;}
+  .info-drawer.open{transform:translateX(0);}
+  .info-close{position:absolute;top:14px;right:14px;background:#f4f4f5;border:1px solid #e2e2e2;border-radius:50%;width:28px;height:28px;font-size:14px;cursor:pointer;color:#555555;}
+  .info-drawer h3{font-size:17px;margin:6px 0 12px;padding-right:30px;color:#1a1a1a;}
+  .info-drawer h4{font-size:12px;margin:18px 0 6px;color:#666666;text-transform:uppercase;letter-spacing:.04em;}
+  .info-drawer p{font-size:13.5px;line-height:1.55;color:#333333;margin:0 0 10px;}
+  .formula-box{background:#f4f4f5;border-radius:8px;padding:10px 12px;text-align:center;font-size:13px;font-weight:600;margin:10px 0;color:#1a1a1a;}
+  .widget svg text{paint-order:stroke;stroke:#ffffff;stroke-width:3px;stroke-linejoin:round;stroke-opacity:0.92;}
+</style>
+</head>
+<body>
+<div class="widget">
+<div style="margin-bottom:12px;"><a href="index.html" style="font-size:14px;color:#1a1a1a;text-decoration:none;">&larr; GeoProof</a></div>
+<div class="stage">
+<div class="card">
+<h2 class="sr-only">Two mirror lines, m one and m two, cross at a point O with an angle φ between them. A triangle is reflected first across m one, giving a flipped copy, and then that copy is reflected across m two. The end result is the original triangle rotated about O by twice the angle between the mirrors — a rotation of 2φ. You can drag the triangle's corners, and rotate each mirror line. The angle φ between the mirrors and the resulting rotation angle 2φ are shown live, and the doubly reflected triangle always matches a pure rotation of the original about O. An info button opens a drawer with the explanation.</h2>
+<svg id="tr-svg" viewBox="0 0 680 560" aria-hidden="true">
+  <line id="m1" stroke="#185FA5" stroke-width="2.2"></line>
+  <line id="m2" stroke="#BA7517" stroke-width="2.2"></line>
+  <polygon id="t1" fill="#999999" fill-opacity="0.10" stroke="#999999" stroke-width="2" stroke-dasharray="5 4"></polygon>
+  <polygon id="t0" fill="#378ADD" fill-opacity="0.16" stroke="#185FA5" stroke-width="2.5"></polygon>
+  <polygon id="t2" fill="#1D9E75" fill-opacity="0.16" stroke="#13694e" stroke-width="2.5"></polygon>
+  <polygon id="phiWedge" fill="#993556" fill-opacity="0.28" stroke="none"></polygon>
+  <g id="rotArcs"></g>
+  <circle id="oDot" r="4" fill="#993556"></circle>
+  <text id="phiLab" text-anchor="middle" dominant-baseline="middle" fill="#993556" font-size="13" font-weight="700"></text>
+  <text id="m1Lab" text-anchor="middle" dominant-baseline="middle" fill="#185FA5" font-size="12.5" font-weight="700">m₁</text>
+  <text id="m2Lab" text-anchor="middle" dominant-baseline="middle" fill="#8a5710" font-size="12.5" font-weight="700">m₂</text>
+  <text id="tO" text-anchor="middle" dominant-baseline="middle" fill="#993556" font-size="12.5" font-weight="700">O</text>
+  <text id="lab0" text-anchor="middle" dominant-baseline="middle" fill="#185FA5" font-size="12.5" font-weight="700">start</text>
+  <text id="lab2" text-anchor="middle" dominant-baseline="middle" fill="#13694e" font-size="12.5" font-weight="700">end</text>
+  <circle id="hP0" class="handle" r="10" fill="#ffffff" stroke="#185FA5" stroke-width="2.5"></circle>
+  <circle id="hP1" class="handle" r="10" fill="#ffffff" stroke="#185FA5" stroke-width="2.5"></circle>
+  <circle id="hP2" class="handle" r="10" fill="#ffffff" stroke="#185FA5" stroke-width="2.5"></circle>
+  <circle id="hM1" class="handle" r="10" fill="#ffffff" stroke="#185FA5" stroke-width="2.5"></circle>
+  <circle id="hM2" class="handle" r="10" fill="#ffffff" stroke="#BA7517" stroke-width="2.5"></circle>
+</svg>
+
+<div style="display:flex; justify-content:center; gap:10px; flex-wrap:wrap; margin-top:0.75rem;">
+  <button type="button" id="toggle-mid" class="toggle-btn active">Show middle (after m₁)</button>
+  <button type="button" id="toggle-arcs" class="toggle-btn active">Rotation arcs</button>
+</div>
+
+<div style="display:flex; justify-content:center; margin-top:0.85rem;">
+  <span id="status-badge" style="display:inline-block; padding:4px 14px; border-radius:999px; font-size:14px; font-weight:500;"></span>
+</div>
+
+<div id="formula-symbolic" style="text-align:center; font-size:14px; font-weight:600; color:#1a1a1a; margin-top:1.1rem;">reflect over m₁, then m₂ = rotation about O by 2φ</div>
+<div id="eq-row" style="display:flex; align-items:center; justify-content:center; gap:18px; flex-wrap:wrap; margin-top:0.6rem; font-size:14.5px; color:#1a1a1a;"></div>
+<div id="detail-row" style="text-align:center; font-size:12.5px; color:#777777; margin-top:0.5rem;"></div>
+</div>
+
+<button type="button" id="info-toggle-btn" class="info-toggle">ⓘ About this theorem</button>
+<div id="info-backdrop" class="info-backdrop"></div>
+<aside id="info-drawer" class="info-drawer">
+  <button type="button" id="info-close" class="info-close" aria-label="Close">✕</button>
+  <h3>Two Reflections = a Rotation</h3>
+  <p>Reflect a figure across one line, then across a second line that meets the first at point O. The combined effect is a single rotation:</p>
+  <div class="formula-box">reflect ∘ reflect = rotate about O by 2φ</div>
+  <p>φ is the angle between the two mirror lines. The rotation centre is exactly where the mirrors cross.</p>
+  <h4>Why twice the angle</h4>
+  <p>Each reflection flips orientation, so two of them restore it — the result must be a rotation or translation. Tracking how a ray through O turns, the first mirror reflects it and the second reflects it again; the net turn works out to exactly 2φ.</p>
+  <h4>Things to notice</h4>
+  <p>The middle (single-reflection) triangle is mirror-flipped, but the final one has the same orientation as the start — confirming a rotation, not a reflection. Every point keeps its distance from O.</p>
+  <h4>The parallel case</h4>
+  <p>If the two mirrors are parallel (they never meet), the same idea gives a <i>translation</i> instead — by twice the distance between the lines.</p>
+</aside>
+</div>
+</div>
+
+<script>
+(function(){
+  var svg=document.getElementById('tr-svg');
+  var O={x:330,y:285};
+  var tri=[{x:250,y:120},{x:355,y:150},{x:280,y:210}];   // triangle vertices (start)
+  var a1=0.17, a2=0.96;                                   // mirror line angles (radians)
+  var showMid=true, showArcs=true;
+
+  function sub(p,q){return {x:p.x-q.x,y:p.y-q.y};}
+  function add(p,q){return {x:p.x+q.x,y:p.y+q.y};}
+  function scl(p,s){return {x:p.x*s,y:p.y*s};}
+  function len(v){return Math.hypot(v.x,v.y);}
+  function fmt(n){ var r=Math.round(n*10)/10; return (Math.abs(r-Math.round(r))<1e-9)?Math.round(r).toString():r.toFixed(1); }
+  function norm(a){ a%=2*Math.PI; if(a<0)a+=2*Math.PI; return a; }
+  function reflect(P,th){ var q=sub(P,O); var x=Math.cos(2*th)*q.x+Math.sin(2*th)*q.y, y=Math.sin(2*th)*q.x-Math.cos(2*th)*q.y; return add(O,{x:x,y:y}); }
+  function rot(P,ang){ var q=sub(P,O); return add(O,{x:q.x*Math.cos(ang)-q.y*Math.sin(ang),y:q.x*Math.sin(ang)+q.y*Math.cos(ang)}); }
+  function svgEl(tag,attrs){ var el=document.createElementNS('http://www.w3.org/2000/svg',tag); for(var k in attrs){el.setAttribute(k,attrs[k]);} return el; }
+  function clearKids(el){ while(el.firstChild) el.removeChild(el.firstChild); }
+  function arcPath(c,a0,a1d,rad){
+    var d=a1d-a0, steps=Math.max(2,Math.round(Math.abs(d)/0.1)), s='';
+    for(var i=0;i<=steps;i++){ var a=a0+d*(i/steps); s+=(i===0?'M':'L')+(c.x+rad*Math.cos(a)).toFixed(1)+' '+(c.y+rad*Math.sin(a)).toFixed(1)+' '; }
+    return s.trim();
+  }
+  function wedge(P0,a0,a1d,radius){
+    var steps=Math.max(2,Math.round(Math.abs(a1d-a0)/0.08)), arr=[P0];
+    for(var i=0;i<=steps;i++){ var a=a0+(a1d-a0)*(i/steps); arr.push({x:P0.x+radius*Math.cos(a),y:P0.y+radius*Math.sin(a)}); }
+    return arr.map(function(p){return p.x.toFixed(1)+','+p.y.toFixed(1);}).join(' ');
+  }
+
+  var m1=document.getElementById('m1'),m2=document.getElementById('m2');
+  var t0=document.getElementById('t0'),t1=document.getElementById('t1'),t2=document.getElementById('t2');
+  var phiWedge=document.getElementById('phiWedge'), rotArcs=document.getElementById('rotArcs'), oDot=document.getElementById('oDot');
+  var phiLab=document.getElementById('phiLab'),m1Lab=document.getElementById('m1Lab'),m2Lab=document.getElementById('m2Lab'),tO=document.getElementById('tO');
+  var lab0=document.getElementById('lab0'),lab2=document.getElementById('lab2');
+  var hP0=document.getElementById('hP0'),hP1=document.getElementById('hP1'),hP2=document.getElementById('hP2');
+  var hM1=document.getElementById('hM1'),hM2=document.getElementById('hM2');
+  var statusBadge=document.getElementById('status-badge');
+  var eqRow=document.getElementById('eq-row'), detailRow=document.getElementById('detail-row');
+  var toggleMid=document.getElementById('toggle-mid'), toggleArcs=document.getElementById('toggle-arcs');
+
+  function poly(el,arr){ el.setAttribute('points',arr.map(function(p){return p.x.toFixed(1)+','+p.y.toFixed(1);}).join(' ')); }
+  function setLine(el,p,q){ el.setAttribute('x1',p.x);el.setAttribute('y1',p.y);el.setAttribute('x2',q.x);el.setAttribute('y2',q.y); }
+  function centroid(a){ return {x:(a[0].x+a[1].x+a[2].x)/3,y:(a[0].y+a[1].y+a[2].y)/3}; }
+
+  function lineEnds(a){ var d={x:Math.cos(a),y:Math.sin(a)}; return [add(O,scl(d,320)), add(O,scl(d,-320))]; }
+
+  function update(){
+    var T0=tri.slice();
+    var T1=T0.map(function(p){return reflect(p,a1);});
+    var T2=T1.map(function(p){return reflect(p,a2);});
+
+    // mirror lines
+    var e1=lineEnds(a1), e2=lineEnds(a2);
+    setLine(m1,e1[0],e1[1]); setLine(m2,e2[0],e2[1]);
+    oDot.setAttribute('cx',O.x);oDot.setAttribute('cy',O.y);
+
+    poly(t0,T0); poly(t1,T1); poly(t2,T2);
+    t1.style.display=showMid?'':'none';
+
+    // handles
+    hP0.setAttribute('cx',T0[0].x);hP0.setAttribute('cy',T0[0].y);
+    hP1.setAttribute('cx',T0[1].x);hP1.setAttribute('cy',T0[1].y);
+    hP2.setAttribute('cx',T0[2].x);hP2.setAttribute('cy',T0[2].y);
+    hM1.setAttribute('cx',e1[0].x);hM1.setAttribute('cy',e1[0].y);
+    hM2.setAttribute('cx',e2[0].x);hM2.setAttribute('cy',e2[0].y);
+
+    // phi between the mirror directions, reduced to [0,π)
+    var phi=norm(a2-a1)%Math.PI;
+    var rotAng=2*phi;
+    // wedge from m1 direction through phi
+    phiWedge.setAttribute('points',wedge(O,a1,a1+phi,46));
+    var pmid=a1+phi/2; phiLab.setAttribute('x',O.x+Math.cos(pmid)*64); phiLab.setAttribute('y',O.y+Math.sin(pmid)*64); phiLab.textContent='φ='+fmt(phi*180/Math.PI)+'°';
+    m1Lab.setAttribute('x',e1[0].x); m1Lab.setAttribute('y',e1[0].y); // placed near handle (handle is on top); nudge
+    var nd1={x:Math.cos(a1),y:Math.sin(a1)}; m1Lab.setAttribute('x',O.x+nd1.x*250); m1Lab.setAttribute('y',O.y+nd1.y*250);
+    var nd2={x:Math.cos(a2),y:Math.sin(a2)}; m2Lab.setAttribute('x',O.x+nd2.x*250); m2Lab.setAttribute('y',O.y+nd2.y*250);
+    tO.setAttribute('x',O.x-6); tO.setAttribute('y',O.y-13);
+
+    // rotation arcs from each T0 vertex to its T2 image, around O
+    clearKids(rotArcs);
+    if(showArcs){
+      for(var i=0;i<3;i++){
+        var r0=len(sub(T0[i],O)); var a0=Math.atan2(T0[i].y-O.y,T0[i].x-O.x);
+        rotArcs.appendChild(svgEl('path',{d:arcPath(O,a0,a0+rotAng,r0),fill:'none',stroke:'#993556','stroke-width':1.4,'stroke-dasharray':'3 3','stroke-opacity':0.7}));
+      }
+    }
+
+    var c0=centroid(T0), c2=centroid(T2);
+    lab0.setAttribute('x',c0.x); lab0.setAttribute('y',c0.y);
+    lab2.setAttribute('x',c2.x); lab2.setAttribute('y',c2.y);
+
+    // verify: T2 == rotate(T0, 2(a2-a1))
+    var maxErr=0;
+    for(var k=0;k<3;k++){ var Pr=rot(T0[k],2*(a2-a1)); maxErr=Math.max(maxErr,len(sub(T2[k],Pr))); }
+    var ok=maxErr<0.5;
+
+    statusBadge.textContent = ok ? 'Double reflection = rotation about O by 2φ ✓' : 'computing…';
+    statusBadge.style.background = ok ? '#E3F4EC' : '#FBECEC';
+    statusBadge.style.color = ok ? '#1d7a4d' : '#a23b3b';
+
+    eqRow.innerHTML =
+      '<span style="color:#993556;">angle between mirrors φ = <b>'+fmt(phi*180/Math.PI)+'°</b></span>'+
+      '<span style="color:#13694e;">rotation = 2φ = <b>'+fmt(norm(rotAng)*180/Math.PI)+'°</b></span>';
+    detailRow.textContent='The middle (dashed) triangle is mirror-flipped; the end triangle has the original orientation — a rotation about O, the mirrors’ crossing point.';
+  }
+
+  var dragging=null;
+  function toSvgPoint(evt){
+    var rect=svg.getBoundingClientRect(), vb=svg.viewBox.baseVal;
+    return { x:(evt.clientX-rect.left)/rect.width*vb.width+vb.x, y:(evt.clientY-rect.top)/rect.height*vb.height+vb.y };
+  }
+  function onDown(key){ return function(e){ dragging=key; if(e.target.setPointerCapture){try{e.target.setPointerCapture(e.pointerId);}catch(err){}} e.preventDefault(); }; }
+  function onMove(e){
+    if(!dragging) return;
+    var p=toSvgPoint(e);
+    if(dragging==='M1'){ a1=Math.atan2(p.y-O.y,p.x-O.x); }
+    else if(dragging==='M2'){ a2=Math.atan2(p.y-O.y,p.x-O.x); }
+    else { var idx={P0:0,P1:1,P2:2}[dragging]; tri[idx]={x:Math.min(640,Math.max(40,p.x)),y:Math.min(470,Math.max(40,p.y))}; }
+    update();
+  }
+  function onUp(){ dragging=null; }
+  hP0.addEventListener('pointerdown',onDown('P0'));
+  hP1.addEventListener('pointerdown',onDown('P1'));
+  hP2.addEventListener('pointerdown',onDown('P2'));
+  hM1.addEventListener('pointerdown',onDown('M1'));
+  hM2.addEventListener('pointerdown',onDown('M2'));
+  svg.addEventListener('pointermove',onMove);
+  window.addEventListener('pointerup',onUp);
+
+  toggleMid.addEventListener('click',function(){ showMid=!showMid; toggleMid.classList.toggle('active',showMid); update(); });
+  toggleArcs.addEventListener('click',function(){ showArcs=!showArcs; toggleArcs.classList.toggle('active',showArcs); update(); });
+
+  var infoToggle=document.getElementById('info-toggle-btn');
+  var infoDrawer=document.getElementById('info-drawer');
+  var infoBackdrop=document.getElementById('info-backdrop');
+  var infoClose=document.getElementById('info-close');
+  function openDrawer(){ infoDrawer.classList.add('open'); infoBackdrop.classList.add('open'); }
+  function closeDrawer(){ infoDrawer.classList.remove('open'); infoBackdrop.classList.remove('open'); }
+  infoToggle.addEventListener('click',function(){ if(infoDrawer.classList.contains('open')) closeDrawer(); else openDrawer(); });
+  infoClose.addEventListener('click',closeDrawer);
+  infoBackdrop.addEventListener('click',closeDrawer);
+  document.addEventListener('keydown',function(e){ if(e.key==='Escape') closeDrawer(); });
+
+  update();
+})();
+</script>
+<script defer src="site-chrome.js"></script>
+</body>
+</html>

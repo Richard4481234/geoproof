@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://richard4481234.github.io/geoproof/sitemap.xml

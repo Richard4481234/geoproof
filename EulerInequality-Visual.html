@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<script>/*gp-noflash*/(function(){try{var t=localStorage.getItem('gp:theme')||(matchMedia('(prefers-color-scheme:dark)').matches?'dark':'light');document.documentElement.setAttribute('data-theme',t);if(t==='dark'){var s=document.createElement('style');s.textContent='html[data-theme=dark]{background:#14151a}html[data-theme=dark] body{background:#14151a!important;color:#e6e6e8!important}';document.head.appendChild(s);}}catch(e){}})();</script>
+<title>GeoProof — Euler's Inequality explorer</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="The distance between a triangle's two centers gives OI² = R² − 2Rr, forcing the circumradius to be at least twice the inradius.">
+<link rel="canonical" href="https://richard4481234.github.io/geoproof/EulerInequality-Visual.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="GeoProof">
+<meta property="og:title" content="Euler's Inequality — GeoProof">
+<meta property="og:description" content="The distance between a triangle's two centers gives OI² = R² − 2Rr, forcing the circumradius to be at least twice the inradius.">
+<meta property="og:url" content="https://richard4481234.github.io/geoproof/EulerInequality-Visual.html">
+<meta property="og:image" content="https://richard4481234.github.io/geoproof/og/EulerInequality-Visual.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Euler's Inequality — GeoProof">
+<meta name="twitter:description" content="The distance between a triangle's two centers gives OI² = R² − 2Rr, forcing the circumradius to be at least twice the inradius.">
+<meta name="twitter:image" content="https://richard4481234.github.io/geoproof/og/EulerInequality-Visual.png">
+<style>
+  body{background:#f4f4f5;display:flex;justify-content:center;padding:40px 16px;font-family:sans-serif;}
+  .widget{width:680px;max-width:100%;}
+  .card{background:#ffffff;border:1px solid #e2e2e2;padding:1.25rem;}
+  .sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;}
+  #eu-svg{width:100%;height:auto;display:block;touch-action:none;}
+  .handle{cursor:grab;}
+  .handle:active{cursor:grabbing;}
+  .swatch{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:6px;vertical-align:middle;}
+  .toggle-btn{padding:6px 14px;border-radius:999px;border:1px solid #d8d8d8;background:#f4f4f5;color:#888888;font-size:13px;font-weight:500;cursor:pointer;}
+  .toggle-btn.active{background:#1a1a1a;color:#ffffff;border-color:#1a1a1a;}
+  .stage{position:relative;border-radius:12px;overflow:hidden;border:1px solid #e2e2e2;}
+  .stage .card{border:none;}
+  .info-toggle{position:absolute;top:14px;right:14px;z-index:30;background:#1a1a1a;color:#ffffff;border:none;border-radius:999px;padding:7px 14px;font-size:13px;font-weight:500;cursor:pointer;}
+  .info-toggle:hover{background:#333333;}
+  .info-backdrop{position:absolute;inset:0;background:rgba(0,0,0,0.22);opacity:0;visibility:hidden;transition:opacity .2s ease;z-index:25;}
+  .info-backdrop.open{opacity:1;visibility:visible;}
+  .info-drawer{position:absolute;top:0;right:0;height:100%;width:320px;max-width:88%;background:#ffffff;border-left:1px solid #e2e2e2;box-shadow:-8px 0 24px rgba(0,0,0,0.14);padding:22px 20px;overflow-y:auto;transform:translateX(100%);transition:transform .25s ease;z-index:28;box-sizing:border-box;}
+  .info-drawer.open{transform:translateX(0);}
+  .info-close{position:absolute;top:14px;right:14px;background:#f4f4f5;border:1px solid #e2e2e2;border-radius:50%;width:28px;height:28px;font-size:14px;cursor:pointer;color:#555555;}
+  .info-drawer h3{font-size:17px;margin:6px 0 12px;padding-right:30px;color:#1a1a1a;}
+  .info-drawer h4{font-size:12px;margin:18px 0 6px;color:#666666;text-transform:uppercase;letter-spacing:.04em;}
+  .info-drawer p{font-size:13.5px;line-height:1.55;color:#333333;margin:0 0 10px;}
+  .formula-box{background:#f4f4f5;border-radius:8px;padding:10px 12px;text-align:center;font-size:15px;font-weight:600;margin:10px 0;color:#1a1a1a;}
+  .bar-track{flex:1;background:#eeeeee;border-radius:4px;height:12px;overflow:hidden;}
+  .bar-fill{height:100%;border-radius:4px;transition:width .08s linear;}
+  .widget svg text{paint-order:stroke;stroke:#ffffff;stroke-width:3px;stroke-linejoin:round;stroke-opacity:0.92;}
+</style>
+</head>
+<body>
+<div class="widget">
+<div style="margin-bottom:12px;"><a href="index.html" style="font-size:14px;color:#1a1a1a;text-decoration:none;">&larr; GeoProof</a></div>
+<div class="stage">
+<div class="card">
+<h2 class="sr-only">Drag the three vertices of a triangle. Its circumcircle (through the corners, center O, radius R) and incircle (touching the sides, center I, radius r) are drawn, along with the segment OI joining the two centers. Euler's theorem says OI squared equals R squared minus 2 R r. Because OI squared can't be negative, this forces R to be at least twice r, with equality only when the triangle is equilateral and the two centers coincide. A comparison bar shows R against 2r. An info button opens a drawer explaining the theorem.</h2>
+<svg id="eu-svg" viewBox="0 0 680 560" aria-hidden="true">
+  <circle id="circumcircle" fill="none" stroke="#c9b8e6" stroke-width="2"></circle>
+  <circle id="incircle" fill="none" stroke="#1d9e75" stroke-width="2" stroke-dasharray="5,4" stroke-opacity="0.85"></circle>
+  <line id="edge-a" stroke="#9aa3ad" stroke-width="2.5" stroke-linecap="round"></line>
+  <line id="edge-b" stroke="#9aa3ad" stroke-width="2.5" stroke-linecap="round"></line>
+  <line id="edge-c" stroke="#9aa3ad" stroke-width="2.5" stroke-linecap="round"></line>
+  <line id="radius-R" stroke="#9a7fce" stroke-width="1.6" stroke-dasharray="4,3"></line>
+  <text id="R-label" text-anchor="middle" dominant-baseline="middle" fill="#5b3886" font-size="13" font-weight="600"></text>
+  <line id="inradius" stroke="#1d7a52" stroke-width="2"></line>
+  <polygon id="r-foot" fill="none" stroke="#9aa0a6" stroke-width="1.4"></polygon>
+  <text id="r-label" text-anchor="middle" dominant-baseline="middle" fill="#13694e" font-size="13" font-weight="600"></text>
+  <line id="oi-seg" stroke="#b8472e" stroke-width="3.5" stroke-linecap="round"></line>
+  <text id="oi-label" text-anchor="middle" dominant-baseline="middle" fill="#8d2f1c" font-size="13.5" font-weight="700"></text>
+  <circle id="o-dot" r="5.5" fill="#5b3886" stroke="#ffffff" stroke-width="2"></circle>
+  <circle id="i-dot" r="5" fill="#1d9e75" stroke="#ffffff" stroke-width="2"></circle>
+  <text id="o-tag" text-anchor="middle" dominant-baseline="middle" fill="#5b3886" font-size="13" font-weight="700">O</text>
+  <text id="i-tag" text-anchor="middle" dominant-baseline="middle" fill="#13694e" font-size="13" font-weight="700">I</text>
+  <text id="tag-A" text-anchor="middle" dominant-baseline="middle" fill="#1a1a1a" font-size="15" font-weight="700">A</text>
+  <text id="tag-B" text-anchor="middle" dominant-baseline="middle" fill="#1a1a1a" font-size="15" font-weight="700">B</text>
+  <text id="tag-C" text-anchor="middle" dominant-baseline="middle" fill="#1a1a1a" font-size="15" font-weight="700">C</text>
+  <circle id="handle-A" class="handle" r="12" fill="#ffffff" stroke="#1a1a1a" stroke-width="2"></circle>
+  <circle id="handle-B" class="handle" r="12" fill="#ffffff" stroke="#1a1a1a" stroke-width="2"></circle>
+  <circle id="handle-C" class="handle" r="12" fill="#ffffff" stroke="#1a1a1a" stroke-width="2"></circle>
+</svg>
+
+<div style="display:flex; justify-content:center; gap:10px; flex-wrap:wrap; margin-top:0.75rem;">
+  <button type="button" id="toggle-circum" class="toggle-btn active">Circumcircle (R)</button>
+  <button type="button" id="toggle-incircle" class="toggle-btn active">Incircle (r)</button>
+  <button type="button" id="toggle-oi" class="toggle-btn active">Segment OI</button>
+</div>
+
+<div style="display:flex; justify-content:center; margin-top:0.85rem;">
+  <span id="status-badge" style="display:inline-block; padding:4px 14px; border-radius:999px; font-size:14px; font-weight:500;"></span>
+</div>
+
+<div id="formula-symbolic" style="text-align:center; font-size:15px; font-weight:600; color:#1a1a1a; margin-top:1.1rem;">OI² = R² − 2Rr&nbsp;&nbsp;⟹&nbsp;&nbsp;R ≥ 2r</div>
+
+<div id="euler-row" style="display:flex; align-items:center; justify-content:center; gap:8px; flex-wrap:wrap; margin-top:0.6rem; font-size:15px; color:#1a1a1a;"></div>
+
+<div style="max-width:360px;margin:0.9rem auto 0;">
+  <div style="display:flex;align-items:center;gap:8px;font-size:12.5px;color:#5b3886;font-weight:600;"><span style="width:30px;">R</span><div class="bar-track"><div id="bar-R" class="bar-fill" style="background:#9a7fce;width:100%;"></div></div><span id="bar-R-val" style="width:42px;text-align:right;"></span></div>
+  <div style="display:flex;align-items:center;gap:8px;font-size:12.5px;color:#13694e;font-weight:600;margin-top:6px;"><span style="width:30px;">2r</span><div class="bar-track"><div id="bar-2r" class="bar-fill" style="background:#5cc79e;width:50%;"></div></div><span id="bar-2r-val" style="width:42px;text-align:right;"></span></div>
+</div>
+<div id="ratio-row" style="text-align:center; font-size:13px; color:#777777; margin-top:0.7rem;"></div>
+</div>
+
+<button type="button" id="info-toggle-btn" class="info-toggle">ⓘ About this theorem</button>
+<div id="info-backdrop" class="info-backdrop"></div>
+<aside id="info-drawer" class="info-drawer">
+  <button type="button" id="info-close" class="info-close" aria-label="Close">✕</button>
+  <h3>Euler's Inequality</h3>
+  <p>Every triangle has a <b>circumcircle</b> (through the vertices, center O, radius R) and an <b>incircle</b> (tangent to the sides, center I, radius r). Euler found a remarkably simple link between the distance OI and the two radii:</p>
+  <div class="formula-box">OI² = R² − 2Rr</div>
+  <p>Since a squared length can never be negative, R² − 2Rr ≥ 0, and dividing by R gives the famous inequality:</p>
+  <div class="formula-box">R ≥ 2r</div>
+  <p>The circumradius is always at least twice the inradius.</p>
+  <h4>When is it equality?</h4>
+  <p>R = 2r exactly when OI = 0, i.e. when the circumcenter and incenter coincide. That happens only for the <b>equilateral triangle</b> — the single most symmetric case. Drag the corners toward an equilateral shape and watch O and I merge as the 2r bar grows to meet the R bar.</p>
+  <h4>Reading the picture</h4>
+  <p>O is the purple center (equidistant from the vertices); I is the green center (equidistant from the sides). The red segment between them is OI. The bars at the bottom compare R with 2r — the gap between them is exactly what OI measures, through OI² = R² − 2Rr.</p>
+  <h4>Distinct from the Euler line</h4>
+  <p>The Euler <i>line</i> is about the circumcenter, centroid, and orthocenter being collinear. This is a different Euler result — a metric relation between O, I, and the two radii.</p>
+  <h4>A bit of history</h4>
+  <p>Leonhard Euler published this distance formula in 1765. The inequality R ≥ 2r is one of the most quoted facts in triangle geometry.</p>
+</aside>
+</div>
+</div>
+
+<script>
+(function(){
+  var svg=document.getElementById('eu-svg');
+  var UNIT=30;
+  var pts={ A:{x:300,y:150}, B:{x:182,y:384}, C:{x:520,y:360} };
+  var minX=26,maxX=654,minY=26,maxY=534;
+  var showCircum=true, showIncircle=true, showOI=true;
+
+  function sub(p,q){return {x:p.x-q.x,y:p.y-q.y};}
+  function add(p,q){return {x:p.x+q.x,y:p.y+q.y};}
+  function scl(p,k){return {x:p.x*k,y:p.y*k};}
+  function len(v){return Math.hypot(v.x,v.y);}
+  function dot(a,b){return a.x*b.x+a.y*b.y;}
+  function mid(p,q){return {x:(p.x+q.x)/2,y:(p.y+q.y)/2};}
+  function unit(v){var l=len(v)||1;return {x:v.x/l,y:v.y/l};}
+  function fmt(n){var r=Math.round(n*100)/100;return (Math.abs(r-Math.round(r))<1e-9)?String(Math.round(r)):r.toFixed(2);}
+  function ptsToStr(arr){return arr.map(function(p){return p.x.toFixed(1)+','+p.y.toFixed(1);}).join(' ');}
+  function circumcenter(A,B,C){
+    var d=2*(A.x*(B.y-C.y)+B.x*(C.y-A.y)+C.x*(A.y-B.y));
+    if(Math.abs(d)<1e-9)return {x:340,y:280};
+    var a2=A.x*A.x+A.y*A.y, b2=B.x*B.x+B.y*B.y, c2=C.x*C.x+C.y*C.y;
+    return {x:(a2*(B.y-C.y)+b2*(C.y-A.y)+c2*(A.y-B.y))/d, y:(a2*(C.x-B.x)+b2*(A.x-C.x)+c2*(B.x-A.x))/d};
+  }
+  function footOnLine(P,Q,X){var d=sub(Q,P),t=dot(sub(X,P),d)/(dot(d,d)||1);return add(P,scl(d,t));}
+  function raMark(corner,toA,toB,size){var u=scl(unit(toA),size),v=scl(unit(toB),size);return [corner,add(corner,u),add(add(corner,u),v),add(corner,v)];}
+
+  var el={};
+  ['circumcircle','incircle','edge-a','edge-b','edge-c','radius-R','R-label','inradius','r-foot','r-label',
+   'oi-seg','oi-label','o-dot','i-dot','o-tag','i-tag','tag-A','tag-B','tag-C','handle-A','handle-B','handle-C'].forEach(function(id){el[id]=document.getElementById(id);});
+  var statusBadge=document.getElementById('status-badge');
+  var eulerRow=document.getElementById('euler-row');
+  var ratioRow=document.getElementById('ratio-row');
+  var barR=document.getElementById('bar-R'), bar2r=document.getElementById('bar-2r');
+  var barRval=document.getElementById('bar-R-val'), bar2rval=document.getElementById('bar-2r-val');
+
+  function setLine(e,P,Q){e.setAttribute('x1',P.x);e.setAttribute('y1',P.y);e.setAttribute('x2',Q.x);e.setAttribute('y2',Q.y);}
+  function setPt(e,P){e.setAttribute('cx',P.x);e.setAttribute('cy',P.y);}
+  function setText(e,P,s){e.setAttribute('x',P.x);e.setAttribute('y',P.y);if(s!==undefined)e.textContent=s;}
+
+  function update(){
+    var A=pts.A,B=pts.B,C=pts.C, ctr=scl(add(add(A,B),C),1/3);
+    setLine(el['edge-a'],B,C); setLine(el['edge-b'],C,A); setLine(el['edge-c'],A,B);
+
+    var O=circumcenter(A,B,C), R=len(sub(O,A));
+    var a=len(sub(B,C)), b=len(sub(C,A)), c=len(sub(A,B)), per=a+b+c, s=per/2;
+    var area=Math.abs((B.x-A.x)*(C.y-A.y)-(B.y-A.y)*(C.x-A.x))/2;
+    var r=area/(s||1);
+    var I=scl(add(add(scl(A,a),scl(B,b)),scl(C,c)),1/(per||1));
+
+    el['circumcircle'].setAttribute('cx',O.x);el['circumcircle'].setAttribute('cy',O.y);el['circumcircle'].setAttribute('r',R);
+    el['circumcircle'].style.display=showCircum?'block':'none';
+    el['incircle'].setAttribute('cx',I.x);el['incircle'].setAttribute('cy',I.y);el['incircle'].setAttribute('r',r);
+    el['incircle'].style.display=showIncircle?'block':'none';
+
+    // R radius O->A
+    setLine(el['radius-R'],O,A);
+    setText(el['R-label'],add(mid(O,A),{x:0,y:-11}),'R = '+fmt(R/UNIT));
+    el['radius-R'].style.display=showCircum?'block':'none';
+    el['R-label'].style.display=showCircum?'block':'none';
+
+    // r inradius I -> foot on AB
+    var foot=footOnLine(A,B,I);
+    setLine(el['inradius'],I,foot);
+    el['r-foot'].setAttribute('points',ptsToStr(raMark(foot,sub(I,foot),sub(A,foot),9)));
+    setText(el['r-label'],add(mid(I,foot),scl(unit(sub(mid(I,foot),ctr)),12)),'r = '+fmt(r/UNIT));
+    el['inradius'].style.display=showIncircle?'block':'none';
+    el['r-foot'].style.display=showIncircle?'block':'none';
+    el['r-label'].style.display=showIncircle?'block':'none';
+
+    // OI segment
+    var OI=len(sub(O,I));
+    setLine(el['oi-seg'],O,I);
+    el['oi-seg'].style.display=showOI?'block':'none';
+    if(showOI && OI>22){
+      setText(el['oi-label'],add(mid(O,I),scl(unit({x:-(I.y-O.y),y:(I.x-O.x)}),13)),'OI = '+fmt(OI/UNIT));
+      el['oi-label'].style.display='block';
+    } else { el['oi-label'].style.display='none'; }
+
+    // centers + tags
+    setPt(el['o-dot'],O); setPt(el['i-dot'],I);
+    el['o-dot'].style.display=showCircum?'block':'none';
+    setText(el['o-tag'],add(O,scl(unit(sub(O,I)),14)));
+    setText(el['i-tag'],add(I,scl(unit(sub(I,O)),14)));
+    el['o-tag'].style.display=showCircum?'block':'none';
+
+    // vertex labels + handles
+    setText(el['tag-A'],add(A,scl(unit(sub(A,ctr)),20)));
+    setText(el['tag-B'],add(B,scl(unit(sub(B,ctr)),20)));
+    setText(el['tag-C'],add(C,scl(unit(sub(C,ctr)),20)));
+    setPt(el['handle-A'],A);setPt(el['handle-B'],B);setPt(el['handle-C'],C);
+
+    // readout
+    var OI2=OI*OI, rhs=R*R-2*R*r;
+    var match=Math.abs(OI2-rhs)<Math.max(2,0.0005*R*R);
+    eulerRow.innerHTML=
+      '<span><span class="swatch" style="background:#b8472e"></span>OI² = '+fmt(OI2/UNIT/UNIT)+'</span>'+
+      '<b style="color:#1d9e75;font-size:16px;">=</b>'+
+      '<span>R² − 2Rr = '+fmt(rhs/UNIT/UNIT)+'</span>'+
+      '<span style="color:#1d9e75;font-weight:700;">'+(match?'✓':'')+'</span>';
+
+    // bars: R as 100%, 2r relative
+    var twoR=2*r, frac=Math.max(0,Math.min(1,twoR/(R||1)));
+    barR.style.width='100%'; bar2r.style.width=(frac*100).toFixed(1)+'%';
+    barRval.textContent=fmt(R/UNIT); bar2rval.textContent=fmt(twoR/UNIT);
+
+    var nearEq=Math.abs(R-2*r)<0.02*R;
+    if(nearEq){
+      statusBadge.textContent='Equilateral: O = I, so R = 2r (equality)';
+      statusBadge.style.background='#E1F5EE'; statusBadge.style.color='#04342C';
+    } else {
+      statusBadge.textContent='R > 2r — the incircle is under half the circumcircle';
+      statusBadge.style.background='#EDE7F6'; statusBadge.style.color='#3F2A66';
+    }
+    ratioRow.innerHTML='R / r = <b>'+fmt(R/(r||1))+'</b>&nbsp; (always ≥ 2)&nbsp;·&nbsp; OI = '+fmt(OI/UNIT)+' units';
+  }
+
+  function toSvgPoint(evt){var rect=svg.getBoundingClientRect(),vb=svg.viewBox.baseVal;return {x:(evt.clientX-rect.left)/rect.width*vb.width+vb.x,y:(evt.clientY-rect.top)/rect.height*vb.height+vb.y};}
+  var dragging=null;
+  function onDown(key){return function(e){dragging=key;if(e.target.setPointerCapture){try{e.target.setPointerCapture(e.pointerId);}catch(err){}}e.preventDefault();};}
+  function onMove(e){
+    if(!dragging)return;
+    var p=toSvgPoint(e);
+    pts[dragging]={x:Math.min(maxX,Math.max(minX,p.x)),y:Math.min(maxY,Math.max(minY,p.y))};
+    update();
+  }
+  function onUp(){dragging=null;}
+  el['handle-A'].addEventListener('pointerdown',onDown('A'));
+  el['handle-B'].addEventListener('pointerdown',onDown('B'));
+  el['handle-C'].addEventListener('pointerdown',onDown('C'));
+  svg.addEventListener('pointermove',onMove);
+  window.addEventListener('pointerup',onUp);
+
+  function tog(id,setr){document.getElementById(id).addEventListener('click',function(){setr();update();});}
+  tog('toggle-circum',function(){showCircum=!showCircum;document.getElementById('toggle-circum').classList.toggle('active',showCircum);});
+  tog('toggle-incircle',function(){showIncircle=!showIncircle;document.getElementById('toggle-incircle').classList.toggle('active',showIncircle);});
+  tog('toggle-oi',function(){showOI=!showOI;document.getElementById('toggle-oi').classList.toggle('active',showOI);});
+
+  var infoDrawer=document.getElementById('info-drawer'),infoBackdrop=document.getElementById('info-backdrop');
+  function openD(){infoDrawer.classList.add('open');infoBackdrop.classList.add('open');}
+  function closeD(){infoDrawer.classList.remove('open');infoBackdrop.classList.remove('open');}
+  document.getElementById('info-toggle-btn').addEventListener('click',function(){infoDrawer.classList.contains('open')?closeD():openD();});
+  document.getElementById('info-close').addEventListener('click',closeD);
+  infoBackdrop.addEventListener('click',closeD);
+  document.addEventListener('keydown',function(e){if(e.key==='Escape')closeD();});
+
+  update();
+})();
+</script>
+<script defer src="site-chrome.js"></script>
+</body>
+</html>

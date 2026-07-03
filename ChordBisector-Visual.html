@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<script>/*gp-noflash*/(function(){try{var t=localStorage.getItem('gp:theme')||(matchMedia('(prefers-color-scheme:dark)').matches?'dark':'light');document.documentElement.setAttribute('data-theme',t);if(t==='dark'){var s=document.createElement('style');s.textContent='html[data-theme=dark]{background:#14151a}html[data-theme=dark] body{background:#14151a!important;color:#e6e6e8!important}';document.head.appendChild(s);}}catch(e){}})();</script>
+<title>GeoProof — Perpendicular from Center Bisects a Chord</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="The perpendicular from a circle's center always bisects the chord: AM = MB.">
+<link rel="canonical" href="https://richard4481234.github.io/geoproof/ChordBisector-Visual.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="GeoProof">
+<meta property="og:title" content="Chord &amp; Center — GeoProof">
+<meta property="og:description" content="The perpendicular from a circle's center always bisects the chord: AM = MB.">
+<meta property="og:url" content="https://richard4481234.github.io/geoproof/ChordBisector-Visual.html">
+<meta property="og:image" content="https://richard4481234.github.io/geoproof/og/ChordBisector-Visual.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Chord &amp; Center — GeoProof">
+<meta name="twitter:description" content="The perpendicular from a circle's center always bisects the chord: AM = MB.">
+<meta name="twitter:image" content="https://richard4481234.github.io/geoproof/og/ChordBisector-Visual.png">
+<style>
+  body{background:#f4f4f5;display:flex;justify-content:center;padding:40px 16px;font-family:sans-serif;}
+  .widget{width:680px;max-width:100%;}
+  .card{background:#ffffff;border:1px solid #e2e2e2;padding:1.25rem;}
+  .sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;}
+  #cb-svg{width:100%;height:auto;display:block;touch-action:none;}
+  .handle{cursor:grab;}
+  .handle:active{cursor:grabbing;}
+  .toggle-btn{padding:6px 14px;border-radius:999px;border:1px solid #d8d8d8;background:#f4f4f5;color:#888888;font-size:13px;font-weight:500;cursor:pointer;}
+  .toggle-btn.active{background:#1a1a1a;color:#ffffff;border-color:#1a1a1a;}
+  .stage{position:relative;border-radius:12px;overflow:hidden;border:1px solid #e2e2e2;}
+  .stage .card{border:none;}
+  .info-toggle{position:absolute;top:14px;right:14px;z-index:30;background:#1a1a1a;color:#ffffff;border:none;border-radius:999px;padding:7px 14px;font-size:13px;font-weight:500;cursor:pointer;}
+  .info-toggle:hover{background:#333333;}
+  .info-backdrop{position:absolute;inset:0;background:rgba(0,0,0,0.22);opacity:0;visibility:hidden;transition:opacity .2s ease;z-index:25;}
+  .info-backdrop.open{opacity:1;visibility:visible;}
+  .info-drawer{position:absolute;top:0;right:0;height:100%;width:320px;max-width:88%;background:#ffffff;border-left:1px solid #e2e2e2;box-shadow:-8px 0 24px rgba(0,0,0,0.14);padding:22px 20px;overflow-y:auto;transform:translateX(100%);transition:transform .25s ease;z-index:28;box-sizing:border-box;}
+  .info-drawer.open{transform:translateX(0);}
+  .info-close{position:absolute;top:14px;right:14px;background:#f4f4f5;border:1px solid #e2e2e2;border-radius:50%;width:28px;height:28px;font-size:14px;cursor:pointer;color:#555555;}
+  .info-drawer h3{font-size:17px;margin:6px 0 12px;padding-right:30px;color:#1a1a1a;}
+  .info-drawer h4{font-size:12px;margin:18px 0 6px;color:#666666;text-transform:uppercase;letter-spacing:.04em;}
+  .info-drawer p{font-size:13.5px;line-height:1.55;color:#333333;margin:0 0 10px;}
+  .formula-box{background:#f4f4f5;border-radius:8px;padding:10px 12px;text-align:center;font-size:13px;font-weight:600;margin:10px 0;color:#1a1a1a;}
+  .widget svg text{paint-order:stroke;stroke:#ffffff;stroke-width:3px;stroke-linejoin:round;stroke-opacity:0.92;}
+</style>
+</head>
+<body>
+<div class="widget">
+<div style="margin-bottom:12px;"><a href="index.html" style="font-size:14px;color:#1a1a1a;text-decoration:none;">&larr; GeoProof</a></div>
+<div class="stage">
+<div class="card">
+<h2 class="sr-only">A circle has center O. A chord AB joins two points on the circle, and you can drag A and B around the circle. From the center O, a perpendicular is dropped to the chord, meeting it at point M. The theorem: this perpendicular always meets the chord at its midpoint, so AM equals MB. The right angle at M and the two equal halves are marked. Together they form a right triangle OMA, so the radius, the distance from center to chord, and half the chord satisfy r squared equals OM squared plus half-AB squared. The half-chord, the distance OM, and the check that AM equals MB are shown live. An info button opens a drawer with the explanation.</h2>
+<svg id="cb-svg" viewBox="0 0 680 560" aria-hidden="true">
+  <circle id="circ" fill="none" stroke="#cccccc" stroke-width="2"></circle>
+  <line id="chord" stroke="#1a1a1a" stroke-width="2.5"></line>
+  <line id="halfAM" stroke="#378ADD" stroke-width="4" stroke-linecap="round"></line>
+  <line id="halfMB" stroke="#378ADD" stroke-width="4" stroke-linecap="round"></line>
+  <line id="omLine" stroke="#993556" stroke-width="2.5"></line>
+  <line id="radOA" stroke="#1D9E75" stroke-width="1.8" stroke-dasharray="5 4"></line>
+  <polyline id="rightMk" fill="none" stroke="#993556" stroke-width="1.5"></polyline>
+  <g id="ticks"></g>
+  <circle id="oDot" r="3.5" fill="#993556"></circle>
+  <circle id="mDot" r="3.5" fill="#378ADD"></circle>
+  <text id="labHalf1" text-anchor="middle" fill="#185FA5" font-size="12" font-weight="700"></text>
+  <text id="labHalf2" text-anchor="middle" fill="#185FA5" font-size="12" font-weight="700"></text>
+  <text id="labOM" text-anchor="middle" fill="#993556" font-size="12.5" font-weight="700"></text>
+  <text id="labR" text-anchor="middle" fill="#13694e" font-size="12.5" font-weight="700"></text>
+  <text id="tO" text-anchor="middle" dominant-baseline="middle" fill="#993556" font-size="13" font-weight="700">O</text>
+  <text id="tM" text-anchor="middle" dominant-baseline="middle" fill="#185FA5" font-size="13" font-weight="700">M</text>
+  <text id="tA" text-anchor="middle" dominant-baseline="middle" fill="#1a1a1a" font-size="13" font-weight="700">A</text>
+  <text id="tB" text-anchor="middle" dominant-baseline="middle" fill="#1a1a1a" font-size="13" font-weight="700">B</text>
+  <circle id="hA" class="handle" r="11" fill="#ffffff" stroke="#1a1a1a" stroke-width="2"></circle>
+  <circle id="hB" class="handle" r="11" fill="#ffffff" stroke="#1a1a1a" stroke-width="2"></circle>
+</svg>
+
+<div style="display:flex; justify-content:center; gap:10px; flex-wrap:wrap; margin-top:0.75rem;">
+  <button type="button" id="toggle-radius" class="toggle-btn">Show radius OA</button>
+</div>
+
+<div style="display:flex; justify-content:center; margin-top:0.85rem;">
+  <span id="status-badge" style="display:inline-block; padding:4px 14px; border-radius:999px; font-size:14px; font-weight:500;"></span>
+</div>
+
+<div id="formula-symbolic" style="text-align:center; font-size:14px; font-weight:600; color:#1a1a1a; margin-top:1.1rem;">OM ⊥ AB,&nbsp;&nbsp;AM = MB,&nbsp;&nbsp;r² = OM² + (½AB)²</div>
+<div id="eq-row" style="display:flex; align-items:center; justify-content:center; gap:16px; flex-wrap:wrap; margin-top:0.6rem; font-size:14.5px; color:#1a1a1a;"></div>
+<div id="detail-row" style="text-align:center; font-size:12.5px; color:#777777; margin-top:0.5rem;"></div>
+</div>
+
+<button type="button" id="info-toggle-btn" class="info-toggle">ⓘ About this theorem</button>
+<div id="info-backdrop" class="info-backdrop"></div>
+<aside id="info-drawer" class="info-drawer">
+  <button type="button" id="info-close" class="info-close" aria-label="Close">✕</button>
+  <h3>Perpendicular from the Center Bisects a Chord</h3>
+  <p>Drop a perpendicular from a circle's center O to any chord AB. It always strikes the chord at its midpoint:</p>
+  <div class="formula-box">OM ⊥ AB&nbsp; ⟹ &nbsp;AM = MB</div>
+  <p>Equivalently, the line from the center to a chord's midpoint is perpendicular to that chord — the statement works in both directions.</p>
+  <h4>Why it's true</h4>
+  <p>OA and OB are both radii, so triangle OAB is isosceles. The perpendicular from the apex O of an isosceles triangle to its base lands on the base's midpoint — so AM = MB.</p>
+  <h4>The right-triangle bonus</h4>
+  <p>OM, AM and the radius OA form a right triangle, giving r² = OM² + (½AB)². So the farther a chord sits from the center, the shorter it is — and the longest chord (through the center) is the diameter.</p>
+  <h4>Where it's used</h4>
+  <p>This is the standard way to locate a circle's center (intersect two chords' perpendicular bisectors) and underlies many compass-and-straightedge constructions.</p>
+</aside>
+</div>
+</div>
+
+<script>
+(function(){
+  var svg=document.getElementById('cb-svg');
+  var O={x:340,y:280}, R=195;
+  var aAng=-2.35, bAng=-0.35;   // chord endpoints as angles on the circle
+  var showRad=false;
+
+  function P(a){ return {x:O.x+R*Math.cos(a), y:O.y+R*Math.sin(a)}; }
+  function sub(p,q){return {x:p.x-q.x,y:p.y-q.y};}
+  function add(p,q){return {x:p.x+q.x,y:p.y+q.y};}
+  function scl(p,s){return {x:p.x*s,y:p.y*s};}
+  function len(v){return Math.hypot(v.x,v.y);}
+  function mid(p,q){return {x:(p.x+q.x)/2,y:(p.y+q.y)/2};}
+  function fmt(n){ var r=Math.round(n*100)/100; return (Math.abs(r-Math.round(r))<1e-9)?Math.round(r).toString():r.toFixed(2); }
+  function fmt1(n){ var r=Math.round(n*10)/10; return (Math.abs(r-Math.round(r))<1e-9)?Math.round(r).toString():r.toFixed(1); }
+  function svgEl(tag,attrs){ var el=document.createElementNS('http://www.w3.org/2000/svg',tag); for(var k in attrs){el.setAttribute(k,attrs[k]);} return el; }
+  function clearKids(el){ while(el.firstChild) el.removeChild(el.firstChild); }
+
+  var UNIT=30;
+  var circ=document.getElementById('circ'); circ.setAttribute('cx',O.x);circ.setAttribute('cy',O.y);circ.setAttribute('r',R);
+  var chord=document.getElementById('chord');
+  var halfAM=document.getElementById('halfAM'),halfMB=document.getElementById('halfMB');
+  var omLine=document.getElementById('omLine'),radOA=document.getElementById('radOA'),rightMk=document.getElementById('rightMk');
+  var ticks=document.getElementById('ticks');
+  var oDot=document.getElementById('oDot'),mDot=document.getElementById('mDot');
+  var labHalf1=document.getElementById('labHalf1'),labHalf2=document.getElementById('labHalf2'),labOM=document.getElementById('labOM'),labR=document.getElementById('labR');
+  var tO=document.getElementById('tO'),tM=document.getElementById('tM'),tA=document.getElementById('tA'),tB=document.getElementById('tB');
+  var hA=document.getElementById('hA'),hB=document.getElementById('hB');
+  var statusBadge=document.getElementById('status-badge');
+  var eqRow=document.getElementById('eq-row'), detailRow=document.getElementById('detail-row');
+  var toggleRad=document.getElementById('toggle-radius');
+
+  function setLine(el,p,q){ el.setAttribute('x1',p.x);el.setAttribute('y1',p.y);el.setAttribute('x2',q.x);el.setAttribute('y2',q.y); }
+  function tagOut(el,V,ref,dist){ var d=sub(V,ref),l=len(d)||1; el.setAttribute('x',V.x+d.x/l*dist); el.setAttribute('y',V.y+d.y/l*dist); }
+  function tick(at,dir){ // small perpendicular tick across the chord at point 'at', chord direction 'dir'
+    var n={x:-dir.y,y:dir.x}; var p1=add(at,scl(n,5)),p2=sub(at,scl(n,5));
+    ticks.appendChild(svgEl('line',{x1:p1.x,y1:p1.y,x2:p2.x,y2:p2.y,stroke:'#185FA5','stroke-width':2}));
+  }
+
+  function update(){
+    var A=P(aAng), B=P(bAng);
+    hA.setAttribute('cx',A.x);hA.setAttribute('cy',A.y);
+    hB.setAttribute('cx',B.x);hB.setAttribute('cy',B.y);
+    oDot.setAttribute('cx',O.x);oDot.setAttribute('cy',O.y);
+
+    setLine(chord,A,B);
+
+    // foot of perpendicular from O to line AB (computed independently, not assumed to be the midpoint)
+    var ab=sub(B,A), L2=ab.x*ab.x+ab.y*ab.y||1, t=((O.x-A.x)*ab.x+(O.y-A.y)*ab.y)/L2;
+    var M=add(A,scl(ab,t));
+    mDot.setAttribute('cx',M.x);mDot.setAttribute('cy',M.y);
+
+    setLine(halfAM,A,M); setLine(halfMB,M,B);
+    setLine(omLine,O,M);
+    setLine(radOA,O,A); radOA.style.display=showRad?'':'none';
+
+    // right-angle mark at M (between MO and MA)
+    var dir={x:ab.x/(len(ab)||1),y:ab.y/(len(ab)||1)};
+    var toO=sub(O,M); toO=scl(toO,1/(len(toO)||1));
+    var s=12, sgn=(t<=0.5?1:-1);
+    var q1=add(M,scl(dir,s*sgn)), q2=add(add(M,scl(dir,s*sgn)),scl(toO,s)), q3=add(M,scl(toO,s));
+    rightMk.setAttribute('points',[q1,q2,q3].map(function(p){return p.x.toFixed(1)+','+p.y.toFixed(1);}).join(' '));
+
+    // equal-length ticks on the two halves
+    clearKids(ticks);
+    tick(mid(A,M),dir); tick(mid(M,B),dir);
+
+    // labels
+    tagOut(tA,A,O,18); tagOut(tB,B,O,18);
+    var tOoff=sub(O,M); tO.setAttribute('x',O.x+(tOoff.x/(len(tOoff)||1))*0+0); tO.setAttribute('y',O.y-14);
+    tagOut(tM,M,O,-15);
+    tagOut(labHalf1,mid(A,M),O,18); tagOut(labHalf2,mid(M,B),O,18);
+    // OM label offset perpendicular to the OM line so it never sits on top of it
+    var omDir=sub(M,O), oml=len(omDir)||1, omN={x:-omDir.y/oml,y:omDir.x/oml};
+    var omLp=add(mid(O,M),scl(omN,18));
+    labOM.setAttribute('x',omLp.x); labOM.setAttribute('y',omLp.y+4);
+
+    var AM=len(sub(M,A))/UNIT, MB=len(sub(B,M))/UNIT, OM=len(sub(M,O))/UNIT, r=R/UNIT, half=len(ab)/2/UNIT;
+    labHalf1.textContent=fmt1(AM); labHalf2.textContent=fmt1(MB);
+    labOM.textContent='OM='+fmt1(OM);
+    if(showRad){ tagOut(labR,mid(O,A),M,-16); labR.textContent='r='+fmt1(r); labR.style.display=''; } else { labR.style.display='none'; }
+
+    var bisOK=Math.abs(AM-MB)<0.03*Math.max(1,AM);
+    var pythOK=Math.abs(r*r-(OM*OM+half*half))<0.03*Math.max(1,r*r);
+
+    statusBadge.textContent = (bisOK&&pythOK) ? 'AM = MB, and OM ⊥ AB ✓' : 'computing…';
+    statusBadge.style.background = (bisOK&&pythOK) ? '#E3F4EC' : '#FBECEC';
+    statusBadge.style.color = (bisOK&&pythOK) ? '#1d7a4d' : '#a23b3b';
+
+    eqRow.innerHTML =
+      '<span>AM = <b>'+fmt(AM)+'</b></span>'+
+      '<span style="color:#1d9e75;font-weight:700;">=</span>'+
+      '<span>MB = <b>'+fmt(MB)+'</b></span>'+
+      '<span style="margin-left:10px;">r² = '+fmt(r*r)+' = OM² + (½AB)² = '+fmt(OM*OM+half*half)+'</span>';
+
+    detailRow.textContent='radius r='+fmt1(r)+', distance OM='+fmt1(OM)+', half-chord ½AB='+fmt1(half)+'  (units).';
+  }
+
+  var dragging=null;
+  function toSvgPoint(evt){
+    var rect=svg.getBoundingClientRect(), vb=svg.viewBox.baseVal;
+    return { x:(evt.clientX-rect.left)/rect.width*vb.width+vb.x, y:(evt.clientY-rect.top)/rect.height*vb.height+vb.y };
+  }
+  function onDown(key){ return function(e){ dragging=key; if(e.target.setPointerCapture){try{e.target.setPointerCapture(e.pointerId);}catch(err){}} e.preventDefault(); }; }
+  function onMove(e){
+    if(!dragging) return;
+    var p=toSvgPoint(e), a=Math.atan2(p.y-O.y,p.x-O.x);
+    if(dragging==='A') aAng=a; else if(dragging==='B') bAng=a;
+    update();
+  }
+  function onUp(){ dragging=null; }
+  hA.addEventListener('pointerdown',onDown('A'));
+  hB.addEventListener('pointerdown',onDown('B'));
+  svg.addEventListener('pointermove',onMove);
+  window.addEventListener('pointerup',onUp);
+
+  toggleRad.addEventListener('click',function(){ showRad=!showRad; toggleRad.classList.toggle('active',showRad); update(); });
+
+  var infoToggle=document.getElementById('info-toggle-btn');
+  var infoDrawer=document.getElementById('info-drawer');
+  var infoBackdrop=document.getElementById('info-backdrop');
+  var infoClose=document.getElementById('info-close');
+  function openDrawer(){ infoDrawer.classList.add('open'); infoBackdrop.classList.add('open'); }
+  function closeDrawer(){ infoDrawer.classList.remove('open'); infoBackdrop.classList.remove('open'); }
+  infoToggle.addEventListener('click',function(){ if(infoDrawer.classList.contains('open')) closeDrawer(); else openDrawer(); });
+  infoClose.addEventListener('click',closeDrawer);
+  infoBackdrop.addEventListener('click',closeDrawer);
+  document.addEventListener('keydown',function(e){ if(e.key==='Escape') closeDrawer(); });
+
+  update();
+})();
+</script>
+<script defer src="site-chrome.js"></script>
+</body>
+</html>

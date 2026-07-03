@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<script>/*gp-noflash*/(function(){try{var t=localStorage.getItem('gp:theme')||(matchMedia('(prefers-color-scheme:dark)').matches?'dark':'light');document.documentElement.setAttribute('data-theme',t);if(t==='dark'){var s=document.createElement('style');s.textContent='html[data-theme=dark]{background:#14151a}html[data-theme=dark] body{background:#14151a!important;color:#e6e6e8!important}';document.head.appendChild(s);}}catch(e){}})();</script>
+<title>GeoProof — Cyclic Quadrilateral explorer</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="Drag four corners around a circle and watch each pair of opposite angles always sum to 180°.">
+<link rel="canonical" href="https://richard4481234.github.io/geoproof/CyclicQuadrilateral-Visual.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="GeoProof">
+<meta property="og:title" content="Cyclic Quadrilateral — GeoProof">
+<meta property="og:description" content="Drag four corners around a circle and watch each pair of opposite angles always sum to 180°.">
+<meta property="og:url" content="https://richard4481234.github.io/geoproof/CyclicQuadrilateral-Visual.html">
+<meta property="og:image" content="https://richard4481234.github.io/geoproof/og/CyclicQuadrilateral-Visual.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Cyclic Quadrilateral — GeoProof">
+<meta name="twitter:description" content="Drag four corners around a circle and watch each pair of opposite angles always sum to 180°.">
+<meta name="twitter:image" content="https://richard4481234.github.io/geoproof/og/CyclicQuadrilateral-Visual.png">
+<style>
+  body{background:#f4f4f5;display:flex;justify-content:center;padding:40px 16px;font-family:sans-serif;}
+  .widget{width:680px;max-width:100%;}
+  .card{background:#ffffff;border:1px solid #e2e2e2;padding:1.25rem;}
+  .sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;}
+  #cq-svg{width:100%;height:auto;display:block;touch-action:none;}
+  .handle{cursor:grab;}
+  .handle:active{cursor:grabbing;}
+  .toggle-btn{padding:6px 14px;border-radius:999px;border:1px solid #d8d8d8;background:#f4f4f5;color:#888888;font-size:13px;font-weight:500;cursor:pointer;}
+  .toggle-btn.active{background:#1a1a1a;color:#ffffff;border-color:#1a1a1a;}
+  .stage{position:relative;border-radius:12px;overflow:hidden;border:1px solid #e2e2e2;}
+  .stage .card{border:none;}
+  .info-toggle{position:absolute;top:14px;right:14px;z-index:30;background:#1a1a1a;color:#ffffff;border:none;border-radius:999px;padding:7px 14px;font-size:13px;font-weight:500;cursor:pointer;}
+  .info-toggle:hover{background:#333333;}
+  .info-backdrop{position:absolute;inset:0;background:rgba(0,0,0,0.22);opacity:0;visibility:hidden;transition:opacity .2s ease;z-index:25;}
+  .info-backdrop.open{opacity:1;visibility:visible;}
+  .info-drawer{position:absolute;top:0;right:0;height:100%;width:320px;max-width:88%;background:#ffffff;border-left:1px solid #e2e2e2;box-shadow:-8px 0 24px rgba(0,0,0,0.14);padding:22px 20px;overflow-y:auto;transform:translateX(100%);transition:transform .25s ease;z-index:28;box-sizing:border-box;}
+  .info-drawer.open{transform:translateX(0);}
+  .info-close{position:absolute;top:14px;right:14px;background:#f4f4f5;border:1px solid #e2e2e2;border-radius:50%;width:28px;height:28px;font-size:14px;cursor:pointer;color:#555555;}
+  .info-drawer h3{font-size:17px;margin:6px 0 12px;padding-right:30px;color:#1a1a1a;}
+  .info-drawer h4{font-size:12px;margin:18px 0 6px;color:#666666;text-transform:uppercase;letter-spacing:.04em;}
+  .info-drawer p{font-size:13.5px;line-height:1.55;color:#333333;margin:0 0 10px;}
+  .formula-box{background:#f4f4f5;border-radius:8px;padding:10px 12px;text-align:center;font-size:13px;font-weight:600;margin:10px 0;color:#1a1a1a;}
+  .widget svg text{paint-order:stroke;stroke:#ffffff;stroke-width:3px;stroke-linejoin:round;stroke-opacity:0.92;}
+</style>
+</head>
+<body>
+<div class="widget">
+<div style="margin-bottom:12px;"><a href="index.html" style="font-size:14px;color:#1a1a1a;text-decoration:none;">&larr; GeoProof</a></div>
+<div class="stage">
+<div class="card">
+<h2 class="sr-only">A quadrilateral ABCD has all four corners on a circle. Drag any corner around the circle and the quadrilateral reshapes. Because all four points lie on one circle, each pair of opposite angles always adds up to 180 degrees: angle A plus angle C equals 180, and angle B plus angle D equals 180. The four interior angles and the two opposite-pair sums are shown live. An info button opens a drawer explaining the cyclic quadrilateral theorem.</h2>
+<svg id="cq-svg" viewBox="0 0 680 560" aria-hidden="true">
+  <circle id="circ" cx="340" cy="270" r="195" fill="none" stroke="#cccccc" stroke-width="2"></circle>
+  <circle id="ctr" cx="340" cy="270" r="2.5" fill="#bbbbbb"></circle>
+  <polygon id="quad" fill="#378ADD" fill-opacity="0.10" stroke="#1a1a1a" stroke-width="2.5"></polygon>
+  <g id="ang-group"></g>
+  <text id="tA" text-anchor="middle" dominant-baseline="middle" fill="#1a1a1a" font-size="13" font-weight="700">A</text>
+  <text id="tB" text-anchor="middle" dominant-baseline="middle" fill="#1a1a1a" font-size="13" font-weight="700">B</text>
+  <text id="tC" text-anchor="middle" dominant-baseline="middle" fill="#1a1a1a" font-size="13" font-weight="700">C</text>
+  <text id="tD" text-anchor="middle" dominant-baseline="middle" fill="#1a1a1a" font-size="13" font-weight="700">D</text>
+  <circle id="hA" class="handle" r="11" fill="#ffffff" stroke="#1a1a1a" stroke-width="2"></circle>
+  <circle id="hB" class="handle" r="11" fill="#ffffff" stroke="#1a1a1a" stroke-width="2"></circle>
+  <circle id="hC" class="handle" r="11" fill="#ffffff" stroke="#1a1a1a" stroke-width="2"></circle>
+  <circle id="hD" class="handle" r="11" fill="#ffffff" stroke="#1a1a1a" stroke-width="2"></circle>
+</svg>
+
+<div style="display:flex; justify-content:center; gap:10px; flex-wrap:wrap; margin-top:0.75rem;">
+  <button type="button" id="toggle-angles" class="toggle-btn active">Angle arcs</button>
+  <button type="button" id="toggle-pair" class="toggle-btn">Highlight A &amp; C</button>
+</div>
+
+<div style="display:flex; justify-content:center; margin-top:0.85rem;">
+  <span id="status-badge" style="display:inline-block; padding:4px 14px; border-radius:999px; font-size:14px; font-weight:500;"></span>
+</div>
+
+<div id="pair-row" style="display:flex; align-items:center; justify-content:center; gap:22px; flex-wrap:wrap; margin-top:1rem; font-size:14.5px; color:#1a1a1a;"></div>
+<div id="detail-row" style="text-align:center; font-size:12.5px; color:#777777; margin-top:0.55rem;"></div>
+</div>
+
+<button type="button" id="info-toggle-btn" class="info-toggle">ⓘ About this theorem</button>
+<div id="info-backdrop" class="info-backdrop"></div>
+<aside id="info-drawer" class="info-drawer">
+  <button type="button" id="info-close" class="info-close" aria-label="Close">✕</button>
+  <h3>Cyclic Quadrilateral</h3>
+  <p>A <i>cyclic</i> quadrilateral has all four vertices on one circle. Its opposite angles are always supplementary:</p>
+  <div class="formula-box">∠A + ∠C = 180°&nbsp;&nbsp;and&nbsp;&nbsp;∠B + ∠D = 180°</div>
+  <h4>Why it's true</h4>
+  <p>An inscribed angle equals half the arc it opens onto. ∠A and ∠C open onto the two arcs that together make the whole circle (360°), so their halves add to 180°. The same argument gives ∠B + ∠D = 180°.</p>
+  <h4>The converse</h4>
+  <p>It also runs the other way: if a quadrilateral's opposite angles sum to 180°, its four corners must lie on a common circle. That's a standard test for whether four points are concyclic.</p>
+  <h4>Related results</h4>
+  <p>The same four concyclic points also satisfy Ptolemy's theorem (a product relation between the sides and diagonals) and, for cyclic quadrilaterals, Brahmagupta's area formula — both explored elsewhere in GeoProof.</p>
+</aside>
+</div>
+</div>
+
+<script>
+(function(){
+  var svg=document.getElementById('cq-svg');
+  var CX=340, CY=270, R=195;
+  // store each vertex as an angle (radians) on the circle
+  var ang={ A:-2.2, B:-0.5, C:0.9, D:2.4 };
+  var showArcs=true, highlightAC=false;
+
+  function P(a){ return {x:CX+R*Math.cos(a), y:CY+R*Math.sin(a)}; }
+  function sub(p,q){return {x:p.x-q.x,y:p.y-q.y};}
+  function len(v){return Math.hypot(v.x,v.y);}
+  function fmt(n){ var r=Math.round(n*10)/10; return (Math.abs(r-Math.round(r))<1e-9)?Math.round(r).toString():r.toFixed(1); }
+  function interiorAngle(P0,Pp,Pn){ // angle at P0 in polygon, neighbors Pp and Pn
+    var u=sub(Pp,P0),v=sub(Pn,P0),lu=len(u),lv=len(v); if(lu<1e-6||lv<1e-6)return 0;
+    var c=(u.x*v.x+u.y*v.y)/(lu*lv); c=Math.min(1,Math.max(-1,c)); return Math.acos(c)*180/Math.PI;
+  }
+  function wedge(P0,Pp,Pn,radius){
+    var ua=Math.atan2(Pp.y-P0.y,Pp.x-P0.x)*180/Math.PI, ub=Math.atan2(Pn.y-P0.y,Pn.x-P0.x)*180/Math.PI;
+    var diff=((ub-ua+540)%360)-180, steps=Math.max(2,Math.round(Math.abs(diff)/5)), arr=[P0];
+    for(var i=0;i<=steps;i++){ var a=(ua+diff*(i/steps))*Math.PI/180; arr.push({x:P0.x+radius*Math.cos(a),y:P0.y+radius*Math.sin(a)}); }
+    return arr.map(function(p){return p.x.toFixed(1)+','+p.y.toFixed(1);}).join(' ');
+  }
+  function svgEl(tag,attrs){ var el=document.createElementNS('http://www.w3.org/2000/svg',tag); for(var k in attrs){el.setAttribute(k,attrs[k]);} return el; }
+  function clearKids(el){ while(el.firstChild) el.removeChild(el.firstChild); }
+
+  var quad=document.getElementById('quad'), angGroup=document.getElementById('ang-group');
+  var tA=document.getElementById('tA'),tB=document.getElementById('tB'),tC=document.getElementById('tC'),tD=document.getElementById('tD');
+  var hA=document.getElementById('hA'),hB=document.getElementById('hB'),hC=document.getElementById('hC'),hD=document.getElementById('hD');
+  var statusBadge=document.getElementById('status-badge');
+  var pairRow=document.getElementById('pair-row'), detailRow=document.getElementById('detail-row');
+  var toggleArcs=document.getElementById('toggle-angles'), togglePair=document.getElementById('toggle-pair');
+
+  var COL_AC='#378ADD', COL_BD='#D4537E';
+
+  function tag(el,V){ var d=sub(V,{x:CX,y:CY}),l=len(d)||1; el.setAttribute('x',V.x+d.x/l*20); el.setAttribute('y',V.y+d.y/l*20); }
+
+  function update(){
+    // sort vertices by angle so the polygon is always simple (convex, non-self-crossing)
+    var keys=['A','B','C','D'].slice().sort(function(p,q){return ang[p]-ang[q];});
+    // we want fixed labels A,B,C,D to stay tied to their handles, but draw the polygon in circular order.
+    var order=keys; // circular order around circle
+    var pos={}; ['A','B','C','D'].forEach(function(k){ pos[k]=P(ang[k]); });
+
+    quad.setAttribute('points', order.map(function(k){return pos[k].x.toFixed(1)+','+pos[k].y.toFixed(1);}).join(' '));
+
+    hA.setAttribute('cx',pos.A.x);hA.setAttribute('cy',pos.A.y);
+    hB.setAttribute('cx',pos.B.x);hB.setAttribute('cy',pos.B.y);
+    hC.setAttribute('cx',pos.C.x);hC.setAttribute('cy',pos.C.y);
+    hD.setAttribute('cx',pos.D.x);hD.setAttribute('cy',pos.D.y);
+    tag(tA,pos.A);tag(tB,pos.B);tag(tC,pos.C);tag(tD,pos.D);
+
+    // interior angle at each vertex uses its two neighbors in circular order
+    function neighbors(k){ var i=order.indexOf(k); return [order[(i+3)%4], order[(i+1)%4]]; }
+    var aw={};
+    ['A','B','C','D'].forEach(function(k){ var nb=neighbors(k); aw[k]=interiorAngle(pos[k],pos[nb[0]],pos[nb[1]]); });
+
+    // identify opposite pairs by circular order: order[0]&order[2], order[1]&order[3]
+    var p1=[order[0],order[2]], p2=[order[1],order[3]];
+
+    clearKids(angGroup);
+    if(showArcs){
+      ['A','B','C','D'].forEach(function(k){
+        var nb=neighbors(k);
+        var inPair1=(k===p1[0]||k===p1[1]);
+        var col=inPair1?COL_AC:COL_BD;
+        var op = highlightAC ? (inPair1?0.42:0.14) : 0.3;
+        angGroup.appendChild(svgEl('polygon',{points:wedge(pos[k],pos[nb[0]],pos[nb[1]],20),fill:col,'fill-opacity':op,stroke:'none'}));
+        var din=sub({x:CX,y:CY},pos[k]),lin=len(din)||1;
+        var tl=svgEl('text',{x:(pos[k].x+din.x/lin*36).toFixed(1),y:(pos[k].y+din.y/lin*36).toFixed(1),'text-anchor':'middle','dominant-baseline':'middle','font-size':'12.5','font-weight':'700',fill:col});
+        tl.textContent=fmt(aw[k])+'°';
+        angGroup.appendChild(tl);
+      });
+    }
+
+    var s1=aw[p1[0]]+aw[p1[1]], s2=aw[p2[0]]+aw[p2[1]];
+    var ok = Math.abs(s1-180)<0.5 && Math.abs(s2-180)<0.5;
+
+    statusBadge.textContent = ok ? 'Opposite angles sum to 180°' : 'opposite angles ≈ 180°';
+    statusBadge.style.background = ok ? '#E3F4EC' : '#FBECEC';
+    statusBadge.style.color = ok ? '#1d7a4d' : '#a23b3b';
+
+    pairRow.innerHTML =
+      '<span style="border-bottom:3px solid '+COL_AC+';padding-bottom:2px;">∠'+p1[0]+' + ∠'+p1[1]+' = '+fmt(aw[p1[0]])+'° + '+fmt(aw[p1[1]])+'° = <b>'+fmt(s1)+'°</b></span>'+
+      '<span style="border-bottom:3px solid '+COL_BD+';padding-bottom:2px;">∠'+p2[0]+' + ∠'+p2[1]+' = '+fmt(aw[p2[0]])+'° + '+fmt(aw[p2[1]])+'° = <b>'+fmt(s2)+'°</b></span>';
+
+    detailRow.textContent='Four angles: A='+fmt(aw.A)+'°, B='+fmt(aw.B)+'°, C='+fmt(aw.C)+'°, D='+fmt(aw.D)+'°  (total '+fmt(aw.A+aw.B+aw.C+aw.D)+'°).';
+  }
+
+  var dragging=null;
+  function toSvgPoint(evt){
+    var rect=svg.getBoundingClientRect(), vb=svg.viewBox.baseVal;
+    return { x:(evt.clientX-rect.left)/rect.width*vb.width+vb.x, y:(evt.clientY-rect.top)/rect.height*vb.height+vb.y };
+  }
+  function onDown(key){ return function(e){ dragging=key; if(e.target.setPointerCapture){try{e.target.setPointerCapture(e.pointerId);}catch(err){}} e.preventDefault(); }; }
+  function onMove(e){
+    if(!dragging) return;
+    var p=toSvgPoint(e);
+    ang[dragging]=Math.atan2(p.y-CY,p.x-CX);  // snap to circle
+    update();
+  }
+  function onUp(){ dragging=null; }
+  hA.addEventListener('pointerdown',onDown('A'));
+  hB.addEventListener('pointerdown',onDown('B'));
+  hC.addEventListener('pointerdown',onDown('C'));
+  hD.addEventListener('pointerdown',onDown('D'));
+  svg.addEventListener('pointermove',onMove);
+  window.addEventListener('pointerup',onUp);
+
+  toggleArcs.addEventListener('click',function(){ showArcs=!showArcs; toggleArcs.classList.toggle('active',showArcs); update(); });
+  togglePair.addEventListener('click',function(){ highlightAC=!highlightAC; togglePair.classList.toggle('active',highlightAC); update(); });
+
+  var infoToggle=document.getElementById('info-toggle-btn');
+  var infoDrawer=document.getElementById('info-drawer');
+  var infoBackdrop=document.getElementById('info-backdrop');
+  var infoClose=document.getElementById('info-close');
+  function openDrawer(){ infoDrawer.classList.add('open'); infoBackdrop.classList.add('open'); }
+  function closeDrawer(){ infoDrawer.classList.remove('open'); infoBackdrop.classList.remove('open'); }
+  infoToggle.addEventListener('click',function(){ if(infoDrawer.classList.contains('open')) closeDrawer(); else openDrawer(); });
+  infoClose.addEventListener('click',closeDrawer);
+  infoBackdrop.addEventListener('click',closeDrawer);
+  document.addEventListener('keydown',function(e){ if(e.key==='Escape') closeDrawer(); });
+
+  update();
+})();
+</script>
+<script defer src="site-chrome.js"></script>
+</body>
+</html>

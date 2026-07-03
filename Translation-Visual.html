@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<script>/*gp-noflash*/(function(){try{var t=localStorage.getItem('gp:theme')||(matchMedia('(prefers-color-scheme:dark)').matches?'dark':'light');document.documentElement.setAttribute('data-theme',t);if(t==='dark'){var s=document.createElement('style');s.textContent='html[data-theme=dark]{background:#14151a}html[data-theme=dark] body{background:#14151a!important;color:#e6e6e8!important}';document.head.appendChild(s);}}catch(e){}})();</script>
+<title>GeoProof — Translation explorer</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="Slide a triangle by a vector and see every point shift the same way, congruent and un-turned.">
+<link rel="canonical" href="https://richard4481234.github.io/geoproof/Translation-Visual.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="GeoProof">
+<meta property="og:title" content="Translation — GeoProof">
+<meta property="og:description" content="Slide a triangle by a vector and see every point shift the same way, congruent and un-turned.">
+<meta property="og:url" content="https://richard4481234.github.io/geoproof/Translation-Visual.html">
+<meta property="og:image" content="https://richard4481234.github.io/geoproof/og/Translation-Visual.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Translation — GeoProof">
+<meta name="twitter:description" content="Slide a triangle by a vector and see every point shift the same way, congruent and un-turned.">
+<meta name="twitter:image" content="https://richard4481234.github.io/geoproof/og/Translation-Visual.png">
+<style>
+  body{background:#f4f4f5;display:flex;justify-content:center;padding:40px 16px;font-family:sans-serif;}
+  .widget{width:680px;max-width:100%;}
+  .card{background:#ffffff;border:1px solid #e2e2e2;padding:1.25rem;}
+  .sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;}
+  #tl-svg{width:100%;height:auto;display:block;touch-action:none;}
+  .handle{cursor:grab;}
+  .handle:active{cursor:grabbing;}
+  .swatch{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:6px;vertical-align:middle;}
+  .toggle-btn{padding:6px 14px;border-radius:999px;border:1px solid #d8d8d8;background:#f4f4f5;color:#888888;font-size:13px;font-weight:500;cursor:pointer;}
+  .toggle-btn.active{background:#1a1a1a;color:#ffffff;border-color:#1a1a1a;}
+  .stage{position:relative;border-radius:12px;overflow:hidden;border:1px solid #e2e2e2;}
+  .stage .card{border:none;}
+  .info-toggle{position:absolute;top:14px;right:14px;z-index:30;background:#1a1a1a;color:#ffffff;border:none;border-radius:999px;padding:7px 14px;font-size:13px;font-weight:500;cursor:pointer;}
+  .info-toggle:hover{background:#333333;}
+  .info-backdrop{position:absolute;inset:0;background:rgba(0,0,0,0.22);opacity:0;visibility:hidden;transition:opacity .2s ease;z-index:25;}
+  .info-backdrop.open{opacity:1;visibility:visible;}
+  .info-drawer{position:absolute;top:0;right:0;height:100%;width:320px;max-width:88%;background:#ffffff;border-left:1px solid #e2e2e2;box-shadow:-8px 0 24px rgba(0,0,0,0.14);padding:22px 20px;overflow-y:auto;transform:translateX(100%);transition:transform .25s ease;z-index:28;box-sizing:border-box;}
+  .info-drawer.open{transform:translateX(0);}
+  .info-close{position:absolute;top:14px;right:14px;background:#f4f4f5;border:1px solid #e2e2e2;border-radius:50%;width:28px;height:28px;font-size:14px;cursor:pointer;color:#555555;}
+  .info-drawer h3{font-size:17px;margin:6px 0 12px;padding-right:30px;color:#1a1a1a;}
+  .info-drawer h4{font-size:12px;margin:18px 0 6px;color:#666666;text-transform:uppercase;letter-spacing:.04em;}
+  .info-drawer p{font-size:13.5px;line-height:1.55;color:#333333;margin:0 0 10px;}
+  .formula-box{background:#f4f4f5;border-radius:8px;padding:10px 12px;text-align:center;font-size:13.5px;font-weight:600;margin:10px 0;color:#1a1a1a;}
+  .widget svg text{paint-order:stroke;stroke:#ffffff;stroke-width:3px;stroke-linejoin:round;stroke-opacity:0.92;}
+</style>
+</head>
+<body>
+<div class="widget">
+<div style="margin-bottom:12px;"><a href="index.html" style="font-size:14px;color:#1a1a1a;text-decoration:none;">&larr; GeoProof</a></div>
+<div class="stage">
+<div class="card">
+<h2 class="sr-only">A triangle ABC is slid by a translation vector to a new position A-prime B-prime C-prime. Drag the triangle's vertices, or drag the head of the vector arrow to change how far and which way it slides. Every point moves by the same vector — the same distance in the same direction — so the connecting arrows from each vertex to its image are all equal and parallel. The image is congruent to the original with the same orientation, and no point stays fixed unless the vector is zero. An info button opens a drawer explaining translation.</h2>
+<svg id="tl-svg" viewBox="0 0 680 560" aria-hidden="true">
+  <g id="arrow-group"></g>
+  <polygon id="tri-orig" fill="#378ADD" fill-opacity="0.12" stroke="#1a1a1a" stroke-width="2.5"></polygon>
+  <polygon id="tri-img" fill="#D4537E" fill-opacity="0.12" stroke="#993556" stroke-width="2.5"></polygon>
+  <line id="vec-line" stroke="#8B5FBF" stroke-width="3" stroke-linecap="round"></line>
+  <polygon id="vec-head" fill="#8B5FBF"></polygon>
+  <text id="vec-label" text-anchor="middle" dominant-baseline="middle" fill="#5B3886" font-size="13" font-weight="700"></text>
+  <text id="tag-A" text-anchor="middle" dominant-baseline="middle" fill="#1a1a1a" font-size="14" font-weight="700">A</text>
+  <text id="tag-B" text-anchor="middle" dominant-baseline="middle" fill="#1a1a1a" font-size="14" font-weight="700">B</text>
+  <text id="tag-C" text-anchor="middle" dominant-baseline="middle" fill="#1a1a1a" font-size="14" font-weight="700">C</text>
+  <text id="tag-Ap" text-anchor="middle" dominant-baseline="middle" fill="#993556" font-size="13" font-weight="700">A'</text>
+  <text id="tag-Bp" text-anchor="middle" dominant-baseline="middle" fill="#993556" font-size="13" font-weight="700">B'</text>
+  <text id="tag-Cp" text-anchor="middle" dominant-baseline="middle" fill="#993556" font-size="13" font-weight="700">C'</text>
+  <circle id="handle-A" class="handle" r="12" fill="#ffffff" stroke="#1a1a1a" stroke-width="2"></circle>
+  <circle id="handle-B" class="handle" r="12" fill="#ffffff" stroke="#1a1a1a" stroke-width="2"></circle>
+  <circle id="handle-C" class="handle" r="12" fill="#ffffff" stroke="#1a1a1a" stroke-width="2"></circle>
+  <circle id="handle-vec" class="handle" r="11" fill="#ffffff" stroke="#8B5FBF" stroke-width="2.5"></circle>
+</svg>
+
+<div style="display:flex; justify-content:center; gap:10px; flex-wrap:wrap; margin-top:0.75rem;">
+  <button type="button" id="toggle-arrows" class="toggle-btn active">Per-vertex arrows</button>
+  <button type="button" id="toggle-labels" class="toggle-btn active">Vector label</button>
+</div>
+
+<div style="display:flex; justify-content:center; margin-top:0.85rem;">
+  <span id="status-badge" style="display:inline-block; padding:4px 14px; border-radius:999px; font-size:14px; font-weight:500;"></span>
+</div>
+
+<div id="formula-symbolic" style="text-align:center; font-size:14px; font-weight:600; color:#1a1a1a; margin-top:1.1rem;">every point moves by the same vector (same distance, same direction)</div>
+
+<div id="detail-row" style="text-align:center; font-size:12.5px; color:#777777; margin-top:0.6rem;"></div>
+<div style="text-align:center; font-size:13px; color:#777777; margin-top:0.55rem;">Drag the purple arrowhead to change the slide. All three connecting arrows stay equal and parallel.</div>
+</div>
+
+<button type="button" id="info-toggle-btn" class="info-toggle">ⓘ About this transformation</button>
+<div id="info-backdrop" class="info-backdrop"></div>
+<aside id="info-drawer" class="info-drawer">
+  <button type="button" id="info-close" class="info-close" aria-label="Close">✕</button>
+  <h3>Translation</h3>
+  <p>A <i>translation</i> slides every point of a figure by the same <i>vector</i> — the same distance in the same direction:</p>
+  <div class="formula-box">P′ = P + v &nbsp;(the same v for every point)</div>
+  <p>So each point and its image are joined by an arrow, and all those arrows are equal in length and parallel.</p>
+  <h4>What is preserved</h4>
+  <p>Translation is a rigid motion (isometry): lengths and angles are unchanged and the image is congruent. Orientation is preserved too — ABC and A′B′C′ run the same way. In fact the image isn't even turned: it stays in the same "facing" as the original.</p>
+  <h4>No fixed points</h4>
+  <p>Unless the vector is zero, every single point moves — a translation has no fixed point (unlike a rotation, whose centre stays put, or a reflection, whose mirror line stays put).</p>
+  <h4>Combining slides</h4>
+  <p>Doing one translation then another is the same as a single translation by the sum of the two vectors. Translations also arise from reflecting across two parallel mirror lines.</p>
+</aside>
+</div>
+</div>
+
+<script>
+(function(){
+  var svg=document.getElementById('tl-svg');
+  var pts={ A:{x:190,y:170}, B:{x:140,y:330}, C:{x:300,y:320} };
+  var vecTail={x:150,y:470}, vecHead={x:330,y:430};   // translation vector = head - tail
+  var minX=24,maxX=656,minY=24,maxY=536;
+  var UNIT=30;
+  var showArrows=true, showLabels=true;
+
+  function sub(p,q){return {x:p.x-q.x,y:p.y-q.y};}
+  function add(p,q){return {x:p.x+q.x,y:p.y+q.y};}
+  function len(v){return Math.hypot(v.x,v.y);}
+  function mid(p,q){return {x:(p.x+q.x)/2,y:(p.y+q.y)/2};}
+  function fmt(n){ var r=Math.round(n*10)/10; return (Math.abs(r-Math.round(r))<1e-9)?Math.round(r).toString():r.toFixed(1); }
+  function svgEl(tag,attrs){ var el=document.createElementNS('http://www.w3.org/2000/svg',tag); for(var k in attrs){el.setAttribute(k,attrs[k]);} return el; }
+  function clearKids(el){ while(el.firstChild) el.removeChild(el.firstChild); }
+  function arrowHead(P,dir){ // small triangle at P pointing along unit dir
+    var u=dir, perp={x:-u.y,y:u.x}, s=8;
+    var tip={x:P.x,y:P.y}, b1={x:P.x-u.x*s*1.6+perp.x*s,y:P.y-u.y*s*1.6+perp.y*s}, b2={x:P.x-u.x*s*1.6-perp.x*s,y:P.y-u.y*s*1.6-perp.y*s};
+    return tip.x.toFixed(1)+','+tip.y.toFixed(1)+' '+b1.x.toFixed(1)+','+b1.y.toFixed(1)+' '+b2.x.toFixed(1)+','+b2.y.toFixed(1);
+  }
+
+  var arrowGroup=document.getElementById('arrow-group');
+  var triOrig=document.getElementById('tri-orig'), triImg=document.getElementById('tri-img');
+  var vecLine=document.getElementById('vec-line'), vecHeadEl=document.getElementById('vec-head'), vecLabel=document.getElementById('vec-label');
+  var tagA=document.getElementById('tag-A'),tagB=document.getElementById('tag-B'),tagC=document.getElementById('tag-C');
+  var tagAp=document.getElementById('tag-Ap'),tagBp=document.getElementById('tag-Bp'),tagCp=document.getElementById('tag-Cp');
+  var hA=document.getElementById('handle-A'),hB=document.getElementById('handle-B'),hC=document.getElementById('handle-C');
+  var hVec=document.getElementById('handle-vec');
+  var statusBadge=document.getElementById('status-badge');
+  var detailRow=document.getElementById('detail-row');
+  var toggleArrows=document.getElementById('toggle-arrows'), toggleLabels=document.getElementById('toggle-labels');
+
+  function disp(el,on){ el.style.display=on?'block':'none'; }
+  function setPoly(el,P){ el.setAttribute('points', P.map(function(p){return p.x.toFixed(1)+','+p.y.toFixed(1);}).join(' ')); }
+  function tagAt(el,V,ref){ var d=sub(V,ref),l=len(d)||1; el.setAttribute('x',V.x+d.x/l*20); el.setAttribute('y',V.y+d.y/l*20); }
+
+  function update(){
+    var A=pts.A,B=pts.B,C=pts.C;
+    var v=sub(vecHead,vecTail);
+    hA.setAttribute('cx',A.x); hA.setAttribute('cy',A.y);
+    hB.setAttribute('cx',B.x); hB.setAttribute('cy',B.y);
+    hC.setAttribute('cx',C.x); hC.setAttribute('cy',C.y);
+    hVec.setAttribute('cx',vecHead.x); hVec.setAttribute('cy',vecHead.y);
+
+    var Ai=add(A,v),Bi=add(B,v),Ci=add(C,v);
+    setPoly(triOrig,[A,B,C]); setPoly(triImg,[Ai,Bi,Ci]);
+
+    var cen=mid(mid(A,B),C); tagAt(tagA,A,cen); tagAt(tagB,B,cen); tagAt(tagC,C,cen);
+    var cenI=mid(mid(Ai,Bi),Ci); tagAt(tagAp,Ai,cenI); tagAt(tagBp,Bi,cenI); tagAt(tagCp,Ci,cenI);
+
+    var l=len(v)||1, u={x:v.x/l,y:v.y/l};
+    // guide vector arrow
+    vecLine.setAttribute('x1',vecTail.x); vecLine.setAttribute('y1',vecTail.y); vecLine.setAttribute('x2',vecHead.x); vecLine.setAttribute('y2',vecHead.y);
+    vecHeadEl.setAttribute('points',arrowHead(vecHead,u));
+    var vm=mid(vecTail,vecHead);
+    vecLabel.setAttribute('x',vm.x-u.y*16); vecLabel.setAttribute('y',vm.y+u.x*16);
+    vecLabel.textContent='v = ('+fmt(v.x/UNIT)+', '+fmt(-v.y/UNIT)+')';
+    disp(vecLabel,showLabels);
+
+    // per-vertex arrows
+    clearKids(arrowGroup);
+    if(showArrows){
+      [[A,Ai],[B,Bi],[C,Ci]].forEach(function(pair){
+        arrowGroup.appendChild(svgEl('line',{x1:pair[0].x,y1:pair[0].y,x2:pair[1].x,y2:pair[1].y,stroke:'#BA7517','stroke-width':1.6,'stroke-opacity':0.85}));
+        arrowGroup.appendChild(svgEl('polygon',{points:arrowHead(pair[1],u),fill:'#BA7517','fill-opacity':0.85}));
+      });
+    }
+
+    statusBadge.textContent='Translation: congruent image, orientation preserved, no turn';
+    statusBadge.style.background='#EDE6F6'; statusBadge.style.color='#3F2A5C';
+    detailRow.textContent='Slide length = '+fmt(len(v)/UNIT)+' units; all three connecting arrows are equal and parallel.';
+  }
+
+  var dragging=null;
+  function toSvgPoint(evt){
+    var rect=svg.getBoundingClientRect();
+    var vb=svg.viewBox.baseVal;
+    return { x:(evt.clientX-rect.left)/rect.width*vb.width+vb.x, y:(evt.clientY-rect.top)/rect.height*vb.height+vb.y };
+  }
+  function onDown(key){
+    return function(e){
+      dragging=key;
+      if(e.target.setPointerCapture){ try{ e.target.setPointerCapture(e.pointerId); }catch(err){} }
+      e.preventDefault();
+    };
+  }
+  function onMove(e){
+    if(!dragging) return;
+    var p=toSvgPoint(e);
+    p={x:Math.min(maxX,Math.max(minX,p.x)), y:Math.min(maxY,Math.max(minY,p.y))};
+    if(dragging==='vec') vecHead=p; else pts[dragging]=p;
+    update();
+  }
+  function onUp(){ dragging=null; }
+  hA.addEventListener('pointerdown',onDown('A'));
+  hB.addEventListener('pointerdown',onDown('B'));
+  hC.addEventListener('pointerdown',onDown('C'));
+  hVec.addEventListener('pointerdown',onDown('vec'));
+  svg.addEventListener('pointermove',onMove);
+  window.addEventListener('pointerup',onUp);
+
+  toggleArrows.addEventListener('click',function(){ showArrows=!showArrows; toggleArrows.classList.toggle('active',showArrows); update(); });
+  toggleLabels.addEventListener('click',function(){ showLabels=!showLabels; toggleLabels.classList.toggle('active',showLabels); update(); });
+
+  var infoToggle=document.getElementById('info-toggle-btn');
+  var infoDrawer=document.getElementById('info-drawer');
+  var infoBackdrop=document.getElementById('info-backdrop');
+  var infoClose=document.getElementById('info-close');
+  function openDrawer(){ infoDrawer.classList.add('open'); infoBackdrop.classList.add('open'); }
+  function closeDrawer(){ infoDrawer.classList.remove('open'); infoBackdrop.classList.remove('open'); }
+  infoToggle.addEventListener('click',function(){
+    if(infoDrawer.classList.contains('open')) closeDrawer(); else openDrawer();
+  });
+  infoClose.addEventListener('click',closeDrawer);
+  infoBackdrop.addEventListener('click',closeDrawer);
+  document.addEventListener('keydown',function(e){ if(e.key==='Escape') closeDrawer(); });
+
+  update();
+})();
+</script>
+<script defer src="site-chrome.js"></script>
+</body>
+</html>

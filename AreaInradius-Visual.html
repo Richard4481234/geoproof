@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<script>/*gp-noflash*/(function(){try{var t=localStorage.getItem('gp:theme')||(matchMedia('(prefers-color-scheme:dark)').matches?'dark':'light');document.documentElement.setAttribute('data-theme',t);if(t==='dark'){var s=document.createElement('style');s.textContent='html[data-theme=dark]{background:#14151a}html[data-theme=dark] body{background:#14151a!important;color:#e6e6e8!important}';document.head.appendChild(s);}}catch(e){}})();</script>
+<title>GeoProof — Area = r·s explorer</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="An inscribed circle splits a triangle into three pieces of height r, so its area is r·s.">
+<link rel="canonical" href="https://richard4481234.github.io/geoproof/AreaInradius-Visual.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="GeoProof">
+<meta property="og:title" content="Area = r·s — GeoProof">
+<meta property="og:description" content="An inscribed circle splits a triangle into three pieces of height r, so its area is r·s.">
+<meta property="og:url" content="https://richard4481234.github.io/geoproof/AreaInradius-Visual.html">
+<meta property="og:image" content="https://richard4481234.github.io/geoproof/og/AreaInradius-Visual.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Area = r·s — GeoProof">
+<meta name="twitter:description" content="An inscribed circle splits a triangle into three pieces of height r, so its area is r·s.">
+<meta name="twitter:image" content="https://richard4481234.github.io/geoproof/og/AreaInradius-Visual.png">
+<style>
+  body{background:#f4f4f5;display:flex;justify-content:center;padding:40px 16px;font-family:sans-serif;}
+  .widget{width:680px;max-width:100%;}
+  .card{background:#ffffff;border:1px solid #e2e2e2;padding:1.25rem;}
+  .sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;}
+  #ar-svg{width:100%;height:auto;display:block;touch-action:none;}
+  .handle{cursor:grab;}
+  .handle:active{cursor:grabbing;}
+  .toggle-btn{padding:6px 14px;border-radius:999px;border:1px solid #d8d8d8;background:#f4f4f5;color:#888888;font-size:13px;font-weight:500;cursor:pointer;}
+  .toggle-btn.active{background:#1a1a1a;color:#ffffff;border-color:#1a1a1a;}
+  .stage{position:relative;border-radius:12px;overflow:hidden;border:1px solid #e2e2e2;}
+  .stage .card{border:none;}
+  .info-toggle{position:absolute;top:14px;right:14px;z-index:30;background:#1a1a1a;color:#ffffff;border:none;border-radius:999px;padding:7px 14px;font-size:13px;font-weight:500;cursor:pointer;}
+  .info-toggle:hover{background:#333333;}
+  .info-backdrop{position:absolute;inset:0;background:rgba(0,0,0,0.22);opacity:0;visibility:hidden;transition:opacity .2s ease;z-index:25;}
+  .info-backdrop.open{opacity:1;visibility:visible;}
+  .info-drawer{position:absolute;top:0;right:0;height:100%;width:320px;max-width:88%;background:#ffffff;border-left:1px solid #e2e2e2;box-shadow:-8px 0 24px rgba(0,0,0,0.14);padding:22px 20px;overflow-y:auto;transform:translateX(100%);transition:transform .25s ease;z-index:28;box-sizing:border-box;}
+  .info-drawer.open{transform:translateX(0);}
+  .info-close{position:absolute;top:14px;right:14px;background:#f4f4f5;border:1px solid #e2e2e2;border-radius:50%;width:28px;height:28px;font-size:14px;cursor:pointer;color:#555555;}
+  .info-drawer h3{font-size:17px;margin:6px 0 12px;padding-right:30px;color:#1a1a1a;}
+  .info-drawer h4{font-size:12px;margin:18px 0 6px;color:#666666;text-transform:uppercase;letter-spacing:.04em;}
+  .info-drawer p{font-size:13.5px;line-height:1.55;color:#333333;margin:0 0 10px;}
+  .formula-box{background:#f4f4f5;border-radius:8px;padding:10px 12px;text-align:center;font-size:13px;font-weight:600;margin:10px 0;color:#1a1a1a;}
+  .widget svg text{paint-order:stroke;stroke:#ffffff;stroke-width:3px;stroke-linejoin:round;stroke-opacity:0.92;}
+</style>
+</head>
+<body>
+<div class="widget">
+<div style="margin-bottom:12px;"><a href="index.html" style="font-size:14px;color:#1a1a1a;text-decoration:none;">&larr; GeoProof</a></div>
+<div class="stage">
+<div class="card">
+<h2 class="sr-only">A triangle ABC has its inscribed circle drawn — the largest circle that fits inside, touching all three sides. Its centre is the incenter and its radius is r. You can drag the three corners. Joining the incenter to each corner splits the triangle into three smaller triangles, one on each side; each has that side as its base and the inradius r as its height. Adding their areas gives one half r times the perimeter, which is r times the semiperimeter s. So the triangle's area equals r times s. The inradius, the semiperimeter, and the area computed as r times s and directly are shown live and agree. An info button opens a drawer with the explanation.</h2>
+<svg id="ar-svg" viewBox="0 0 680 560" aria-hidden="true">
+  <polygon id="subBC" fill="#378ADD" fill-opacity="0.16" stroke="none"></polygon>
+  <polygon id="subCA" fill="#1D9E75" fill-opacity="0.16" stroke="none"></polygon>
+  <polygon id="subAB" fill="#BA7517" fill-opacity="0.16" stroke="none"></polygon>
+  <polygon id="tri" fill="none" stroke="#1a1a1a" stroke-width="2.5"></polygon>
+  <circle id="incirc" fill="none" stroke="#993556" stroke-width="2"></circle>
+  <g id="spokes"></g>
+  <g id="radii"></g>
+  <circle id="inc" r="3.5" fill="#993556"></circle>
+  <text id="labR" text-anchor="middle" fill="#993556" font-size="12.5" font-weight="700"></text>
+  <text id="sideA" text-anchor="middle" fill="#185FA5" font-size="12.5" font-weight="700"></text>
+  <text id="sideB" text-anchor="middle" fill="#13694e" font-size="12.5" font-weight="700"></text>
+  <text id="sideC" text-anchor="middle" fill="#8a5710" font-size="12.5" font-weight="700"></text>
+  <g id="pbar"></g>
+  <text id="tA" text-anchor="middle" dominant-baseline="middle" fill="#1a1a1a" font-size="13" font-weight="700">A</text>
+  <text id="tB" text-anchor="middle" dominant-baseline="middle" fill="#1a1a1a" font-size="13" font-weight="700">B</text>
+  <text id="tC" text-anchor="middle" dominant-baseline="middle" fill="#1a1a1a" font-size="13" font-weight="700">C</text>
+  <text id="tI" text-anchor="middle" dominant-baseline="middle" fill="#993556" font-size="12.5" font-weight="700">I</text>
+  <circle id="hA" class="handle" r="11" fill="#ffffff" stroke="#1a1a1a" stroke-width="2"></circle>
+  <circle id="hB" class="handle" r="11" fill="#ffffff" stroke="#1a1a1a" stroke-width="2"></circle>
+  <circle id="hC" class="handle" r="11" fill="#ffffff" stroke="#1a1a1a" stroke-width="2"></circle>
+</svg>
+
+<div style="display:flex; justify-content:center; gap:10px; flex-wrap:wrap; margin-top:0.75rem;">
+  <button type="button" id="toggle-split" class="toggle-btn active">Split into 3 (height r)</button>
+  <button type="button" id="toggle-radii" class="toggle-btn">Show radii to sides</button>
+</div>
+
+<div style="display:flex; justify-content:center; margin-top:0.85rem;">
+  <span id="status-badge" style="display:inline-block; padding:4px 14px; border-radius:999px; font-size:14px; font-weight:500;"></span>
+</div>
+
+<div id="formula-symbolic" style="text-align:center; font-size:14px; font-weight:600; color:#1a1a1a; margin-top:1.1rem;">Area = r · s</div>
+<div id="eq-row" style="display:flex; align-items:center; justify-content:center; gap:16px; flex-wrap:wrap; margin-top:0.6rem; font-size:14.5px; color:#1a1a1a;"></div>
+<div id="detail-row" style="text-align:center; font-size:12.5px; color:#777777; margin-top:0.5rem;"></div>
+</div>
+
+<button type="button" id="info-toggle-btn" class="info-toggle">ⓘ About this theorem</button>
+<div id="info-backdrop" class="info-backdrop"></div>
+<aside id="info-drawer" class="info-drawer">
+  <button type="button" id="info-close" class="info-close" aria-label="Close">✕</button>
+  <h3>Area = Inradius × Semiperimeter</h3>
+  <p>Every triangle's area can be written using its inscribed circle:</p>
+  <div class="formula-box">Area = r · s</div>
+  <p>r is the inradius (radius of the inscribed circle) and s = (a + b + c)/2 is the semiperimeter — half the perimeter.</p>
+  <h4>The picture-proof</h4>
+  <p>Join the incenter to all three corners. This cuts the triangle into three smaller triangles, sitting on sides a, b, c. The incircle touches each side, so each small triangle has height exactly r. Their areas are ½ra, ½rb, ½rc, and the total is ½r(a + b + c) = r·s.</p>
+  <h4>Rearranged</h4>
+  <p>Solving for r gives r = Area / s — the quickest way to find an inradius once you know the area (e.g. via Heron's formula).</p>
+  <h4>A wider family</h4>
+  <p>The same "drop spokes from a center, each piece has height r" idea works for any polygon that has an inscribed circle (a tangential polygon): its area is always r·s.</p>
+</aside>
+</div>
+</div>
+
+<script>
+(function(){
+  var svg=document.getElementById('ar-svg');
+  var pts={ A:{x:330,y:90}, B:{x:560,y:380}, C:{x:120,y:355} };
+  var minX=40,maxX=640,minY=45,maxY=410;
+  var BAR_Y=512, BAR_X0=100, BAR_W=480;   // perimeter bar at the bottom
+  var UNIT=30, showSplit=true, showRadii=false;
+
+  function sub(p,q){return {x:p.x-q.x,y:p.y-q.y};}
+  function add(p,q){return {x:p.x+q.x,y:p.y+q.y};}
+  function scl(p,s){return {x:p.x*s,y:p.y*s};}
+  function len(v){return Math.hypot(v.x,v.y);}
+  function mid(p,q){return {x:(p.x+q.x)/2,y:(p.y+q.y)/2};}
+  function fmt(n){ var r=Math.round(n*100)/100; return (Math.abs(r-Math.round(r))<1e-9)?Math.round(r).toString():r.toFixed(2); }
+  function fmt1(n){ var r=Math.round(n*10)/10; return (Math.abs(r-Math.round(r))<1e-9)?Math.round(r).toString():r.toFixed(1); }
+  function svgEl(tag,attrs){ var el=document.createElementNS('http://www.w3.org/2000/svg',tag); for(var k in attrs){el.setAttribute(k,attrs[k]);} return el; }
+  function clearKids(el){ while(el.firstChild) el.removeChild(el.firstChild); }
+  function footOnLine(P,Aa,Bb){ var ab=sub(Bb,Aa),L2=ab.x*ab.x+ab.y*ab.y||1,t=((P.x-Aa.x)*ab.x+(P.y-Aa.y)*ab.y)/L2; return add(Aa,scl(ab,t)); }
+
+  var subBC=document.getElementById('subBC'),subCA=document.getElementById('subCA'),subAB=document.getElementById('subAB');
+  var tri=document.getElementById('tri'), incirc=document.getElementById('incirc');
+  var spokes=document.getElementById('spokes'), radii=document.getElementById('radii'), inc=document.getElementById('inc');
+  var labR=document.getElementById('labR'), pbar=document.getElementById('pbar');
+  var sideAlab=document.getElementById('sideA'),sideBlab=document.getElementById('sideB'),sideClab=document.getElementById('sideC');
+  var tA=document.getElementById('tA'),tB=document.getElementById('tB'),tC=document.getElementById('tC'),tI=document.getElementById('tI');
+  var hA=document.getElementById('hA'),hB=document.getElementById('hB'),hC=document.getElementById('hC');
+  var statusBadge=document.getElementById('status-badge');
+  var eqRow=document.getElementById('eq-row'), detailRow=document.getElementById('detail-row');
+  var toggleSplit=document.getElementById('toggle-split'), toggleRadii=document.getElementById('toggle-radii');
+
+  function poly(el,arr){ el.setAttribute('points',arr.map(function(p){return p.x.toFixed(1)+','+p.y.toFixed(1);}).join(' ')); }
+  function tagOut(el,V,ref,dist){ var d=sub(V,ref),l=len(d)||1; el.setAttribute('x',V.x+d.x/l*dist); el.setAttribute('y',V.y+d.y/l*dist); }
+
+  function update(){
+    var A=pts.A,B=pts.B,C=pts.C;
+    hA.setAttribute('cx',A.x);hA.setAttribute('cy',A.y);
+    hB.setAttribute('cx',B.x);hB.setAttribute('cy',B.y);
+    hC.setAttribute('cx',C.x);hC.setAttribute('cy',C.y);
+    poly(tri,[A,B,C]);
+
+    // side lengths (a opposite A = |BC|, etc.) in pixels
+    var aPx=len(sub(B,C)), bPx=len(sub(C,A)), cPx=len(sub(A,B));
+    var P=aPx+bPx+cPx;
+    var I=add(add(scl(A,aPx),scl(B,bPx)),scl(C,cPx)); I=scl(I,1/P); // incenter
+    var areaPx=Math.abs((B.x-A.x)*(C.y-A.y)-(C.x-A.x)*(B.y-A.y))/2;
+    var rPx=areaPx/(P/2);
+
+    incirc.setAttribute('cx',I.x);incirc.setAttribute('cy',I.y);incirc.setAttribute('r',rPx);
+    inc.setAttribute('cx',I.x);inc.setAttribute('cy',I.y);
+
+    // three sub-triangles
+    poly(subBC,[I,B,C]); poly(subCA,[I,C,A]); poly(subAB,[I,A,B]);
+    var disp=showSplit?'':'none'; subBC.style.display=subCA.style.display=subAB.style.display=disp;
+
+    // spokes I->A,B,C
+    clearKids(spokes);
+    if(showSplit){
+      [A,B,C].forEach(function(V){ spokes.appendChild(svgEl('line',{x1:I.x,y1:I.y,x2:V.x,y2:V.y,stroke:'#777777','stroke-width':1.3,'stroke-dasharray':'4 3'})); });
+    }
+    // perpendicular radii to each side (the heights = r)
+    clearKids(radii);
+    if(showRadii){
+      [[B,C],[C,A],[A,B]].forEach(function(e){
+        var F=footOnLine(I,e[0],e[1]);
+        radii.appendChild(svgEl('line',{x1:I.x,y1:I.y,x2:F.x,y2:F.y,stroke:'#993556','stroke-width':1.8}));
+        radii.appendChild(svgEl('circle',{cx:F.x,cy:F.y,r:2.5,fill:'#993556'}));
+      });
+    }
+
+    var cen=mid(mid(A,B),C);
+    tagOut(tA,A,cen,18); tagOut(tB,B,cen,18); tagOut(tC,C,cen,18);
+    tI.setAttribute('x',I.x); tI.setAttribute('y',I.y-12);
+    // r label along a radius to side BC
+    var F=footOnLine(I,B,C); labR.setAttribute('x',mid(I,F).x+10); labR.setAttribute('y',mid(I,F).y); labR.textContent='r='+fmt1(rPx/UNIT);
+    labR.style.display=showRadii?'':'none';
+
+    var a=aPx/UNIT,b=bPx/UNIT,c=cPx/UNIT, s=(a+b+c)/2, r=rPx/UNIT;
+    var areaRS=r*s, area=areaPx/(UNIT*UNIT);
+
+    // side-length labels on the triangle (color-matched to the sub-triangles / bar)
+    tagOut(sideAlab,mid(B,C),A,-16); sideAlab.textContent='a='+fmt1(a);
+    tagOut(sideBlab,mid(C,A),B,-16); sideBlab.textContent='b='+fmt1(b);
+    tagOut(sideClab,mid(A,B),C,-16); sideClab.textContent='c='+fmt1(c);
+
+    // perimeter bar: the three sides laid end-to-end, halfway point = s
+    clearKids(pbar);
+    var sc=BAR_W/(a+b+c);
+    var segs=[['a',a,'#378ADD'],['b',b,'#1D9E75'],['c',c,'#BA7517']];
+    var x=BAR_X0;
+    pbar.appendChild(svgEl('text',{x:BAR_X0,y:BAR_Y-16,'font-size':12.5,'font-weight':700,fill:'#555555'}));
+    pbar.lastChild.textContent='perimeter = a + b + c = '+fmt1(a+b+c);
+    segs.forEach(function(g){
+      var w=g[1]*sc;
+      pbar.appendChild(svgEl('rect',{x:x,y:BAR_Y,width:w,height:16,fill:g[2],'fill-opacity':0.55,stroke:'#ffffff','stroke-width':1.5}));
+      pbar.appendChild(svgEl('text',{x:x+w/2,y:BAR_Y+11.5,'text-anchor':'middle','font-size':11,'font-weight':700,fill:'#1a1a1a'}));
+      pbar.lastChild.textContent=g[0];
+      x+=w;
+    });
+    // semiperimeter marker at the halfway point of the bar
+    var sx=BAR_X0+BAR_W/2;
+    pbar.appendChild(svgEl('line',{x1:sx,y1:BAR_Y-8,x2:sx,y2:BAR_Y+24,stroke:'#993556','stroke-width':2.5}));
+    pbar.appendChild(svgEl('text',{x:sx,y:BAR_Y+38,'text-anchor':'middle','font-size':12.5,'font-weight':700,fill:'#993556'}));
+    pbar.lastChild.textContent='s = ½ perimeter = '+fmt1(s);
+    var ok=Math.abs(areaRS-area)<0.02*Math.max(1,area);
+
+    statusBadge.textContent = ok ? 'Area = r · s ✓' : 'computing…';
+    statusBadge.style.background = ok ? '#E3F4EC' : '#FBECEC';
+    statusBadge.style.color = ok ? '#1d7a4d' : '#a23b3b';
+
+    eqRow.innerHTML =
+      '<span>r · s = '+fmt1(r)+' · '+fmt1(s)+' = <b>'+fmt(areaRS)+'</b></span>'+
+      '<span style="color:#1d9e75;font-weight:700;">=</span>'+
+      '<span>actual area = <b>'+fmt(area)+'</b></span>';
+
+    detailRow.textContent='sides a='+fmt1(a)+', b='+fmt1(b)+', c='+fmt1(c)+';  s='+fmt1(s)+';  inradius r='+fmt1(r)+'  (area in unit²).';
+  }
+
+  var dragging=null;
+  function toSvgPoint(evt){
+    var rect=svg.getBoundingClientRect(), vb=svg.viewBox.baseVal;
+    return { x:(evt.clientX-rect.left)/rect.width*vb.width+vb.x, y:(evt.clientY-rect.top)/rect.height*vb.height+vb.y };
+  }
+  function onDown(key){ return function(e){ dragging=key; if(e.target.setPointerCapture){try{e.target.setPointerCapture(e.pointerId);}catch(err){}} e.preventDefault(); }; }
+  function onMove(e){
+    if(!dragging) return;
+    var p=toSvgPoint(e);
+    pts[dragging]={x:Math.min(maxX,Math.max(minX,p.x)), y:Math.min(maxY,Math.max(minY,p.y))};
+    update();
+  }
+  function onUp(){ dragging=null; }
+  hA.addEventListener('pointerdown',onDown('A'));
+  hB.addEventListener('pointerdown',onDown('B'));
+  hC.addEventListener('pointerdown',onDown('C'));
+  svg.addEventListener('pointermove',onMove);
+  window.addEventListener('pointerup',onUp);
+
+  toggleSplit.addEventListener('click',function(){ showSplit=!showSplit; toggleSplit.classList.toggle('active',showSplit); update(); });
+  toggleRadii.addEventListener('click',function(){ showRadii=!showRadii; toggleRadii.classList.toggle('active',showRadii); update(); });
+
+  var infoToggle=document.getElementById('info-toggle-btn');
+  var infoDrawer=document.getElementById('info-drawer');
+  var infoBackdrop=document.getElementById('info-backdrop');
+  var infoClose=document.getElementById('info-close');
+  function openDrawer(){ infoDrawer.classList.add('open'); infoBackdrop.classList.add('open'); }
+  function closeDrawer(){ infoDrawer.classList.remove('open'); infoBackdrop.classList.remove('open'); }
+  infoToggle.addEventListener('click',function(){ if(infoDrawer.classList.contains('open')) closeDrawer(); else openDrawer(); });
+  infoClose.addEventListener('click',closeDrawer);
+  infoBackdrop.addEventListener('click',closeDrawer);
+  document.addEventListener('keydown',function(e){ if(e.key==='Escape') closeDrawer(); });
+
+  update();
+})();
+</script>
+<script defer src="site-chrome.js"></script>
+</body>
+</html>

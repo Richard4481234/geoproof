@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<script>/*gp-noflash*/(function(){try{var t=localStorage.getItem('gp:theme')||(matchMedia('(prefers-color-scheme:dark)').matches?'dark':'light');document.documentElement.setAttribute('data-theme',t);if(t==='dark'){var s=document.createElement('style');s.textContent='html[data-theme=dark]{background:#14151a}html[data-theme=dark] body{background:#14151a!important;color:#e6e6e8!important}';document.head.appendChild(s);}}catch(e){}})();</script>
+<title>GeoProof — Trapezoid Midsegment explorer</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="The segment joining the legs' midpoints equals the average of the two parallel sides.">
+<link rel="canonical" href="https://richard4481234.github.io/geoproof/TrapezoidMidsegment-Visual.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="GeoProof">
+<meta property="og:title" content="Trapezoid Midsegment — GeoProof">
+<meta property="og:description" content="The segment joining the legs' midpoints equals the average of the two parallel sides.">
+<meta property="og:url" content="https://richard4481234.github.io/geoproof/TrapezoidMidsegment-Visual.html">
+<meta property="og:image" content="https://richard4481234.github.io/geoproof/og/TrapezoidMidsegment-Visual.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Trapezoid Midsegment — GeoProof">
+<meta name="twitter:description" content="The segment joining the legs' midpoints equals the average of the two parallel sides.">
+<meta name="twitter:image" content="https://richard4481234.github.io/geoproof/og/TrapezoidMidsegment-Visual.png">
+<style>
+  body{background:#f4f4f5;display:flex;justify-content:center;padding:40px 16px;font-family:sans-serif;}
+  .widget{width:680px;max-width:100%;}
+  .card{background:#ffffff;border:1px solid #e2e2e2;padding:1.25rem;}
+  .sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;}
+  #tm-svg{width:100%;height:auto;display:block;touch-action:none;}
+  .handle{cursor:grab;}
+  .handle:active{cursor:grabbing;}
+  .toggle-btn{padding:6px 14px;border-radius:999px;border:1px solid #d8d8d8;background:#f4f4f5;color:#888888;font-size:13px;font-weight:500;cursor:pointer;}
+  .toggle-btn.active{background:#1a1a1a;color:#ffffff;border-color:#1a1a1a;}
+  .stage{position:relative;border-radius:12px;overflow:hidden;border:1px solid #e2e2e2;}
+  .stage .card{border:none;}
+  .info-toggle{position:absolute;top:14px;right:14px;z-index:30;background:#1a1a1a;color:#ffffff;border:none;border-radius:999px;padding:7px 14px;font-size:13px;font-weight:500;cursor:pointer;}
+  .info-toggle:hover{background:#333333;}
+  .info-backdrop{position:absolute;inset:0;background:rgba(0,0,0,0.22);opacity:0;visibility:hidden;transition:opacity .2s ease;z-index:25;}
+  .info-backdrop.open{opacity:1;visibility:visible;}
+  .info-drawer{position:absolute;top:0;right:0;height:100%;width:320px;max-width:88%;background:#ffffff;border-left:1px solid #e2e2e2;box-shadow:-8px 0 24px rgba(0,0,0,0.14);padding:22px 20px;overflow-y:auto;transform:translateX(100%);transition:transform .25s ease;z-index:28;box-sizing:border-box;}
+  .info-drawer.open{transform:translateX(0);}
+  .info-close{position:absolute;top:14px;right:14px;background:#f4f4f5;border:1px solid #e2e2e2;border-radius:50%;width:28px;height:28px;font-size:14px;cursor:pointer;color:#555555;}
+  .info-drawer h3{font-size:17px;margin:6px 0 12px;padding-right:30px;color:#1a1a1a;}
+  .info-drawer h4{font-size:12px;margin:18px 0 6px;color:#666666;text-transform:uppercase;letter-spacing:.04em;}
+  .info-drawer p{font-size:13.5px;line-height:1.55;color:#333333;margin:0 0 10px;}
+  .formula-box{background:#f4f4f5;border-radius:8px;padding:10px 12px;text-align:center;font-size:13px;font-weight:600;margin:10px 0;color:#1a1a1a;}
+  .widget svg text{paint-order:stroke;stroke:#ffffff;stroke-width:3px;stroke-linejoin:round;stroke-opacity:0.92;}
+</style>
+</head>
+<body>
+<div class="widget">
+<div style="margin-bottom:12px;"><a href="index.html" style="font-size:14px;color:#1a1a1a;text-decoration:none;">&larr; GeoProof</a></div>
+<div class="stage">
+<div class="card">
+<h2 class="sr-only">A trapezoid ABCD is shown with two parallel sides: the bottom base AB and the top base DC, which stays parallel to AB as you drag. You can drag corners A, B, and D freely, and drag C along the top line. The midsegment MN joins the midpoints of the two slanted legs AD and BC. The theorem: the midsegment is parallel to both bases, and its length equals the average of the two base lengths — MN = (AB + DC) / 2. The three lengths are shown live, and MN always equals their average. An info button opens a drawer with the explanation.</h2>
+<svg id="tm-svg" viewBox="0 0 680 560" aria-hidden="true">
+  <polygon id="trap" fill="#378ADD" fill-opacity="0.08" stroke="#1a1a1a" stroke-width="2.5"></polygon>
+  <line id="baseAB" stroke="#378ADD" stroke-width="4.5" stroke-linecap="round"></line>
+  <line id="baseDC" stroke="#1D9E75" stroke-width="4.5" stroke-linecap="round"></line>
+  <line id="midMN" stroke="#BA7517" stroke-width="4" stroke-linecap="round"></line>
+  <circle id="mDot" r="4" fill="#BA7517"></circle>
+  <circle id="nDot" r="4" fill="#BA7517"></circle>
+  <text id="labAB" text-anchor="middle" fill="#185FA5" font-size="13" font-weight="700"></text>
+  <text id="labDC" text-anchor="middle" fill="#13694e" font-size="13" font-weight="700"></text>
+  <text id="labMN" text-anchor="middle" fill="#8a5710" font-size="13" font-weight="700"></text>
+  <text id="tA" text-anchor="middle" dominant-baseline="middle" fill="#1a1a1a" font-size="13" font-weight="700">A</text>
+  <text id="tB" text-anchor="middle" dominant-baseline="middle" fill="#1a1a1a" font-size="13" font-weight="700">B</text>
+  <text id="tC" text-anchor="middle" dominant-baseline="middle" fill="#1a1a1a" font-size="13" font-weight="700">C</text>
+  <text id="tD" text-anchor="middle" dominant-baseline="middle" fill="#1a1a1a" font-size="13" font-weight="700">D</text>
+  <text id="tM" text-anchor="middle" dominant-baseline="middle" fill="#8a5710" font-size="12.5" font-weight="700">M</text>
+  <text id="tN" text-anchor="middle" dominant-baseline="middle" fill="#8a5710" font-size="12.5" font-weight="700">N</text>
+  <circle id="hA" class="handle" r="11" fill="#ffffff" stroke="#1a1a1a" stroke-width="2"></circle>
+  <circle id="hB" class="handle" r="11" fill="#ffffff" stroke="#1a1a1a" stroke-width="2"></circle>
+  <circle id="hC" class="handle" r="11" fill="#ffffff" stroke="#13694e" stroke-width="2.5"></circle>
+  <circle id="hD" class="handle" r="11" fill="#ffffff" stroke="#1a1a1a" stroke-width="2"></circle>
+</svg>
+
+<div style="display:flex; justify-content:center; gap:10px; flex-wrap:wrap; margin-top:0.75rem;">
+  <button type="button" id="toggle-bars" class="toggle-btn active">Show length bars</button>
+</div>
+
+<div style="display:flex; justify-content:center; margin-top:0.85rem;">
+  <span id="status-badge" style="display:inline-block; padding:4px 14px; border-radius:999px; font-size:14px; font-weight:500;"></span>
+</div>
+
+<div id="formula-symbolic" style="text-align:center; font-size:14px; font-weight:600; color:#1a1a1a; margin-top:1.1rem;">MN = (AB + DC) / 2</div>
+<div id="eq-row" style="display:flex; align-items:center; justify-content:center; gap:16px; flex-wrap:wrap; margin-top:0.6rem; font-size:14.5px; color:#1a1a1a;"></div>
+<div id="detail-row" style="text-align:center; font-size:12.5px; color:#777777; margin-top:0.5rem;"></div>
+</div>
+
+<button type="button" id="info-toggle-btn" class="info-toggle">ⓘ About this theorem</button>
+<div id="info-backdrop" class="info-backdrop"></div>
+<aside id="info-drawer" class="info-drawer">
+  <button type="button" id="info-close" class="info-close" aria-label="Close">✕</button>
+  <h3>Trapezoid Midsegment</h3>
+  <p>The midsegment (or median) of a trapezoid joins the midpoints of its two non-parallel sides (the legs). It is parallel to both bases, and:</p>
+  <div class="formula-box">MN = (AB + DC) / 2</div>
+  <p>Its length is simply the average of the two parallel sides.</p>
+  <h4>Why it averages</h4>
+  <p>Writing the legs as vectors, the midsegment vector is the average of the two base vectors: N − M = ½((B − A) + (C − D)). Since both bases point the same way, this is parallel to them and its length is the mean of their lengths.</p>
+  <h4>Two familiar limits</h4>
+  <p>Shrink the top base to a point and the trapezoid becomes a triangle — the midsegment is then half the remaining base, the triangle midsegment theorem. Make both bases equal and you get a parallelogram, where the midsegment matches each base.</p>
+  <h4>Where it's used</h4>
+  <p>It gives the trapezoid area as midsegment × height, and underlies the trapezoidal rule for estimating areas under curves.</p>
+</aside>
+</div>
+</div>
+
+<script>
+(function(){
+  var svg=document.getElementById('tm-svg');
+  var A={x:140,y:430}, B={x:540,y:430}, D={x:225,y:190};
+  var topS=0.6;   // C = D + topS*(B-A)  -> keeps DC parallel to AB
+  var minX=40,maxX=640,minY=60,maxY=470;
+  var UNIT=30, showBars=true;
+
+  function sub(p,q){return {x:p.x-q.x,y:p.y-q.y};}
+  function add(p,q){return {x:p.x+q.x,y:p.y+q.y};}
+  function scl(p,s){return {x:p.x*s,y:p.y*s};}
+  function len(v){return Math.hypot(v.x,v.y);}
+  function mid(p,q){return {x:(p.x+q.x)/2,y:(p.y+q.y)/2};}
+  function fmt(n){ var r=Math.round(n*100)/100; return (Math.abs(r-Math.round(r))<1e-9)?Math.round(r).toString():r.toFixed(2); }
+  function fmt1(n){ var r=Math.round(n*10)/10; return (Math.abs(r-Math.round(r))<1e-9)?Math.round(r).toString():r.toFixed(1); }
+  function svgEl(tag,attrs){ var el=document.createElementNS('http://www.w3.org/2000/svg',tag); for(var k in attrs){el.setAttribute(k,attrs[k]);} return el; }
+
+  var trap=document.getElementById('trap');
+  var baseAB=document.getElementById('baseAB'),baseDC=document.getElementById('baseDC'),midMN=document.getElementById('midMN');
+  var mDot=document.getElementById('mDot'),nDot=document.getElementById('nDot');
+  var labAB=document.getElementById('labAB'),labDC=document.getElementById('labDC'),labMN=document.getElementById('labMN');
+  var tA=document.getElementById('tA'),tB=document.getElementById('tB'),tC=document.getElementById('tC'),tD=document.getElementById('tD'),tM=document.getElementById('tM'),tN=document.getElementById('tN');
+  var hA=document.getElementById('hA'),hB=document.getElementById('hB'),hC=document.getElementById('hC'),hD=document.getElementById('hD');
+  var statusBadge=document.getElementById('status-badge');
+  var eqRow=document.getElementById('eq-row'), detailRow=document.getElementById('detail-row');
+  var toggleBars=document.getElementById('toggle-bars');
+  var barsG=svgEl('g',{}); svg.appendChild(barsG);
+
+  function setLine(el,p,q){ el.setAttribute('x1',p.x);el.setAttribute('y1',p.y);el.setAttribute('x2',q.x);el.setAttribute('y2',q.y); }
+  function clearKids(el){ while(el.firstChild) el.removeChild(el.firstChild); }
+  // label offset perpendicular to segment p->q, on the side away from 'ref'
+  function labelPerp(el,p,q,ref,dist){
+    var d=sub(q,p),l=len(d)||1, n={x:-d.y/l,y:d.x/l}, m=mid(p,q);
+    if(dot(sub(m,ref),n)<0){ n.x=-n.x; n.y=-n.y; }
+    el.setAttribute('x',m.x+n.x*dist); el.setAttribute('y',m.y+n.y*dist+4);
+  }
+  function dot(u,v){return u.x*v.x+u.y*v.y;}
+  function tagOut(el,V,ref,dist){ var d=sub(V,ref),l=len(d)||1; el.setAttribute('x',V.x+d.x/l*dist); el.setAttribute('y',V.y+d.y/l*dist); }
+
+  function update(){
+    var u=sub(B,A);
+    var C=add(D,scl(u,topS));
+    hA.setAttribute('cx',A.x);hA.setAttribute('cy',A.y);
+    hB.setAttribute('cx',B.x);hB.setAttribute('cy',B.y);
+    hC.setAttribute('cx',C.x);hC.setAttribute('cy',C.y);
+    hD.setAttribute('cx',D.x);hD.setAttribute('cy',D.y);
+
+    trap.setAttribute('points',[A,B,C,D].map(function(p){return p.x.toFixed(1)+','+p.y.toFixed(1);}).join(' '));
+    setLine(baseAB,A,B); setLine(baseDC,D,C);
+
+    var M=mid(A,D), N=mid(B,C);
+    setLine(midMN,M,N);
+    mDot.setAttribute('cx',M.x);mDot.setAttribute('cy',M.y);
+    nDot.setAttribute('cx',N.x);nDot.setAttribute('cy',N.y);
+
+    var cen={x:(A.x+B.x+C.x+D.x)/4,y:(A.y+B.y+C.y+D.y)/4};
+    tagOut(tA,A,cen,18); tagOut(tB,B,cen,18); tagOut(tC,C,cen,18); tagOut(tD,D,cen,18);
+    tagOut(tM,M,cen,17); tagOut(tN,N,cen,17);
+    labelPerp(labAB,A,B,cen,18); labelPerp(labDC,D,C,cen,18); labelPerp(labMN,M,N,cen,16);
+
+    var ab=len(u)/UNIT, dc=len(sub(C,D))/UNIT, mn=len(sub(N,M))/UNIT;
+    labAB.textContent='AB = '+fmt1(ab); labDC.textContent='DC = '+fmt1(dc); labMN.textContent='MN = '+fmt1(mn);
+
+    // length bars (visualizing the average)
+    clearKids(barsG);
+    if(showBars){
+      var x0=120, y0=500, maxw=440, sc=maxw/Math.max(ab,dc,1);
+      var rows=[['AB',ab,'#378ADD',y0],['MN',mn,'#BA7517',y0+18],['DC',dc,'#1D9E75',y0+36]];
+      rows.forEach(function(r){
+        barsG.appendChild(svgEl('rect',{x:x0,y:r[3],width:r[1]*sc,height:11,fill:r[2],'fill-opacity':0.55,stroke:'#ffffff','stroke-width':1}));
+        var t=svgEl('text',{x:x0-8,y:r[3]+9,'text-anchor':'end','font-size':11,'font-weight':700,fill:r[2]}); t.textContent=r[0]; barsG.appendChild(t);
+        var v=svgEl('text',{x:x0+r[1]*sc+6,y:r[3]+9,'font-size':11,'font-weight':700,fill:'#555'}); v.textContent=fmt1(r[1]); barsG.appendChild(v);
+      });
+    }
+
+    var avg=(ab+dc)/2;
+    var ok=Math.abs(mn-avg)<0.02*Math.max(1,avg);
+    // also confirm MN parallel to AB
+    var par=Math.abs((sub(N,M).x*u.y-sub(N,M).y*u.x))/((len(sub(N,M))*len(u))||1);
+
+    statusBadge.textContent = (ok&&par<1e-6) ? 'MN ∥ bases, and MN = (AB+DC)/2 ✓' : 'computing…';
+    statusBadge.style.background = (ok&&par<1e-6) ? '#FBF3E0' : '#FBECEC';
+    statusBadge.style.color = (ok&&par<1e-6) ? '#8a5710' : '#a23b3b';
+
+    eqRow.innerHTML =
+      '<span>(AB + DC)/2 = ('+fmt1(ab)+' + '+fmt1(dc)+')/2 = <b>'+fmt(avg)+'</b></span>'+
+      '<span style="color:#1d9e75;font-weight:700;">=</span>'+
+      '<span>MN = <b>'+fmt(mn)+'</b></span>';
+
+    detailRow.textContent='Bottom base AB='+fmt1(ab)+', top base DC='+fmt1(dc)+', midsegment MN='+fmt1(mn)+'  (units).';
+  }
+
+  var dragging=null;
+  function toSvgPoint(evt){
+    var rect=svg.getBoundingClientRect(), vb=svg.viewBox.baseVal;
+    return { x:(evt.clientX-rect.left)/rect.width*vb.width+vb.x, y:(evt.clientY-rect.top)/rect.height*vb.height+vb.y };
+  }
+  function onDown(key){ return function(e){ dragging=key; if(e.target.setPointerCapture){try{e.target.setPointerCapture(e.pointerId);}catch(err){}} e.preventDefault(); }; }
+  function onMove(e){
+    if(!dragging) return;
+    var p=toSvgPoint(e);
+    var np={x:Math.min(maxX,Math.max(minX,p.x)), y:Math.min(maxY,Math.max(minY,p.y))};
+    if(dragging==='A') A=np;
+    else if(dragging==='B') B=np;
+    else if(dragging==='D') D=np;
+    else if(dragging==='C'){ var u=sub(B,A),L2=dot(u,u)||1; topS=dot(sub(np,D),u)/L2; topS=Math.max(0.05,Math.min(2.5,topS)); }
+    update();
+  }
+  function onUp(){ dragging=null; }
+  hA.addEventListener('pointerdown',onDown('A'));
+  hB.addEventListener('pointerdown',onDown('B'));
+  hC.addEventListener('pointerdown',onDown('C'));
+  hD.addEventListener('pointerdown',onDown('D'));
+  svg.addEventListener('pointermove',onMove);
+  window.addEventListener('pointerup',onUp);
+
+  toggleBars.addEventListener('click',function(){ showBars=!showBars; toggleBars.classList.toggle('active',showBars); update(); });
+
+  var infoToggle=document.getElementById('info-toggle-btn');
+  var infoDrawer=document.getElementById('info-drawer');
+  var infoBackdrop=document.getElementById('info-backdrop');
+  var infoClose=document.getElementById('info-close');
+  function openDrawer(){ infoDrawer.classList.add('open'); infoBackdrop.classList.add('open'); }
+  function closeDrawer(){ infoDrawer.classList.remove('open'); infoBackdrop.classList.remove('open'); }
+  infoToggle.addEventListener('click',function(){ if(infoDrawer.classList.contains('open')) closeDrawer(); else openDrawer(); });
+  infoClose.addEventListener('click',closeDrawer);
+  infoBackdrop.addEventListener('click',closeDrawer);
+  document.addEventListener('keydown',function(e){ if(e.key==='Escape') closeDrawer(); });
+
+  update();
+})();
+</script>
+<script defer src="site-chrome.js"></script>
+</body>
+</html>

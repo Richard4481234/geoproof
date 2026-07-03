@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<script>/*gp-noflash*/(function(){try{var t=localStorage.getItem('gp:theme')||(matchMedia('(prefers-color-scheme:dark)').matches?'dark':'light');document.documentElement.setAttribute('data-theme',t);if(t==='dark'){var s=document.createElement('style');s.textContent='html[data-theme=dark]{background:#14151a}html[data-theme=dark] body{background:#14151a!important;color:#e6e6e8!important}';document.head.appendChild(s);}}catch(e){}})();</script>
+<title>GeoProof — Simson Line explorer</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="Slide a point around a triangle's circumcircle and watch the three perpendicular feet stay in a line.">
+<link rel="canonical" href="https://richard4481234.github.io/geoproof/SimsonLine-Visual.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="GeoProof">
+<meta property="og:title" content="Simson Line — GeoProof">
+<meta property="og:description" content="Slide a point around a triangle's circumcircle and watch the three perpendicular feet stay in a line.">
+<meta property="og:url" content="https://richard4481234.github.io/geoproof/SimsonLine-Visual.html">
+<meta property="og:image" content="https://richard4481234.github.io/geoproof/og/SimsonLine-Visual.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Simson Line — GeoProof">
+<meta name="twitter:description" content="Slide a point around a triangle's circumcircle and watch the three perpendicular feet stay in a line.">
+<meta name="twitter:image" content="https://richard4481234.github.io/geoproof/og/SimsonLine-Visual.png">
+<style>
+  body{background:#f4f4f5;display:flex;justify-content:center;padding:40px 16px;font-family:sans-serif;}
+  .widget{width:680px;max-width:100%;}
+  .card{background:#ffffff;border:1px solid #e2e2e2;padding:1.25rem;}
+  .sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;}
+  #sm-svg{width:100%;height:auto;display:block;touch-action:none;}
+  .handle{cursor:grab;}
+  .handle:active{cursor:grabbing;}
+  .swatch{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:6px;vertical-align:middle;}
+  .toggle-btn{padding:6px 14px;border-radius:999px;border:1px solid #d8d8d8;background:#f4f4f5;color:#888888;font-size:13px;font-weight:500;cursor:pointer;}
+  .toggle-btn.active{background:#1a1a1a;color:#ffffff;border-color:#1a1a1a;}
+  .stage{position:relative;border-radius:12px;overflow:hidden;border:1px solid #e2e2e2;}
+  .stage .card{border:none;}
+  .info-toggle{position:absolute;top:14px;right:14px;z-index:30;background:#1a1a1a;color:#ffffff;border:none;border-radius:999px;padding:7px 14px;font-size:13px;font-weight:500;cursor:pointer;}
+  .info-toggle:hover{background:#333333;}
+  .info-backdrop{position:absolute;inset:0;background:rgba(0,0,0,0.22);opacity:0;visibility:hidden;transition:opacity .2s ease;z-index:25;}
+  .info-backdrop.open{opacity:1;visibility:visible;}
+  .info-drawer{position:absolute;top:0;right:0;height:100%;width:320px;max-width:88%;background:#ffffff;border-left:1px solid #e2e2e2;box-shadow:-8px 0 24px rgba(0,0,0,0.14);padding:22px 20px;overflow-y:auto;transform:translateX(100%);transition:transform .25s ease;z-index:28;box-sizing:border-box;}
+  .info-drawer.open{transform:translateX(0);}
+  .info-close{position:absolute;top:14px;right:14px;background:#f4f4f5;border:1px solid #e2e2e2;border-radius:50%;width:28px;height:28px;font-size:14px;cursor:pointer;color:#555555;}
+  .info-drawer h3{font-size:17px;margin:6px 0 12px;padding-right:30px;color:#1a1a1a;}
+  .info-drawer h4{font-size:12px;margin:18px 0 6px;color:#666666;text-transform:uppercase;letter-spacing:.04em;}
+  .info-drawer p{font-size:13.5px;line-height:1.55;color:#333333;margin:0 0 10px;}
+  .formula-box{background:#f4f4f5;border-radius:8px;padding:10px 12px;text-align:center;font-size:13px;font-weight:600;margin:10px 0;color:#1a1a1a;}
+  .widget svg text{paint-order:stroke;stroke:#ffffff;stroke-width:3px;stroke-linejoin:round;stroke-opacity:0.92;}
+</style>
+</head>
+<body>
+<div class="widget">
+<div style="margin-bottom:12px;"><a href="index.html" style="font-size:14px;color:#1a1a1a;text-decoration:none;">&larr; GeoProof</a></div>
+<div class="stage">
+<div class="card">
+<h2 class="sr-only">A triangle ABC is drawn with its circumscribed circle. A point P sits on that circle and can be dragged around it. From P, a perpendicular is dropped to each of the three side-lines, landing at three feet. The Simson line theorem says that whenever P is on the circumcircle, these three feet are collinear — they line up on a single straight line, the Simson line. Drag P around the circle to watch the line sweep, or drag a vertex to reshape the triangle. An info button opens a drawer explaining the theorem.</h2>
+<svg id="sm-svg" viewBox="0 0 680 560" aria-hidden="true">
+  <circle id="circumcircle" fill="none" stroke="#BA7517" stroke-width="1.5" stroke-dasharray="5,4" stroke-opacity="0.6"></circle>
+  <line id="ext-bc" stroke="#cccccc" stroke-width="1" stroke-dasharray="3,4"></line>
+  <line id="ext-ca" stroke="#cccccc" stroke-width="1" stroke-dasharray="3,4"></line>
+  <line id="ext-ab" stroke="#cccccc" stroke-width="1" stroke-dasharray="3,4"></line>
+  <polygon id="tri-poly" fill="#1a1a1a" fill-opacity="0.03" stroke="#1a1a1a" stroke-width="2.5"></polygon>
+  <line id="perp-a" stroke="#378ADD" stroke-width="1.6" stroke-dasharray="4,3" stroke-opacity="0.8"></line>
+  <line id="perp-b" stroke="#639922" stroke-width="1.6" stroke-dasharray="4,3" stroke-opacity="0.8"></line>
+  <line id="perp-c" stroke="#D4537E" stroke-width="1.6" stroke-dasharray="4,3" stroke-opacity="0.8"></line>
+  <line id="simson" stroke="#8B5FBF" stroke-width="3" stroke-linecap="round"></line>
+  <circle id="foot-a" r="4.5" fill="#378ADD"></circle>
+  <circle id="foot-b" r="4.5" fill="#639922"></circle>
+  <circle id="foot-c" r="4.5" fill="#D4537E"></circle>
+  <text id="tag-A" text-anchor="middle" dominant-baseline="middle" fill="#1a1a1a" font-size="14" font-weight="700">A</text>
+  <text id="tag-B" text-anchor="middle" dominant-baseline="middle" fill="#1a1a1a" font-size="14" font-weight="700">B</text>
+  <text id="tag-C" text-anchor="middle" dominant-baseline="middle" fill="#1a1a1a" font-size="14" font-weight="700">C</text>
+  <circle id="dot-P" r="6" fill="#8B5FBF"></circle>
+  <text id="tag-P" text-anchor="middle" dominant-baseline="middle" fill="#5B3886" font-size="14" font-weight="700">P</text>
+  <circle id="handle-A" class="handle" r="12" fill="#ffffff" stroke="#1a1a1a" stroke-width="2"></circle>
+  <circle id="handle-B" class="handle" r="12" fill="#ffffff" stroke="#1a1a1a" stroke-width="2"></circle>
+  <circle id="handle-C" class="handle" r="12" fill="#ffffff" stroke="#1a1a1a" stroke-width="2"></circle>
+  <circle id="handle-P" class="handle" r="12" fill="#ffffff" stroke="#8B5FBF" stroke-width="3"></circle>
+</svg>
+
+<div style="display:flex; justify-content:center; gap:10px; flex-wrap:wrap; margin-top:0.75rem;">
+  <button type="button" id="toggle-circle" class="toggle-btn active">Circumcircle</button>
+  <button type="button" id="toggle-perp" class="toggle-btn active">Perpendiculars</button>
+  <button type="button" id="toggle-ext" class="toggle-btn">Side extensions</button>
+</div>
+
+<div style="display:flex; justify-content:center; margin-top:0.85rem;">
+  <span id="status-badge" style="display:inline-block; padding:4px 14px; border-radius:999px; font-size:14px; font-weight:500;"></span>
+</div>
+
+<div id="formula-symbolic" style="text-align:center; font-size:14px; font-weight:600; color:#1a1a1a; margin-top:1.1rem;">P on the circumcircle ⟹ the three feet are collinear</div>
+
+<div id="detail-row" style="text-align:center; font-size:13px; color:#555555; margin-top:0.55rem;"></div>
+<div style="text-align:center; font-size:13px; color:#777777; margin-top:0.55rem;">Drag P around the circle — the three feet always stay on one line (the Simson line). Drag a vertex to reshape the triangle.</div>
+</div>
+
+<button type="button" id="info-toggle-btn" class="info-toggle">ⓘ About this theorem</button>
+<div id="info-backdrop" class="info-backdrop"></div>
+<aside id="info-drawer" class="info-drawer">
+  <button type="button" id="info-close" class="info-close" aria-label="Close">✕</button>
+  <h3>The Simson Line</h3>
+  <p>Take a triangle and its circumscribed circle. Pick a point P on that circle, and drop a perpendicular from P to each of the three sides (extending the sides as needed). The three feet of those perpendiculars are always collinear:</p>
+  <div class="formula-box">P on the circumcircle ⟹ the three feet lie on one line</div>
+  <p>That line is the <i>Simson line</i> of P. Move P off the circle and the three feet spread into a little triangle — the alignment is special to the circumcircle.</p>
+  <h4>Special positions</h4>
+  <p>When P is at a vertex, the Simson line becomes the altitude from that vertex. As P travels once around the circle, the Simson line sweeps around and turns through half as much — every direction in the plane is hit twice.</p>
+  <h4>A hidden bisection</h4>
+  <p>The Simson line of P always passes through the midpoint of the segment joining P to the triangle's orthocenter — linking this theorem to the nine-point circle.</p>
+  <h4>Two Simson lines</h4>
+  <p>For two points on the circle, the angle between their Simson lines is half the arc between the points. Diametrically opposite points give perpendicular Simson lines.</p>
+  <h4>A bit of history</h4>
+  <p>Although named after Robert Simson, the line was actually first published by William Wallace in 1799 — a common case of mis-attribution in mathematics.</p>
+</aside>
+</div>
+</div>
+
+<script>
+(function(){
+  var svg=document.getElementById('sm-svg');
+  var pts={ A:{x:330,y:120}, B:{x:165,y:430}, C:{x:520,y:400} };
+  var Pang=20;     // P's angle on the circumcircle (degrees)
+  var minX=40,maxX=640,minY=60,maxY=500;
+  var showCircle=true, showPerp=true, showExt=false;
+
+  function sub(p,q){return {x:p.x-q.x,y:p.y-q.y};}
+  function len(v){return Math.hypot(v.x,v.y);}
+  function circumcenter(A,B,C){
+    var D=2*(A.x*(B.y-C.y)+B.x*(C.y-A.y)+C.x*(A.y-B.y));
+    if(Math.abs(D)<1e-9) return null;
+    var ux=((A.x*A.x+A.y*A.y)*(B.y-C.y)+(B.x*B.x+B.y*B.y)*(C.y-A.y)+(C.x*C.x+C.y*C.y)*(A.y-B.y))/D;
+    var uy=((A.x*A.x+A.y*A.y)*(C.x-B.x)+(B.x*B.x+B.y*B.y)*(A.x-C.x)+(C.x*C.x+C.y*C.y)*(B.x-A.x))/D;
+    return {x:ux,y:uy};
+  }
+  function foot(P,V1,V2){ var d=sub(V2,V1), t=((P.x-V1.x)*d.x+(P.y-V1.y)*d.y)/(d.x*d.x+d.y*d.y); return {x:V1.x+t*d.x,y:V1.y+t*d.y}; }
+  function area3(a,b,c){return Math.abs((b.x-a.x)*(c.y-a.y)-(c.x-a.x)*(b.y-a.y))/2;}
+  function extend(V1,V2,L){ var d=sub(V2,V1),l=len(d)||1,u={x:d.x/l,y:d.y/l}; return [{x:V1.x-u.x*L,y:V1.y-u.y*L},{x:V2.x+u.x*L,y:V2.y+u.y*L}]; }
+
+  var circumEl=document.getElementById('circumcircle');
+  var extBC=document.getElementById('ext-bc');
+  var extCA=document.getElementById('ext-ca');
+  var extAB=document.getElementById('ext-ab');
+  var triPoly=document.getElementById('tri-poly');
+  var perpA=document.getElementById('perp-a');
+  var perpB=document.getElementById('perp-b');
+  var perpC=document.getElementById('perp-c');
+  var simson=document.getElementById('simson');
+  var footA=document.getElementById('foot-a');
+  var footB=document.getElementById('foot-b');
+  var footC=document.getElementById('foot-c');
+  var tagA=document.getElementById('tag-A');
+  var tagB=document.getElementById('tag-B');
+  var tagC=document.getElementById('tag-C');
+  var dotP=document.getElementById('dot-P');
+  var tagP=document.getElementById('tag-P');
+  var hA=document.getElementById('handle-A');
+  var hB=document.getElementById('handle-B');
+  var hC=document.getElementById('handle-C');
+  var hP=document.getElementById('handle-P');
+  var statusBadge=document.getElementById('status-badge');
+  var detailRow=document.getElementById('detail-row');
+  var toggleCircle=document.getElementById('toggle-circle');
+  var togglePerp=document.getElementById('toggle-perp');
+  var toggleExt=document.getElementById('toggle-ext');
+
+  function setLine(el,p,q){ el.setAttribute('x1',p.x); el.setAttribute('y1',p.y); el.setAttribute('x2',q.x); el.setAttribute('y2',q.y); }
+  function disp(el,on){ el.style.display=on?'block':'none'; }
+
+  function update(){
+    var A=pts.A,B=pts.B,C=pts.C;
+    hA.setAttribute('cx',A.x); hA.setAttribute('cy',A.y);
+    hB.setAttribute('cx',B.x); hB.setAttribute('cy',B.y);
+    hC.setAttribute('cx',C.x); hC.setAttribute('cy',C.y);
+    triPoly.setAttribute('points', A.x+','+A.y+' '+B.x+','+B.y+' '+C.x+','+C.y);
+
+    var O=circumcenter(A,B,C);
+    if(!O){
+      [circumEl,perpA,perpB,perpC,simson,footA,footB,footC,dotP,tagP,extBC,extCA,extAB].forEach(function(e){e.style.display='none';});
+      statusBadge.textContent='Degenerate triangle — drag a vertex out';
+      statusBadge.style.background='#FAECE7'; statusBadge.style.color='#4A1B0C';
+      detailRow.textContent=''; return;
+    }
+    var R=len(sub(O,A));
+    disp(circumEl,showCircle);
+    circumEl.setAttribute('cx',O.x); circumEl.setAttribute('cy',O.y); circumEl.setAttribute('r',R);
+
+    var P={x:O.x+R*Math.cos(Pang*Math.PI/180), y:O.y+R*Math.sin(Pang*Math.PI/180)};
+    dotP.style.display='block'; tagP.style.display='block';
+    dotP.setAttribute('cx',P.x); dotP.setAttribute('cy',P.y);
+    hP.setAttribute('cx',P.x); hP.setAttribute('cy',P.y);
+    var pd=sub(P,O),pl=len(pd)||1; tagP.setAttribute('x',P.x+pd.x/pl*16); tagP.setAttribute('y',P.y+pd.y/pl*16);
+
+    var cen={x:(A.x+B.x+C.x)/3,y:(A.y+B.y+C.y)/3};
+    function vtag(el,V){ var d=sub(V,cen),l=len(d)||1; el.setAttribute('x',V.x+d.x/l*22); el.setAttribute('y',V.y+d.y/l*22); }
+    vtag(tagA,A); vtag(tagB,B); vtag(tagC,C);
+
+    // side extensions
+    disp(extBC,showExt); disp(extCA,showExt); disp(extAB,showExt);
+    if(showExt){
+      var eBC=extend(B,C,200), eCA=extend(C,A,200), eAB=extend(A,B,200);
+      setLine(extBC,eBC[0],eBC[1]); setLine(extCA,eCA[0],eCA[1]); setLine(extAB,eAB[0],eAB[1]);
+    }
+
+    // feet of perpendiculars from P
+    var Fa=foot(P,B,C),Fb=foot(P,C,A),Fc=foot(P,A,B);
+    footA.setAttribute('cx',Fa.x); footA.setAttribute('cy',Fa.y);
+    footB.setAttribute('cx',Fb.x); footB.setAttribute('cy',Fb.y);
+    footC.setAttribute('cx',Fc.x); footC.setAttribute('cy',Fc.y);
+
+    setLine(perpA,P,Fa); setLine(perpB,P,Fb); setLine(perpC,P,Fc);
+    disp(perpA,showPerp); disp(perpB,showPerp); disp(perpC,showPerp);
+
+    // Simson line through the three feet (draw long through the two farthest-apart feet)
+    var feet=[Fa,Fb,Fc];
+    var iMax=0,jMax=1,dMax=-1;
+    for(var i=0;i<3;i++)for(var j=i+1;j<3;j++){ var dd=len(sub(feet[i],feet[j])); if(dd>dMax){dMax=dd;iMax=i;jMax=j;} }
+    var p1=feet[iMax], p2=feet[jMax], dir=sub(p2,p1), dl=len(dir)||1, u={x:dir.x/dl,y:dir.y/dl};
+    var mLine={x:(p1.x+p2.x)/2,y:(p1.y+p2.y)/2};
+    setLine(simson,{x:mLine.x-u.x*900,y:mLine.y-u.y*900},{x:mLine.x+u.x*900,y:mLine.y+u.y*900});
+    simson.style.display='block';
+
+    var dev=area3(Fa,Fb,Fc)/Math.max(1,R); // collinearity deviation (≈0)
+    statusBadge.textContent='The three feet are collinear — the Simson line';
+    statusBadge.style.background='#EDE6F6'; statusBadge.style.color='#3F2A5C';
+    detailRow.innerHTML='Feet line up to within '+(dev<0.5?'0':dev.toFixed(1))+' px<span style="color:#1d9e75;font-weight:700;"> &check;</span>  —  drag P off-circle isn’t possible here, by design.';
+  }
+
+  var dragging=null;
+  function toSvgPoint(evt){
+    var rect=svg.getBoundingClientRect();
+    var vb=svg.viewBox.baseVal;
+    return { x:(evt.clientX-rect.left)/rect.width*vb.width+vb.x, y:(evt.clientY-rect.top)/rect.height*vb.height+vb.y };
+  }
+  function onDown(key){
+    return function(e){
+      dragging=key;
+      if(e.target.setPointerCapture){ try{ e.target.setPointerCapture(e.pointerId); }catch(err){} }
+      e.preventDefault();
+    };
+  }
+  function onMove(e){
+    if(!dragging) return;
+    var p=toSvgPoint(e);
+    if(dragging==='P'){
+      var O=circumcenter(pts.A,pts.B,pts.C); if(!O) return;
+      var v=sub(p,O); if(len(v)<1e-6) return;
+      Pang=((Math.atan2(v.y,v.x)*180/Math.PI)+360)%360;   // snap P to the circle
+    } else {
+      pts[dragging]={x:Math.min(maxX,Math.max(minX,p.x)), y:Math.min(maxY,Math.max(minY,p.y))};
+    }
+    update();
+  }
+  function onUp(){ dragging=null; }
+  hA.addEventListener('pointerdown',onDown('A'));
+  hB.addEventListener('pointerdown',onDown('B'));
+  hC.addEventListener('pointerdown',onDown('C'));
+  hP.addEventListener('pointerdown',onDown('P'));
+  svg.addEventListener('pointermove',onMove);
+  window.addEventListener('pointerup',onUp);
+
+  toggleCircle.addEventListener('click',function(){ showCircle=!showCircle; toggleCircle.classList.toggle('active',showCircle); update(); });
+  togglePerp.addEventListener('click',function(){ showPerp=!showPerp; togglePerp.classList.toggle('active',showPerp); update(); });
+  toggleExt.addEventListener('click',function(){ showExt=!showExt; toggleExt.classList.toggle('active',showExt); update(); });
+
+  var infoToggle=document.getElementById('info-toggle-btn');
+  var infoDrawer=document.getElementById('info-drawer');
+  var infoBackdrop=document.getElementById('info-backdrop');
+  var infoClose=document.getElementById('info-close');
+  function openDrawer(){ infoDrawer.classList.add('open'); infoBackdrop.classList.add('open'); }
+  function closeDrawer(){ infoDrawer.classList.remove('open'); infoBackdrop.classList.remove('open'); }
+  infoToggle.addEventListener('click',function(){
+    if(infoDrawer.classList.contains('open')) closeDrawer(); else openDrawer();
+  });
+  infoClose.addEventListener('click',closeDrawer);
+  infoBackdrop.addEventListener('click',closeDrawer);
+  document.addEventListener('keydown',function(e){ if(e.key==='Escape') closeDrawer(); });
+
+  update();
+})();
+</script>
+<script defer src="site-chrome.js"></script>
+</body>
+</html>

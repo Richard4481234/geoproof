@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<script>/*gp-noflash*/(function(){try{var t=localStorage.getItem('gp:theme')||(matchMedia('(prefers-color-scheme:dark)').matches?'dark':'light');document.documentElement.setAttribute('data-theme',t);if(t==='dark'){var s=document.createElement('style');s.textContent='html[data-theme=dark]{background:#14151a}html[data-theme=dark] body{background:#14151a!important;color:#e6e6e8!important}';document.head.appendChild(s);}}catch(e){}})();</script>
+<title>GeoProof — Circumcenter &amp; Circumcircle explorer</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="Drag a triangle and watch the perpendicular bisectors meet at the circumcenter, equidistant from all vertices.">
+<link rel="canonical" href="https://richard4481234.github.io/geoproof/Circumcircle-Visual.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="GeoProof">
+<meta property="og:title" content="Circumcenter &amp; Circumcircle — GeoProof">
+<meta property="og:description" content="Drag a triangle and watch the perpendicular bisectors meet at the circumcenter, equidistant from all vertices.">
+<meta property="og:url" content="https://richard4481234.github.io/geoproof/Circumcircle-Visual.html">
+<meta property="og:image" content="https://richard4481234.github.io/geoproof/og/Circumcircle-Visual.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Circumcenter &amp; Circumcircle — GeoProof">
+<meta name="twitter:description" content="Drag a triangle and watch the perpendicular bisectors meet at the circumcenter, equidistant from all vertices.">
+<meta name="twitter:image" content="https://richard4481234.github.io/geoproof/og/Circumcircle-Visual.png">
+<style>
+  body{background:#f4f4f5;display:flex;justify-content:center;padding:40px 16px;font-family:sans-serif;}
+  .widget{width:680px;max-width:100%;}
+  .card{background:#ffffff;border:1px solid #e2e2e2;padding:1.25rem;}
+  .sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;}
+  #cc-svg{width:100%;height:auto;display:block;touch-action:none;}
+  .handle{cursor:grab;}
+  .handle:active{cursor:grabbing;}
+  .swatch{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:6px;vertical-align:middle;}
+  .toggle-btn{padding:6px 14px;border-radius:999px;border:1px solid #d8d8d8;background:#f4f4f5;color:#888888;font-size:13px;font-weight:500;cursor:pointer;}
+  .toggle-btn.active{background:#1a1a1a;color:#ffffff;border-color:#1a1a1a;}
+  .stage{position:relative;border-radius:12px;overflow:hidden;border:1px solid #e2e2e2;}
+  .stage .card{border:none;}
+  .info-toggle{position:absolute;top:14px;right:14px;z-index:30;background:#1a1a1a;color:#ffffff;border:none;border-radius:999px;padding:7px 14px;font-size:13px;font-weight:500;cursor:pointer;}
+  .info-toggle:hover{background:#333333;}
+  .info-backdrop{position:absolute;inset:0;background:rgba(0,0,0,0.22);opacity:0;visibility:hidden;transition:opacity .2s ease;z-index:25;}
+  .info-backdrop.open{opacity:1;visibility:visible;}
+  .info-drawer{position:absolute;top:0;right:0;height:100%;width:320px;max-width:88%;background:#ffffff;border-left:1px solid #e2e2e2;box-shadow:-8px 0 24px rgba(0,0,0,0.14);padding:22px 20px;overflow-y:auto;transform:translateX(100%);transition:transform .25s ease;z-index:28;box-sizing:border-box;}
+  .info-drawer.open{transform:translateX(0);}
+  .info-close{position:absolute;top:14px;right:14px;background:#f4f4f5;border:1px solid #e2e2e2;border-radius:50%;width:28px;height:28px;font-size:14px;cursor:pointer;color:#555555;}
+  .info-drawer h3{font-size:17px;margin:6px 0 12px;padding-right:30px;color:#1a1a1a;}
+  .info-drawer h4{font-size:12px;margin:18px 0 6px;color:#666666;text-transform:uppercase;letter-spacing:.04em;}
+  .info-drawer p{font-size:13.5px;line-height:1.55;color:#333333;margin:0 0 10px;}
+  .formula-box{background:#f4f4f5;border-radius:8px;padding:10px 12px;text-align:center;font-size:13.5px;font-weight:600;margin:10px 0;color:#1a1a1a;}
+  .widget svg text{paint-order:stroke;stroke:#ffffff;stroke-width:3px;stroke-linejoin:round;stroke-opacity:0.92;}
+</style>
+</head>
+<body>
+<div class="widget">
+<div style="margin-bottom:12px;"><a href="index.html" style="font-size:14px;color:#1a1a1a;text-decoration:none;">&larr; GeoProof</a></div>
+<div class="stage">
+<div class="card">
+<h2 class="sr-only">A triangle ABC is shown. Drag any vertex. The perpendicular bisector of each side — the line of points equally far from that side's two endpoints — is drawn, and all three meet at a single point, the circumcenter O. The circumcenter is the same distance from all three vertices, and the circle centered at O through the vertices is the circumcircle. For an acute triangle O is inside; for a right triangle it sits on the hypotenuse's midpoint; for an obtuse triangle it lies outside. Toggles control the perpendicular bisectors, the circumcircle, and the equal vertex distances. An info button opens a drawer explaining the concept.</h2>
+<svg id="cc-svg" viewBox="0 0 680 560" aria-hidden="true">
+  <circle id="circumcircle" fill="#378ADD" fill-opacity="0.07" stroke="#378ADD" stroke-width="2"></circle>
+  <g id="pbisector-group"></g>
+  <polygon id="tri-poly" fill="none" stroke="#1a1a1a" stroke-width="2.5"></polygon>
+  <line id="r-a" stroke="#BA7517" stroke-width="2" stroke-dasharray="4,3"></line>
+  <line id="r-b" stroke="#BA7517" stroke-width="2" stroke-dasharray="4,3"></line>
+  <line id="r-c" stroke="#BA7517" stroke-width="2" stroke-dasharray="4,3"></line>
+  <text id="lab-ra" text-anchor="middle" dominant-baseline="middle" fill="#7A4D0B" font-size="11.5" font-weight="600"></text>
+  <text id="lab-rb" text-anchor="middle" dominant-baseline="middle" fill="#7A4D0B" font-size="11.5" font-weight="600"></text>
+  <text id="lab-rc" text-anchor="middle" dominant-baseline="middle" fill="#7A4D0B" font-size="11.5" font-weight="600"></text>
+  <circle id="dot-O" r="5.5" fill="#378ADD"></circle>
+  <text id="tag-O" text-anchor="middle" dominant-baseline="middle" fill="#185FA5" font-size="13" font-weight="700">O</text>
+  <text id="tag-A" text-anchor="middle" dominant-baseline="middle" fill="#1a1a1a" font-size="14" font-weight="700">A</text>
+  <text id="tag-B" text-anchor="middle" dominant-baseline="middle" fill="#1a1a1a" font-size="14" font-weight="700">B</text>
+  <text id="tag-C" text-anchor="middle" dominant-baseline="middle" fill="#1a1a1a" font-size="14" font-weight="700">C</text>
+  <circle id="handle-A" class="handle" r="12" fill="#ffffff" stroke="#1a1a1a" stroke-width="2"></circle>
+  <circle id="handle-B" class="handle" r="12" fill="#ffffff" stroke="#1a1a1a" stroke-width="2"></circle>
+  <circle id="handle-C" class="handle" r="12" fill="#ffffff" stroke="#1a1a1a" stroke-width="2"></circle>
+</svg>
+
+<div style="display:flex; justify-content:center; gap:10px; flex-wrap:wrap; margin-top:0.75rem;">
+  <button type="button" id="toggle-pbisectors" class="toggle-btn active">Perpendicular bisectors</button>
+  <button type="button" id="toggle-circle" class="toggle-btn active">Circumcircle</button>
+  <button type="button" id="toggle-radii" class="toggle-btn active">Equal distances</button>
+</div>
+
+<div style="display:flex; justify-content:center; margin-top:0.85rem;">
+  <span id="status-badge" style="display:inline-block; padding:4px 14px; border-radius:999px; font-size:14px; font-weight:500;"></span>
+</div>
+
+<div id="formula-symbolic" style="text-align:center; font-size:14px; font-weight:600; color:#1a1a1a; margin-top:1.1rem;">The circumcenter is equidistant from all three vertices — that distance is the circumradius R</div>
+
+<div id="r-row" style="display:flex; align-items:center; justify-content:center; gap:10px; flex-wrap:wrap; margin-top:0.6rem; font-size:15px; color:#1a1a1a;"></div>
+<div id="detail-row" style="text-align:center; font-size:12.5px; color:#777777; margin-top:0.55rem;"></div>
+</div>
+
+<button type="button" id="info-toggle-btn" class="info-toggle">ⓘ About this concept</button>
+<div id="info-backdrop" class="info-backdrop"></div>
+<aside id="info-drawer" class="info-drawer">
+  <button type="button" id="info-close" class="info-close" aria-label="Close">✕</button>
+  <h3>The Circumcenter &amp; Circumcircle</h3>
+  <p>The <i>perpendicular bisector</i> of a segment is the line of all points equally far from its two endpoints. Draw the perpendicular bisector of each side of a triangle and all three meet at one point — the <i>circumcenter</i> O:</p>
+  <div class="formula-box">three perpendicular bisectors meet at the circumcenter O</div>
+  <p>Because O lies on all three bisectors, it is the same distance from all three vertices. That distance is the <i>circumradius</i> R, and the circle centered at O through A, B, C is the <i>circumcircle</i>.</p>
+  <h4>Why equidistant?</h4>
+  <p>A point on the perpendicular bisector of BC is equally far from B and C. A point on all three bisectors is equally far from A, B and C at once — so OA = OB = OC.</p>
+  <h4>Inside, on, or outside</h4>
+  <p>For an acute triangle the circumcenter is inside; for a right triangle it lands exactly on the midpoint of the hypotenuse (so the hypotenuse is a diameter); for an obtuse triangle it falls outside the triangle. Drag a vertex to stretch the triangle obtuse and watch O leave.</p>
+  <h4>A useful formula</h4>
+  <p>The circumradius relates to the sides and area by R = abc ÷ (4·Area), and to the law of sines by a ÷ sin A = 2R.</p>
+  <h4>Where it's used</h4>
+  <p>The circumcircle underlies the inscribed-angle theorem, the law of sines, the nine-point circle, and the Euler line (O is one of its three named centers).</p>
+</aside>
+</div>
+</div>
+
+<script>
+(function(){
+  var svg=document.getElementById('cc-svg');
+  var pts={ A:{x:300,y:130}, B:{x:175,y:420}, C:{x:520,y:380} };
+  var minX=40,maxX=640,minY=60,maxY=500;
+  var UNIT=30;
+  var showPB=true, showCircle=true, showRadii=true;
+
+  function sub(p,q){return {x:p.x-q.x,y:p.y-q.y};}
+  function len(v){return Math.hypot(v.x,v.y);}
+  function mid(p,q){return {x:(p.x+q.x)/2,y:(p.y+q.y)/2};}
+  function fmt(n){ var r=Math.round(n*10)/10; return (Math.abs(r-Math.round(r))<1e-9)?Math.round(r).toString():r.toFixed(1); }
+  function circumcenter(A,B,C){
+    var D=2*(A.x*(B.y-C.y)+B.x*(C.y-A.y)+C.x*(A.y-B.y));
+    if(Math.abs(D)<1e-9) return null;
+    var ux=((A.x*A.x+A.y*A.y)*(B.y-C.y)+(B.x*B.x+B.y*B.y)*(C.y-A.y)+(C.x*C.x+C.y*C.y)*(A.y-B.y))/D;
+    var uy=((A.x*A.x+A.y*A.y)*(C.x-B.x)+(B.x*B.x+B.y*B.y)*(A.x-C.x)+(C.x*C.x+C.y*C.y)*(B.x-A.x))/D;
+    return {x:ux,y:uy};
+  }
+  function angleAt(V,U,W){ var c=(sub(U,V).x*sub(W,V).x+sub(U,V).y*sub(W,V).y)/(len(sub(U,V))*len(sub(W,V))); c=Math.min(1,Math.max(-1,c)); return Math.acos(c)*180/Math.PI; }
+  function svgEl(tag,attrs){ var el=document.createElementNS('http://www.w3.org/2000/svg',tag); for(var k in attrs){el.setAttribute(k,attrs[k]);} return el; }
+  function clearKids(el){ while(el.firstChild) el.removeChild(el.firstChild); }
+
+  var circumcircle=document.getElementById('circumcircle');
+  var pbGroup=document.getElementById('pbisector-group');
+  var triPoly=document.getElementById('tri-poly');
+  var rA=document.getElementById('r-a'),rB=document.getElementById('r-b'),rC=document.getElementById('r-c');
+  var labRa=document.getElementById('lab-ra'),labRb=document.getElementById('lab-rb'),labRc=document.getElementById('lab-rc');
+  var dotO=document.getElementById('dot-O'),tagO=document.getElementById('tag-O');
+  var tagA=document.getElementById('tag-A'),tagB=document.getElementById('tag-B'),tagC=document.getElementById('tag-C');
+  var hA=document.getElementById('handle-A'),hB=document.getElementById('handle-B'),hC=document.getElementById('handle-C');
+  var statusBadge=document.getElementById('status-badge');
+  var rRow=document.getElementById('r-row');
+  var detailRow=document.getElementById('detail-row');
+  var togglePB=document.getElementById('toggle-pbisectors');
+  var toggleCircle=document.getElementById('toggle-circle');
+  var toggleRadii=document.getElementById('toggle-radii');
+
+  function setLine(el,p,q){ el.setAttribute('x1',p.x); el.setAttribute('y1',p.y); el.setAttribute('x2',q.x); el.setAttribute('y2',q.y); }
+  function disp(el,on){ el.style.display=on?'block':'none'; }
+
+  function update(){
+    var A=pts.A,B=pts.B,C=pts.C;
+    hA.setAttribute('cx',A.x); hA.setAttribute('cy',A.y);
+    hB.setAttribute('cx',B.x); hB.setAttribute('cy',B.y);
+    hC.setAttribute('cx',C.x); hC.setAttribute('cy',C.y);
+    triPoly.setAttribute('points', A.x+','+A.y+' '+B.x+','+B.y+' '+C.x+','+C.y);
+
+    var O=circumcenter(A,B,C);
+    clearKids(pbGroup);
+    if(!O){
+      [circumcircle,rA,rB,rC,labRa,labRb,labRc,dotO,tagO].forEach(function(e){e.style.display='none';});
+      statusBadge.textContent='Degenerate triangle — drag a vertex out';
+      statusBadge.style.background='#FAECE7'; statusBadge.style.color='#4A1B0C';
+      rRow.innerHTML=''; detailRow.textContent=''; return;
+    }
+    var R=len(sub(O,A));
+
+    var cen={x:(A.x+B.x+C.x)/3,y:(A.y+B.y+C.y)/3};
+    function vtag(el,V){ var d=sub(V,cen),l=len(d)||1; el.setAttribute('x',V.x+d.x/l*22); el.setAttribute('y',V.y+d.y/l*22); }
+    vtag(tagA,A); vtag(tagB,B); vtag(tagC,C);
+
+    // perpendicular bisectors of each side (through midpoint, perpendicular to side, drawn long)
+    if(showPB){
+      [[B,C],[C,A],[A,B]].forEach(function(s){
+        var m=mid(s[0],s[1]), d=sub(s[1],s[0]), l=len(d)||1, perp={x:-d.y/l,y:d.x/l};
+        pbGroup.appendChild(svgEl('line',{x1:m.x-perp.x*900,y1:m.y-perp.y*900,x2:m.x+perp.x*900,y2:m.y+perp.y*900,stroke:'#8B5FBF','stroke-width':1.3,'stroke-opacity':0.55}));
+        pbGroup.appendChild(svgEl('circle',{cx:m.x,cy:m.y,r:2.5,fill:'#8B5FBF'}));
+      });
+    }
+
+    disp(circumcircle,showCircle);
+    circumcircle.setAttribute('cx',O.x); circumcircle.setAttribute('cy',O.y); circumcircle.setAttribute('r',R);
+
+    dotO.style.display='block'; tagO.style.display='block';
+    dotO.setAttribute('cx',O.x); dotO.setAttribute('cy',O.y);
+    tagO.setAttribute('x',O.x+13); tagO.setAttribute('y',O.y-11);
+
+    setLine(rA,O,A); setLine(rB,O,B); setLine(rC,O,C);
+    function rlbl(el,V){ var m=mid(O,V); el.setAttribute('x',m.x); el.setAttribute('y',m.y-7); el.textContent='R='+fmt(R/UNIT); }
+    rlbl(labRa,A); rlbl(labRb,B); rlbl(labRc,C);
+    [rA,rB,rC,labRa,labRb,labRc].forEach(function(el){ disp(el,showRadii); });
+
+    var maxA=Math.max(angleAt(A,B,C),angleAt(B,A,C),angleAt(C,A,B));
+    var kind, bg, col;
+    if(Math.abs(maxA-90)<1.0){ kind='Right triangle — O on the hypotenuse midpoint'; bg='#EAF3DE'; col='#173404'; }
+    else if(maxA>90){ kind='Obtuse triangle — O lies outside'; bg='#FAECE7'; col='#4A1B0C'; }
+    else { kind='Acute triangle — O lies inside'; bg='#E1F0FB'; col='#0E3F66'; }
+    statusBadge.textContent=kind;
+    statusBadge.style.background=bg; statusBadge.style.color=col;
+
+    rRow.innerHTML =
+      '<span><span class="swatch" style="background:#378ADD"></span>OA = '+fmt(len(sub(O,A))/UNIT)+'</span>'+
+      '<span><span class="swatch" style="background:#378ADD"></span>OB = '+fmt(len(sub(O,B))/UNIT)+'</span>'+
+      '<span><span class="swatch" style="background:#378ADD"></span>OC = '+fmt(len(sub(O,C))/UNIT)+'</span>'+
+      '<span style="color:#1d9e75;font-weight:700;">&check; all = R</span>';
+
+    detailRow.textContent='circumradius R = '+fmt(R/UNIT)+'   ·   O is the one point equally far from A, B and C.';
+  }
+
+  var dragging=null;
+  function toSvgPoint(evt){
+    var rect=svg.getBoundingClientRect();
+    var vb=svg.viewBox.baseVal;
+    return { x:(evt.clientX-rect.left)/rect.width*vb.width+vb.x, y:(evt.clientY-rect.top)/rect.height*vb.height+vb.y };
+  }
+  function onDown(key){
+    return function(e){
+      dragging=key;
+      if(e.target.setPointerCapture){ try{ e.target.setPointerCapture(e.pointerId); }catch(err){} }
+      e.preventDefault();
+    };
+  }
+  function onMove(e){
+    if(!dragging) return;
+    var p=toSvgPoint(e);
+    pts[dragging]={x:Math.min(maxX,Math.max(minX,p.x)), y:Math.min(maxY,Math.max(minY,p.y))};
+    update();
+  }
+  function onUp(){ dragging=null; }
+  hA.addEventListener('pointerdown',onDown('A'));
+  hB.addEventListener('pointerdown',onDown('B'));
+  hC.addEventListener('pointerdown',onDown('C'));
+  svg.addEventListener('pointermove',onMove);
+  window.addEventListener('pointerup',onUp);
+
+  togglePB.addEventListener('click',function(){ showPB=!showPB; togglePB.classList.toggle('active',showPB); update(); });
+  toggleCircle.addEventListener('click',function(){ showCircle=!showCircle; toggleCircle.classList.toggle('active',showCircle); update(); });
+  toggleRadii.addEventListener('click',function(){ showRadii=!showRadii; toggleRadii.classList.toggle('active',showRadii); update(); });
+
+  var infoToggle=document.getElementById('info-toggle-btn');
+  var infoDrawer=document.getElementById('info-drawer');
+  var infoBackdrop=document.getElementById('info-backdrop');
+  var infoClose=document.getElementById('info-close');
+  function openDrawer(){ infoDrawer.classList.add('open'); infoBackdrop.classList.add('open'); }
+  function closeDrawer(){ infoDrawer.classList.remove('open'); infoBackdrop.classList.remove('open'); }
+  infoToggle.addEventListener('click',function(){
+    if(infoDrawer.classList.contains('open')) closeDrawer(); else openDrawer();
+  });
+  infoClose.addEventListener('click',closeDrawer);
+  infoBackdrop.addEventListener('click',closeDrawer);
+  document.addEventListener('keydown',function(e){ if(e.key==='Escape') closeDrawer(); });
+
+  update();
+})();
+</script>
+<script defer src="site-chrome.js"></script>
+</body>
+</html>

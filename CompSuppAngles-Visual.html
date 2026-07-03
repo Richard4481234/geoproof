@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<script>/*gp-noflash*/(function(){try{var t=localStorage.getItem('gp:theme')||(matchMedia('(prefers-color-scheme:dark)').matches?'dark':'light');document.documentElement.setAttribute('data-theme',t);if(t==='dark'){var s=document.createElement('style');s.textContent='html[data-theme=dark]{background:#14151a}html[data-theme=dark] body{background:#14151a!important;color:#e6e6e8!important}';document.head.appendChild(s);}}catch(e){}})();</script>
+<title>GeoProof — Complementary &amp; Supplementary Angles explorer</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="Slide a shared ray and see two angles always total 90° or 180°.">
+<link rel="canonical" href="https://richard4481234.github.io/geoproof/CompSuppAngles-Visual.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="GeoProof">
+<meta property="og:title" content="Complementary &amp; Supplementary — GeoProof">
+<meta property="og:description" content="Slide a shared ray and see two angles always total 90° or 180°.">
+<meta property="og:url" content="https://richard4481234.github.io/geoproof/CompSuppAngles-Visual.html">
+<meta property="og:image" content="https://richard4481234.github.io/geoproof/og/CompSuppAngles-Visual.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Complementary &amp; Supplementary — GeoProof">
+<meta name="twitter:description" content="Slide a shared ray and see two angles always total 90° or 180°.">
+<meta name="twitter:image" content="https://richard4481234.github.io/geoproof/og/CompSuppAngles-Visual.png">
+<style>
+  body{background:#f4f4f5;display:flex;justify-content:center;padding:40px 16px;font-family:sans-serif;}
+  .widget{width:680px;max-width:100%;}
+  .card{background:#ffffff;border:1px solid #e2e2e2;padding:1.25rem;}
+  .sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;}
+  #cs-svg{width:100%;height:auto;display:block;touch-action:none;}
+  .handle{cursor:grab;}
+  .handle:active{cursor:grabbing;}
+  .swatch{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:6px;vertical-align:middle;}
+  .toggle-btn{padding:6px 14px;border-radius:999px;border:1px solid #d8d8d8;background:#f4f4f5;color:#888888;font-size:13px;font-weight:500;cursor:pointer;}
+  .toggle-btn.active{background:#1a1a1a;color:#ffffff;border-color:#1a1a1a;}
+  .stage{position:relative;border-radius:12px;overflow:hidden;border:1px solid #e2e2e2;}
+  .stage .card{border:none;}
+  .info-toggle{position:absolute;top:14px;right:14px;z-index:30;background:#1a1a1a;color:#ffffff;border:none;border-radius:999px;padding:7px 14px;font-size:13px;font-weight:500;cursor:pointer;}
+  .info-toggle:hover{background:#333333;}
+  .info-backdrop{position:absolute;inset:0;background:rgba(0,0,0,0.22);opacity:0;visibility:hidden;transition:opacity .2s ease;z-index:25;}
+  .info-backdrop.open{opacity:1;visibility:visible;}
+  .info-drawer{position:absolute;top:0;right:0;height:100%;width:320px;max-width:88%;background:#ffffff;border-left:1px solid #e2e2e2;box-shadow:-8px 0 24px rgba(0,0,0,0.14);padding:22px 20px;overflow-y:auto;transform:translateX(100%);transition:transform .25s ease;z-index:28;box-sizing:border-box;}
+  .info-drawer.open{transform:translateX(0);}
+  .info-close{position:absolute;top:14px;right:14px;background:#f4f4f5;border:1px solid #e2e2e2;border-radius:50%;width:28px;height:28px;font-size:14px;cursor:pointer;color:#555555;}
+  .info-drawer h3{font-size:17px;margin:6px 0 12px;padding-right:30px;color:#1a1a1a;}
+  .info-drawer h4{font-size:12px;margin:18px 0 6px;color:#666666;text-transform:uppercase;letter-spacing:.04em;}
+  .info-drawer p{font-size:13.5px;line-height:1.55;color:#333333;margin:0 0 10px;}
+  .formula-box{background:#f4f4f5;border-radius:8px;padding:10px 12px;text-align:center;font-size:13.5px;font-weight:600;margin:10px 0;color:#1a1a1a;}
+  .widget svg text{paint-order:stroke;stroke:#ffffff;stroke-width:3px;stroke-linejoin:round;stroke-opacity:0.92;}
+</style>
+</head>
+<body>
+<div class="widget">
+<div style="margin-bottom:12px;"><a href="index.html" style="font-size:14px;color:#1a1a1a;text-decoration:none;">&larr; GeoProof</a></div>
+<div class="stage">
+<div class="card">
+<h2 class="sr-only">Two angles sit side by side at a point, sharing a middle ray that you can drag. In complementary mode the outer arms form a right angle, so the two angles always add up to 90 degrees. In supplementary mode the outer arms form a straight line, so the two angles always add up to 180 degrees. Each angle's measure and their total are shown live. A button switches between the two modes. An info button opens a drawer explaining the terms.</h2>
+<svg id="cs-svg" viewBox="0 0 680 560" aria-hidden="true">
+  <line id="arm-base" stroke="#1a1a1a" stroke-width="3" stroke-linecap="round"></line>
+  <line id="arm-end" stroke="#1a1a1a" stroke-width="3" stroke-linecap="round"></line>
+  <line id="arm-mid" stroke="#BA7517" stroke-width="3" stroke-linecap="round"></line>
+  <polygon id="wedge-1" fill="#378ADD" fill-opacity="0.28" stroke="#378ADD" stroke-width="1" stroke-opacity="0.6"></polygon>
+  <polygon id="wedge-2" fill="#D4537E" fill-opacity="0.28" stroke="#D4537E" stroke-width="1" stroke-opacity="0.6"></polygon>
+  <polyline id="rt-mark" fill="none" stroke="#999999" stroke-width="1.5" style="display:none"></polyline>
+  <text id="lab-1" text-anchor="middle" dominant-baseline="middle" fill="#185FA5" font-size="14" font-weight="600"></text>
+  <text id="lab-2" text-anchor="middle" dominant-baseline="middle" fill="#993556" font-size="14" font-weight="600"></text>
+  <circle id="dot-O" r="4.5" fill="#1a1a1a"></circle>
+  <circle id="handle-mid" class="handle" r="12" fill="#ffffff" stroke="#BA7517" stroke-width="3"></circle>
+</svg>
+
+<div style="display:flex; justify-content:center; gap:10px; flex-wrap:wrap; margin-top:0.75rem;">
+  <button type="button" id="mode-comp" class="toggle-btn active">Complementary (90°)</button>
+  <button type="button" id="mode-supp" class="toggle-btn">Supplementary (180°)</button>
+</div>
+
+<div style="display:flex; justify-content:center; margin-top:0.85rem;">
+  <span id="status-badge" style="display:inline-block; padding:4px 14px; border-radius:999px; font-size:14px; font-weight:500;"></span>
+</div>
+
+<div id="eq-row" style="display:flex; align-items:center; justify-content:center; gap:8px; flex-wrap:wrap; margin-top:1rem; font-size:16px; color:#1a1a1a;"></div>
+<div id="detail-row" style="text-align:center; font-size:12.5px; color:#777777; margin-top:0.6rem;"></div>
+</div>
+
+<button type="button" id="info-toggle-btn" class="info-toggle">ⓘ About these terms</button>
+<div id="info-backdrop" class="info-backdrop"></div>
+<aside id="info-drawer" class="info-drawer">
+  <button type="button" id="info-close" class="info-close" aria-label="Close">✕</button>
+  <h3>Complementary &amp; Supplementary Angles</h3>
+  <p>Two angles are named by what they add up to:</p>
+  <div class="formula-box">complementary = add to 90° · supplementary = add to 180°</div>
+  <p>Here two angles share a middle ray. Drag that ray to trade size between them — their total stays fixed by the mode.</p>
+  <h4>Complementary (90°)</h4>
+  <p>The outer arms make a right angle, so the two pieces always sum to 90°. Each angle is the other's <i>complement</i> — e.g. 30° and 60°.</p>
+  <h4>Supplementary (180°)</h4>
+  <p>The outer arms make a straight line, so the two pieces always sum to 180°. Each angle is the other's <i>supplement</i> — e.g. 110° and 70°. Two angles in a straight line like this are also called a <i>linear pair</i>.</p>
+  <h4>Handy to remember</h4>
+  <p>"C" comes before "S", and 90 before 180 — <b>C</b>omplementary is the smaller (90°), <b>S</b>upplementary the larger (180°). These pairings are the backbone of angle-chasing: a right angle or a straight line instantly gives you the other angle.</p>
+</aside>
+</div>
+</div>
+
+<script>
+(function(){
+  var svg=document.getElementById('cs-svg');
+  var O={x:300,y:380}, R=240;
+  var mode='comp';        // 'comp' (90) or 'supp' (180)
+  var theta=35;           // middle ray angle measured up from the base arm (degrees), 0..total
+
+  function fmt(n){ return Math.round(n)+'°'; }
+  function ptUp(deg,r){ // base arm points right (+x); measure 'deg' going UP (counter-clockwise visually = negative screen angle)
+    var a=(-deg)*Math.PI/180; return {x:O.x+r*Math.cos(a), y:O.y+r*Math.sin(a)};
+  }
+  function ptsToStr(arr){return arr.map(function(p){return p.x.toFixed(1)+','+p.y.toFixed(1);}).join(' ');}
+  function wedgeUp(from,to,radius){
+    var steps=Math.max(2,Math.round(Math.abs(to-from)/4)), arr=[O];
+    for(var i=0;i<=steps;i++){ var deg=from+(to-from)*(i/steps); arr.push(ptUp(deg,radius)); }
+    return arr;
+  }
+
+  var armBase=document.getElementById('arm-base'), armEnd=document.getElementById('arm-end'), armMid=document.getElementById('arm-mid');
+  var w1=document.getElementById('wedge-1'), w2=document.getElementById('wedge-2');
+  var rtMark=document.getElementById('rt-mark');
+  var lab1=document.getElementById('lab-1'), lab2=document.getElementById('lab-2');
+  var dotO=document.getElementById('dot-O'), hMid=document.getElementById('handle-mid');
+  var statusBadge=document.getElementById('status-badge');
+  var eqRow=document.getElementById('eq-row');
+  var detailRow=document.getElementById('detail-row');
+  var modeComp=document.getElementById('mode-comp'), modeSupp=document.getElementById('mode-supp');
+
+  function setLine(el,p,q){ el.setAttribute('x1',p.x); el.setAttribute('y1',p.y); el.setAttribute('x2',q.x); el.setAttribute('y2',q.y); }
+  function disp(el,on){ el.style.display=on?'block':'none'; }
+
+  function update(){
+    var total=(mode==='comp')?90:180;
+    theta=Math.min(total-6,Math.max(6,theta));
+    dotO.setAttribute('cx',O.x); dotO.setAttribute('cy',O.y);
+
+    var base=ptUp(0,R), end=ptUp(total,R), midp=ptUp(theta,R);
+    setLine(armBase,O,base); setLine(armEnd,O,end); setLine(armMid,O,midp);
+    hMid.setAttribute('cx',midp.x); hMid.setAttribute('cy',midp.y);
+
+    w1.setAttribute('points',ptsToStr(wedgeUp(0,theta,58)));
+    w2.setAttribute('points',ptsToStr(wedgeUp(theta,total,58)));
+    var b1=ptUp(theta/2,84), b2=ptUp((theta+total)/2,84);
+    lab1.setAttribute('x',b1.x); lab1.setAttribute('y',b1.y); lab1.textContent=fmt(theta);
+    lab2.setAttribute('x',b2.x); lab2.setAttribute('y',b2.y); lab2.textContent=fmt(total-theta);
+
+    // right-angle mark for complementary mode (between base arm and the end arm at 90)
+    disp(rtMark, mode==='comp');
+    if(mode==='comp'){
+      var p1=ptUp(0,18), p2={x:O.x+18*Math.cos(-45*Math.PI/180)*Math.SQRT2*0.0+ (ptUp(0,18).x-O.x)+ (ptUp(90,18).x-O.x), y:0};
+      // simpler explicit square using unit steps along the two arms
+      var ux={x:Math.cos(0),y:-Math.sin(0)}; // base dir (right)
+      var uy={x:Math.cos(-90*Math.PI/180),y:Math.sin(-90*Math.PI/180)}; // up dir
+      var s=18;
+      var c1={x:O.x+ux.x*s,y:O.y+ux.y*s}, c2={x:O.x+ux.x*s+uy.x*s,y:O.y+ux.y*s+uy.y*s}, c3={x:O.x+uy.x*s,y:O.y+uy.y*s};
+      rtMark.setAttribute('points', c1.x+','+c1.y+' '+c2.x+','+c2.y+' '+c3.x+','+c3.y);
+    }
+
+    var a=Math.round(theta), b=Math.round(total-theta);
+    statusBadge.textContent=(mode==='comp')?'Complementary — the two angles add to 90°':'Supplementary — the two angles add to 180°';
+    statusBadge.style.background='#FBF3D9'; statusBadge.style.color='#5C4813';
+
+    eqRow.innerHTML =
+      '<span><span class="swatch" style="background:#378ADD"></span>'+a+'°</span><span style="color:#888;">+</span>'+
+      '<span><span class="swatch" style="background:#D4537E"></span>'+b+'°</span>'+
+      '<b style="color:#1d9e75;font-size:18px;">=</b>'+
+      '<span><b>'+(a+b)+'°</b></span>'+
+      '<span style="color:#1d9e75;font-weight:700;">&check;</span>';
+
+    detailRow.textContent=(mode==='comp')
+      ? 'Each angle is the other’s complement: '+a+'° and '+b+'° make a right angle.'
+      : 'Each angle is the other’s supplement: '+a+'° and '+b+'° make a straight line (a linear pair).';
+  }
+
+  var dragging=false;
+  function toSvgPoint(evt){
+    var rect=svg.getBoundingClientRect();
+    var vb=svg.viewBox.baseVal;
+    return { x:(evt.clientX-rect.left)/rect.width*vb.width+vb.x, y:(evt.clientY-rect.top)/rect.height*vb.height+vb.y };
+  }
+  hMid.addEventListener('pointerdown',function(e){ dragging=true; if(e.target.setPointerCapture){try{e.target.setPointerCapture(e.pointerId);}catch(err){}} e.preventDefault(); });
+  svg.addEventListener('pointermove',function(e){
+    if(!dragging) return;
+    var p=toSvgPoint(e);
+    var deg=(-Math.atan2(p.y-O.y,p.x-O.x))*180/Math.PI; // up-positive
+    theta=deg;
+    update();
+  });
+  window.addEventListener('pointerup',function(){ dragging=false; });
+
+  function setMode(m){ mode=m; modeComp.classList.toggle('active',m==='comp'); modeSupp.classList.toggle('active',m==='supp'); if(theta>(m==='comp'?84:174)) theta=(m==='comp'?60:110); update(); }
+  modeComp.addEventListener('click',function(){ setMode('comp'); });
+  modeSupp.addEventListener('click',function(){ setMode('supp'); });
+
+  var infoToggle=document.getElementById('info-toggle-btn');
+  var infoDrawer=document.getElementById('info-drawer');
+  var infoBackdrop=document.getElementById('info-backdrop');
+  var infoClose=document.getElementById('info-close');
+  function openDrawer(){ infoDrawer.classList.add('open'); infoBackdrop.classList.add('open'); }
+  function closeDrawer(){ infoDrawer.classList.remove('open'); infoBackdrop.classList.remove('open'); }
+  infoToggle.addEventListener('click',function(){
+    if(infoDrawer.classList.contains('open')) closeDrawer(); else openDrawer();
+  });
+  infoClose.addEventListener('click',closeDrawer);
+  infoBackdrop.addEventListener('click',closeDrawer);
+  document.addEventListener('keydown',function(e){ if(e.key==='Escape') closeDrawer(); });
+
+  update();
+})();
+</script>
+<script defer src="site-chrome.js"></script>
+</body>
+</html>

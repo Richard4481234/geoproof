@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<script>/*gp-noflash*/(function(){try{var t=localStorage.getItem('gp:theme')||(matchMedia('(prefers-color-scheme:dark)').matches?'dark':'light');document.documentElement.setAttribute('data-theme',t);if(t==='dark'){var s=document.createElement('style');s.textContent='html[data-theme=dark]{background:#14151a}html[data-theme=dark] body{background:#14151a!important;color:#e6e6e8!important}';document.head.appendChild(s);}}catch(e){}})();</script>
+<title>GeoProof — Parallel Lines &amp; a Transversal explorer</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="Slant a line across two parallel lines and explore corresponding, alternate, and co-interior angles.">
+<link rel="canonical" href="https://richard4481234.github.io/geoproof/ParallelTransversal-Visual.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="GeoProof">
+<meta property="og:title" content="Parallel Lines &amp; Transversal — GeoProof">
+<meta property="og:description" content="Slant a line across two parallel lines and explore corresponding, alternate, and co-interior angles.">
+<meta property="og:url" content="https://richard4481234.github.io/geoproof/ParallelTransversal-Visual.html">
+<meta property="og:image" content="https://richard4481234.github.io/geoproof/og/ParallelTransversal-Visual.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Parallel Lines &amp; Transversal — GeoProof">
+<meta name="twitter:description" content="Slant a line across two parallel lines and explore corresponding, alternate, and co-interior angles.">
+<meta name="twitter:image" content="https://richard4481234.github.io/geoproof/og/ParallelTransversal-Visual.png">
+<style>
+  body{background:#f4f4f5;display:flex;justify-content:center;padding:40px 16px;font-family:sans-serif;}
+  .widget{width:680px;max-width:100%;}
+  .card{background:#ffffff;border:1px solid #e2e2e2;padding:1.25rem;}
+  .sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;}
+  #pt-svg{width:100%;height:auto;display:block;touch-action:none;}
+  .handle{cursor:grab;}
+  .handle:active{cursor:grabbing;}
+  .swatch{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:6px;vertical-align:middle;}
+  .toggle-btn{padding:6px 14px;border-radius:999px;border:1px solid #d8d8d8;background:#f4f4f5;color:#888888;font-size:13px;font-weight:500;cursor:pointer;}
+  .toggle-btn.active{background:#1a1a1a;color:#ffffff;border-color:#1a1a1a;}
+  .stage{position:relative;border-radius:12px;overflow:hidden;border:1px solid #e2e2e2;}
+  .stage .card{border:none;}
+  .info-toggle{position:absolute;top:14px;right:14px;z-index:30;background:#1a1a1a;color:#ffffff;border:none;border-radius:999px;padding:7px 14px;font-size:13px;font-weight:500;cursor:pointer;}
+  .info-toggle:hover{background:#333333;}
+  .info-backdrop{position:absolute;inset:0;background:rgba(0,0,0,0.22);opacity:0;visibility:hidden;transition:opacity .2s ease;z-index:25;}
+  .info-backdrop.open{opacity:1;visibility:visible;}
+  .info-drawer{position:absolute;top:0;right:0;height:100%;width:320px;max-width:88%;background:#ffffff;border-left:1px solid #e2e2e2;box-shadow:-8px 0 24px rgba(0,0,0,0.14);padding:22px 20px;overflow-y:auto;transform:translateX(100%);transition:transform .25s ease;z-index:28;box-sizing:border-box;}
+  .info-drawer.open{transform:translateX(0);}
+  .info-close{position:absolute;top:14px;right:14px;background:#f4f4f5;border:1px solid #e2e2e2;border-radius:50%;width:28px;height:28px;font-size:14px;cursor:pointer;color:#555555;}
+  .info-drawer h3{font-size:17px;margin:6px 0 12px;padding-right:30px;color:#1a1a1a;}
+  .info-drawer h4{font-size:12px;margin:18px 0 6px;color:#666666;text-transform:uppercase;letter-spacing:.04em;}
+  .info-drawer p{font-size:13.5px;line-height:1.55;color:#333333;margin:0 0 10px;}
+  .formula-box{background:#f4f4f5;border-radius:8px;padding:10px 12px;text-align:center;font-size:13px;font-weight:600;margin:10px 0;color:#1a1a1a;}
+  .widget svg text{paint-order:stroke;stroke:#ffffff;stroke-width:3px;stroke-linejoin:round;stroke-opacity:0.92;}
+</style>
+</head>
+<body>
+<div class="widget">
+<div style="margin-bottom:12px;"><a href="index.html" style="font-size:14px;color:#1a1a1a;text-decoration:none;">&larr; GeoProof</a></div>
+<div class="stage">
+<div class="card">
+<h2 class="sr-only">Two parallel lines are crossed by a slanted line, the transversal, making two crossing points with four angles each. Drag the round handles to change where the transversal crosses each line, which changes its slant. Because the lines are parallel, the angle pattern repeats: at each crossing two opposite angles equal one value and the other two equal its supplement. Equal angles share a color. This shows corresponding angles equal, alternate interior angles equal, and co-interior angles adding to 180 degrees. An info button opens a drawer explaining the relationships.</h2>
+<svg id="pt-svg" viewBox="0 0 680 560" aria-hidden="true">
+  <line id="line-top" stroke="#1a1a1a" stroke-width="3" stroke-linecap="round"></line>
+  <line id="line-bot" stroke="#1a1a1a" stroke-width="3" stroke-linecap="round"></line>
+  <line id="transversal" stroke="#BA7517" stroke-width="2.5" stroke-linecap="round"></line>
+  <g id="angle-group"></g>
+  <circle id="dot-P1" r="4" fill="#1a1a1a"></circle>
+  <circle id="dot-P2" r="4" fill="#1a1a1a"></circle>
+  <text id="par-mark-top" text-anchor="middle" dominant-baseline="middle" fill="#888888" font-size="16" font-weight="700">›</text>
+  <text id="par-mark-bot" text-anchor="middle" dominant-baseline="middle" fill="#888888" font-size="16" font-weight="700">›</text>
+  <circle id="handle-T1" class="handle" r="11" fill="#ffffff" stroke="#BA7517" stroke-width="2.5"></circle>
+  <circle id="handle-T2" class="handle" r="11" fill="#ffffff" stroke="#BA7517" stroke-width="2.5"></circle>
+</svg>
+
+<div style="display:flex; justify-content:center; gap:10px; flex-wrap:wrap; margin-top:0.75rem;">
+  <button type="button" id="mode-corr" class="toggle-btn active">Corresponding</button>
+  <button type="button" id="mode-alt" class="toggle-btn">Alternate interior</button>
+  <button type="button" id="mode-co" class="toggle-btn">Co-interior</button>
+</div>
+
+<div style="display:flex; justify-content:center; margin-top:0.85rem;">
+  <span id="status-badge" style="display:inline-block; padding:4px 14px; border-radius:999px; font-size:14px; font-weight:500;"></span>
+</div>
+
+<div id="eq-row" style="display:flex; align-items:center; justify-content:center; gap:10px; flex-wrap:wrap; margin-top:1rem; font-size:15px; color:#1a1a1a;"></div>
+<div id="detail-row" style="text-align:center; font-size:12.5px; color:#777777; margin-top:0.6rem;"></div>
+</div>
+
+<button type="button" id="info-toggle-btn" class="info-toggle">ⓘ About these angles</button>
+<div id="info-backdrop" class="info-backdrop"></div>
+<aside id="info-drawer" class="info-drawer">
+  <button type="button" id="info-close" class="info-close" aria-label="Close">✕</button>
+  <h3>Parallel Lines &amp; a Transversal</h3>
+  <p>When a line (the <i>transversal</i>) crosses two parallel lines, it makes the same angle with each one. That single fact produces the classic angle relationships:</p>
+  <div class="formula-box">corresponding = equal · alternate interior = equal · co-interior = 180°</div>
+  <h4>Corresponding angles</h4>
+  <p>Angles in the same position at each crossing (e.g. both top-right) are equal. Here every angle of one colour equals every other angle of that colour.</p>
+  <h4>Alternate interior angles</h4>
+  <p>The two angles between the parallel lines, on opposite sides of the transversal, are equal.</p>
+  <h4>Co-interior (same-side interior) angles</h4>
+  <p>The two angles between the parallel lines on the <i>same</i> side of the transversal add up to 180° — they are supplementary. (These are the differently-coloured interior pair.)</p>
+  <h4>Why it all works</h4>
+  <p>Because the lines are parallel, the transversal cuts both at the identical angle, so each crossing shows the very same four angles — one value and its 180° supplement. Drag a handle to change the slant and watch both crossings stay in lockstep.</p>
+</aside>
+</div>
+</div>
+
+<script>
+(function(){
+  var svg=document.getElementById('pt-svg');
+  var topY=200, botY=380;
+  var T1x=420, T2x=300;     // x where transversal meets the top / bottom line
+  var mode='corr';
+  var leftX=60, rightX=620;
+
+  function fmt(n){ return Math.round(n)+'°'; }
+  function norm(d){ return ((d%360)+360)%360; }
+  function svgEl(tag,attrs){ var el=document.createElementNS('http://www.w3.org/2000/svg',tag); for(var k in attrs){el.setAttribute(k,attrs[k]);} return el; }
+  function clearKids(el){ while(el.firstChild) el.removeChild(el.firstChild); }
+
+  var lineTop=document.getElementById('line-top'), lineBot=document.getElementById('line-bot');
+  var transversal=document.getElementById('transversal');
+  var angleGroup=document.getElementById('angle-group');
+  var dotP1=document.getElementById('dot-P1'), dotP2=document.getElementById('dot-P2');
+  var parTop=document.getElementById('par-mark-top'), parBot=document.getElementById('par-mark-bot');
+  var hT1=document.getElementById('handle-T1'), hT2=document.getElementById('handle-T2');
+  var statusBadge=document.getElementById('status-badge');
+  var eqRow=document.getElementById('eq-row');
+  var detailRow=document.getElementById('detail-row');
+  var modeCorr=document.getElementById('mode-corr'), modeAlt=document.getElementById('mode-alt'), modeCo=document.getElementById('mode-co');
+
+  var COL1='#378ADD', COL2='#D4537E';   // the two angle classes (theta and 180-theta)
+
+  function setLine(el,x1,y1,x2,y2){ el.setAttribute('x1',x1); el.setAttribute('y1',y1); el.setAttribute('x2',x2); el.setAttribute('y2',y2); }
+
+  // draw the four sector angles at crossing P given transversal direction phi (deg);
+  // returns {theta, sectors:[{bisDeg,gap,isClass1,interiorSide}]}
+  function drawCrossing(P, phi, interiorIsBelow){
+    var dirs=[0,180,norm(phi),norm(phi+180)].map(norm).sort(function(a,b){return a-b;});
+    var sectors=[];
+    for(var i=0;i<4;i++){
+      var cur=dirs[i], nxt=(i<3?dirs[i+1]:dirs[0]+360);
+      var gap=nxt-cur, bis=norm(cur+gap/2);
+      sectors.push({cur:cur,gap:gap,bis:bis});
+    }
+    var theta=sectors[0].gap; // reference
+    sectors.forEach(function(s){ s.isClass1 = Math.abs(s.gap-theta)<0.5; });
+    return {theta:theta, sectors:sectors, P:P};
+  }
+
+  function angleWedgePts(P,startDeg,gap,radius){
+    var steps=Math.max(2,Math.round(gap/4)), arr=[P];
+    for(var i=0;i<=steps;i++){ var a=(startDeg+gap*(i/steps))*Math.PI/180; arr.push({x:P.x+radius*Math.cos(a),y:P.y+radius*Math.sin(a)}); }
+    return arr.map(function(p){return p.x.toFixed(1)+','+p.y.toFixed(1);}).join(' ');
+  }
+
+  function update(){
+    T1x=Math.min(rightX-20,Math.max(leftX+20,T1x));
+    T2x=Math.min(rightX-20,Math.max(leftX+20,T2x));
+    setLine(lineTop,leftX,topY,rightX,topY);
+    setLine(lineBot,leftX,botY,rightX,botY);
+    parTop.setAttribute('x',(leftX+rightX)/2); parTop.setAttribute('y',topY-2);
+    parBot.setAttribute('x',(leftX+rightX)/2); parBot.setAttribute('y',botY-2);
+
+    var P1={x:T1x,y:topY}, P2={x:T2x,y:botY};
+    // extend transversal a bit beyond both crossings
+    var dx=P1.x-P2.x, dy=P1.y-P2.y, L=Math.hypot(dx,dy)||1, u={x:dx/L,y:dy/L};
+    setLine(transversal, P2.x-u.x*70, P2.y-u.y*70, P1.x+u.x*70, P1.y+u.y*70);
+    dotP1.setAttribute('cx',P1.x); dotP1.setAttribute('cy',P1.y);
+    dotP2.setAttribute('cx',P2.x); dotP2.setAttribute('cy',P2.y);
+    hT1.setAttribute('cx',P1.x); hT1.setAttribute('cy',P1.y);
+    hT2.setAttribute('cx',P2.x); hT2.setAttribute('cy',P2.y);
+
+    var phi=Math.atan2(P1.y-P2.y,P1.x-P2.x)*180/Math.PI; // transversal direction
+    var c1=drawCrossing(P1,phi), c2=drawCrossing(P2,phi);
+    var theta=Math.min(c1.theta,180-c1.theta); // acute value for display
+    var thetaActual=c1.theta;
+
+    clearKids(angleGroup);
+    [c1,c2].forEach(function(c){
+      c.sectors.forEach(function(s){
+        var col=s.isClass1?COL1:COL2;
+        angleGroup.appendChild(svgEl('polygon',{points:angleWedgePts(c.P,s.cur,s.gap,22), fill:col,'fill-opacity':0.22, stroke:col,'stroke-width':1,'stroke-opacity':0.5}));
+        var lb=svgEl('text',{x:c.P.x+34*Math.cos(s.bis*Math.PI/180), y:c.P.y+34*Math.sin(s.bis*Math.PI/180), 'text-anchor':'middle','dominant-baseline':'middle', fill:(s.isClass1?'#185FA5':'#993556'),'font-size':12,'font-weight':600});
+        lb.textContent=fmt(s.gap);
+        angleGroup.appendChild(lb);
+      });
+    });
+
+    var thA=Math.round(thetaActual), thB=Math.round(180-thetaActual);
+    if(mode==='corr'){
+      statusBadge.textContent='Corresponding angles are equal';
+      eqRow.innerHTML='<span><span class="swatch" style="background:'+COL1+'"></span>same-position angles match: '+thA+'° = '+thA+'°</span><span style="color:#1d9e75;font-weight:700;">&check;</span>';
+      detailRow.textContent='An angle at the top crossing equals the angle in the same position at the bottom crossing.';
+    } else if(mode==='alt'){
+      statusBadge.textContent='Alternate interior angles are equal';
+      eqRow.innerHTML='<span><span class="swatch" style="background:'+COL1+'"></span>interior, opposite sides: '+thA+'° = '+thA+'°</span><span style="color:#1d9e75;font-weight:700;">&check;</span>';
+      detailRow.textContent='The two angles between the lines, on opposite sides of the transversal, are equal.';
+    } else {
+      statusBadge.textContent='Co-interior angles are supplementary';
+      eqRow.innerHTML='<span><span class="swatch" style="background:'+COL1+'"></span>'+thA+'° <span style="color:#888;">+</span> <span class="swatch" style="background:'+COL2+'"></span>'+thB+'° = '+(thA+thB)+'°</span><span style="color:#1d9e75;font-weight:700;">&check;</span>';
+      detailRow.textContent='The two angles between the lines, on the same side of the transversal, add to 180°.';
+    }
+    statusBadge.style.background='#FBF3D9'; statusBadge.style.color='#5C4813';
+  }
+
+  var dragging=null;
+  function toSvgPoint(evt){
+    var rect=svg.getBoundingClientRect();
+    var vb=svg.viewBox.baseVal;
+    return { x:(evt.clientX-rect.left)/rect.width*vb.width+vb.x, y:(evt.clientY-rect.top)/rect.height*vb.height+vb.y };
+  }
+  function onDown(key){
+    return function(e){
+      dragging=key;
+      if(e.target.setPointerCapture){ try{ e.target.setPointerCapture(e.pointerId); }catch(err){} }
+      e.preventDefault();
+    };
+  }
+  function onMove(e){
+    if(!dragging) return;
+    var p=toSvgPoint(e);
+    if(dragging==='T1') T1x=p.x; else T2x=p.x;
+    update();
+  }
+  function onUp(){ dragging=null; }
+  hT1.addEventListener('pointerdown',onDown('T1'));
+  hT2.addEventListener('pointerdown',onDown('T2'));
+  svg.addEventListener('pointermove',onMove);
+  window.addEventListener('pointerup',onUp);
+
+  function setMode(m){ mode=m; modeCorr.classList.toggle('active',m==='corr'); modeAlt.classList.toggle('active',m==='alt'); modeCo.classList.toggle('active',m==='co'); update(); }
+  modeCorr.addEventListener('click',function(){ setMode('corr'); });
+  modeAlt.addEventListener('click',function(){ setMode('alt'); });
+  modeCo.addEventListener('click',function(){ setMode('co'); });
+
+  var infoToggle=document.getElementById('info-toggle-btn');
+  var infoDrawer=document.getElementById('info-drawer');
+  var infoBackdrop=document.getElementById('info-backdrop');
+  var infoClose=document.getElementById('info-close');
+  function openDrawer(){ infoDrawer.classList.add('open'); infoBackdrop.classList.add('open'); }
+  function closeDrawer(){ infoDrawer.classList.remove('open'); infoBackdrop.classList.remove('open'); }
+  infoToggle.addEventListener('click',function(){
+    if(infoDrawer.classList.contains('open')) closeDrawer(); else openDrawer();
+  });
+  infoClose.addEventListener('click',closeDrawer);
+  infoBackdrop.addEventListener('click',closeDrawer);
+  document.addEventListener('keydown',function(e){ if(e.key==='Escape') closeDrawer(); });
+
+  update();
+})();
+</script>
+<script defer src="site-chrome.js"></script>
+</body>
+</html>

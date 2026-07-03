@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<script>/*gp-noflash*/(function(){try{var t=localStorage.getItem('gp:theme')||(matchMedia('(prefers-color-scheme:dark)').matches?'dark':'light');document.documentElement.setAttribute('data-theme',t);if(t==='dark'){var s=document.createElement('style');s.textContent='html[data-theme=dark]{background:#14151a}html[data-theme=dark] body{background:#14151a!important;color:#e6e6e8!important}';document.head.appendChild(s);}}catch(e){}})();</script>
+<title>GeoProof — Triangle Area = abc / 4R</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="A triangle's area is the product of its sides over four times its circumradius.">
+<link rel="canonical" href="https://richard4481234.github.io/geoproof/AreaCircumradius-Visual.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="GeoProof">
+<meta property="og:title" content="Area = abc/4R — GeoProof">
+<meta property="og:description" content="A triangle's area is the product of its sides over four times its circumradius.">
+<meta property="og:url" content="https://richard4481234.github.io/geoproof/AreaCircumradius-Visual.html">
+<meta property="og:image" content="https://richard4481234.github.io/geoproof/og/AreaCircumradius-Visual.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Area = abc/4R — GeoProof">
+<meta name="twitter:description" content="A triangle's area is the product of its sides over four times its circumradius.">
+<meta name="twitter:image" content="https://richard4481234.github.io/geoproof/og/AreaCircumradius-Visual.png">
+<style>
+  body{background:#f4f4f5;display:flex;justify-content:center;padding:40px 16px;font-family:sans-serif;}
+  .widget{width:680px;max-width:100%;}
+  .card{background:#ffffff;border:1px solid #e2e2e2;padding:1.25rem;}
+  .sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;}
+  #ac-svg{width:100%;height:auto;display:block;touch-action:none;}
+  .handle{cursor:grab;}
+  .handle:active{cursor:grabbing;}
+  .toggle-btn{padding:6px 14px;border-radius:999px;border:1px solid #d8d8d8;background:#f4f4f5;color:#888888;font-size:13px;font-weight:500;cursor:pointer;}
+  .toggle-btn.active{background:#1a1a1a;color:#ffffff;border-color:#1a1a1a;}
+  .stage{position:relative;border-radius:12px;overflow:hidden;border:1px solid #e2e2e2;}
+  .stage .card{border:none;}
+  .info-toggle{position:absolute;top:14px;right:14px;z-index:30;background:#1a1a1a;color:#ffffff;border:none;border-radius:999px;padding:7px 14px;font-size:13px;font-weight:500;cursor:pointer;}
+  .info-toggle:hover{background:#333333;}
+  .info-backdrop{position:absolute;inset:0;background:rgba(0,0,0,0.22);opacity:0;visibility:hidden;transition:opacity .2s ease;z-index:25;}
+  .info-backdrop.open{opacity:1;visibility:visible;}
+  .info-drawer{position:absolute;top:0;right:0;height:100%;width:320px;max-width:88%;background:#ffffff;border-left:1px solid #e2e2e2;box-shadow:-8px 0 24px rgba(0,0,0,0.14);padding:22px 20px;overflow-y:auto;transform:translateX(100%);transition:transform .25s ease;z-index:28;box-sizing:border-box;}
+  .info-drawer.open{transform:translateX(0);}
+  .info-close{position:absolute;top:14px;right:14px;background:#f4f4f5;border:1px solid #e2e2e2;border-radius:50%;width:28px;height:28px;font-size:14px;cursor:pointer;color:#555555;}
+  .info-drawer h3{font-size:17px;margin:6px 0 12px;padding-right:30px;color:#1a1a1a;}
+  .info-drawer h4{font-size:12px;margin:18px 0 6px;color:#666666;text-transform:uppercase;letter-spacing:.04em;}
+  .info-drawer p{font-size:13.5px;line-height:1.55;color:#333333;margin:0 0 10px;}
+  .formula-box{background:#f4f4f5;border-radius:8px;padding:10px 12px;text-align:center;font-size:13px;font-weight:600;margin:10px 0;color:#1a1a1a;}
+  .widget svg text{paint-order:stroke;stroke:#ffffff;stroke-width:3px;stroke-linejoin:round;stroke-opacity:0.92;}
+</style>
+</head>
+<body>
+<div class="widget">
+<div style="margin-bottom:12px;"><a href="index.html" style="font-size:14px;color:#1a1a1a;text-decoration:none;">&larr; GeoProof</a></div>
+<div class="stage">
+<div class="card">
+<h2 class="sr-only">A triangle ABC is shown inside its circumscribed circle, which has centre O and radius R. You can drag the three vertices. The triangle's area equals the product of its three side lengths a, b, c divided by four times the circumradius R. The side lengths, the circumradius, and the area computed both as a·b·c over 4R and directly are shown live and agree. Toggles show the side labels and the circumscribed circle. An info button opens a drawer with the explanation.</h2>
+<svg id="ac-svg" viewBox="0 0 680 560" aria-hidden="true">
+  <circle id="circ" fill="none" stroke="#cccccc" stroke-width="2"></circle>
+  <polygon id="tri" fill="#378ADD" fill-opacity="0.12" stroke="#1a1a1a" stroke-width="2.5"></polygon>
+  <line id="radLine" stroke="#993556" stroke-width="2" stroke-dasharray="5 4"></line>
+  <text id="radLab" text-anchor="middle" dominant-baseline="middle" fill="#993556" font-size="12.5" font-weight="700"></text>
+  <circle id="oDot" r="3.5" fill="#993556"></circle>
+  <text id="sideA" text-anchor="middle" fill="#8a5710" font-size="12.5" font-weight="700"></text>
+  <text id="sideB" text-anchor="middle" fill="#13694e" font-size="12.5" font-weight="700"></text>
+  <text id="sideC" text-anchor="middle" fill="#185FA5" font-size="12.5" font-weight="700"></text>
+  <text id="tA" text-anchor="middle" dominant-baseline="middle" fill="#1a1a1a" font-size="13" font-weight="700">A</text>
+  <text id="tB" text-anchor="middle" dominant-baseline="middle" fill="#1a1a1a" font-size="13" font-weight="700">B</text>
+  <text id="tC" text-anchor="middle" dominant-baseline="middle" fill="#1a1a1a" font-size="13" font-weight="700">C</text>
+  <text id="tO" text-anchor="middle" dominant-baseline="middle" fill="#993556" font-size="12" font-weight="700">O</text>
+  <circle id="hA" class="handle" r="11" fill="#ffffff" stroke="#1a1a1a" stroke-width="2"></circle>
+  <circle id="hB" class="handle" r="11" fill="#ffffff" stroke="#1a1a1a" stroke-width="2"></circle>
+  <circle id="hC" class="handle" r="11" fill="#ffffff" stroke="#1a1a1a" stroke-width="2"></circle>
+</svg>
+
+<div style="display:flex; justify-content:center; gap:10px; flex-wrap:wrap; margin-top:0.75rem;">
+  <button type="button" id="toggle-sides" class="toggle-btn active">Side lengths</button>
+  <button type="button" id="toggle-circ" class="toggle-btn active">Circumscribed circle</button>
+</div>
+
+<div style="display:flex; justify-content:center; margin-top:0.85rem;">
+  <span id="status-badge" style="display:inline-block; padding:4px 14px; border-radius:999px; font-size:14px; font-weight:500;"></span>
+</div>
+
+<div id="formula-symbolic" style="text-align:center; font-size:14px; font-weight:600; color:#1a1a1a; margin-top:1.1rem;">Area = abc / (4R)</div>
+<div id="eq-row" style="display:flex; align-items:center; justify-content:center; gap:16px; flex-wrap:wrap; margin-top:0.6rem; font-size:14.5px; color:#1a1a1a;"></div>
+<div id="detail-row" style="text-align:center; font-size:12.5px; color:#777777; margin-top:0.5rem;"></div>
+</div>
+
+<button type="button" id="info-toggle-btn" class="info-toggle">ⓘ About this theorem</button>
+<div id="info-backdrop" class="info-backdrop"></div>
+<aside id="info-drawer" class="info-drawer">
+  <button type="button" id="info-close" class="info-close" aria-label="Close">✕</button>
+  <h3>Area = abc / (4R)</h3>
+  <p>A triangle's area can be written from its three sides and the radius of its circumscribed circle:</p>
+  <div class="formula-box">Area = abc / (4R)</div>
+  <p>a, b, c are the side lengths and R is the circumradius — the radius of the unique circle through all three vertices.</p>
+  <h4>Where it comes from</h4>
+  <p>Two area formulas combine: Area = ½·a·b·sin C, and the law of sines gives sin C = c / (2R). Substituting, Area = ½·a·b·(c/2R) = abc/(4R).</p>
+  <h4>Rearranged</h4>
+  <p>Solving for the circumradius gives R = abc / (4·Area) — a quick way to find the circle through three points once you know the area (e.g. from Heron's formula).</p>
+  <h4>A feel for it</h4>
+  <p>For fixed side lengths, a flatter triangle has a smaller area and a larger circumscribed circle; squeeze the area toward zero and R grows without bound as the three points line up.</p>
+</aside>
+</div>
+</div>
+
+<script>
+(function(){
+  var svg=document.getElementById('ac-svg');
+  var pts={ A:{x:330,y:110}, B:{x:540,y:380}, C:{x:150,y:360} };
+  var minX=70,maxX=610,minY=70,maxY=470;
+  var UNIT=30, showSides=true, showCirc=true;
+
+  function sub(p,q){return {x:p.x-q.x,y:p.y-q.y};}
+  function len(v){return Math.hypot(v.x,v.y);}
+  function mid(p,q){return {x:(p.x+q.x)/2,y:(p.y+q.y)/2};}
+  function dot(u,v){return u.x*v.x+u.y*v.y;}
+  function fmt(n){ var r=Math.round(n*100)/100; return (Math.abs(r-Math.round(r))<1e-9)?Math.round(r).toString():r.toFixed(2); }
+  function fmt1(n){ var r=Math.round(n*10)/10; return (Math.abs(r-Math.round(r))<1e-9)?Math.round(r).toString():r.toFixed(1); }
+  function circum(A,B,C){ var d=2*(A.x*(B.y-C.y)+B.x*(C.y-A.y)+C.x*(A.y-B.y));
+    if(Math.abs(d)<1e-9) return null;
+    var ux=((A.x*A.x+A.y*A.y)*(B.y-C.y)+(B.x*B.x+B.y*B.y)*(C.y-A.y)+(C.x*C.x+C.y*C.y)*(A.y-B.y))/d;
+    var uy=((A.x*A.x+A.y*A.y)*(C.x-B.x)+(B.x*B.x+B.y*B.y)*(A.x-C.x)+(C.x*C.x+C.y*C.y)*(B.x-A.x))/d;
+    return {x:ux,y:uy}; }
+
+  var circ=document.getElementById('circ'), tri=document.getElementById('tri'), oDot=document.getElementById('oDot');
+  var radLine=document.getElementById('radLine'), radLab=document.getElementById('radLab');
+  var sideAlab=document.getElementById('sideA'),sideBlab=document.getElementById('sideB'),sideClab=document.getElementById('sideC');
+  var tA=document.getElementById('tA'),tB=document.getElementById('tB'),tC=document.getElementById('tC'),tO=document.getElementById('tO');
+  var hA=document.getElementById('hA'),hB=document.getElementById('hB'),hC=document.getElementById('hC');
+  var statusBadge=document.getElementById('status-badge');
+  var eqRow=document.getElementById('eq-row'), detailRow=document.getElementById('detail-row');
+  var toggleSides=document.getElementById('toggle-sides'), toggleCirc=document.getElementById('toggle-circ');
+
+  function tagOut(el,V,ref,dist){ var d=sub(V,ref),l=len(d)||1; el.setAttribute('x',V.x+d.x/l*dist); el.setAttribute('y',V.y+d.y/l*dist); }
+  function labelPerp(el,p,q,ref,dist){ var d=sub(q,p),l=len(d)||1,n={x:-d.y/l,y:d.x/l},m=mid(p,q); if(dot(sub(m,ref),n)<0){n.x=-n.x;n.y=-n.y;} el.setAttribute('x',m.x+n.x*dist); el.setAttribute('y',m.y+n.y*dist+4); }
+
+  function update(){
+    var A=pts.A,B=pts.B,C=pts.C;
+    hA.setAttribute('cx',A.x);hA.setAttribute('cy',A.y);
+    hB.setAttribute('cx',B.x);hB.setAttribute('cy',B.y);
+    hC.setAttribute('cx',C.x);hC.setAttribute('cy',C.y);
+    tri.setAttribute('points',[A,B,C].map(function(p){return p.x.toFixed(1)+','+p.y.toFixed(1);}).join(' '));
+
+    var O=circum(A,B,C);
+    if(!O){ statusBadge.textContent='make a non-degenerate triangle'; return; }
+    var R=len(sub(A,O));
+    circ.setAttribute('cx',O.x);circ.setAttribute('cy',O.y);circ.setAttribute('r',R);
+    circ.style.display=showCirc?'':'none';
+    oDot.setAttribute('cx',O.x);oDot.setAttribute('cy',O.y); oDot.style.display=showCirc?'':'none';
+    tO.style.display=showCirc?'':'none';
+
+    // radius segment O→A, labelled R (perpendicular offset off the segment)
+    radLine.setAttribute('x1',O.x);radLine.setAttribute('y1',O.y);radLine.setAttribute('x2',A.x);radLine.setAttribute('y2',A.y);
+    var rd=sub(A,O),rl=len(rd)||1,rn={x:-rd.y/rl,y:rd.x/rl},rm=mid(O,A);
+    radLab.setAttribute('x',rm.x+rn.x*13); radLab.setAttribute('y',rm.y+rn.y*13+4);
+    radLab.textContent='R='+fmt1(R/UNIT);
+    radLine.style.display=showCirc?'':'none'; radLab.style.display=showCirc?'':'none';
+
+    var cen={x:(A.x+B.x+C.x)/3,y:(A.y+B.y+C.y)/3};
+    tagOut(tA,A,cen,18); tagOut(tB,B,cen,18); tagOut(tC,C,cen,18); tagOut(tO,O,cen,-13);
+    labelPerp(sideAlab,B,C,cen,16); labelPerp(sideBlab,C,A,cen,16); labelPerp(sideClab,A,B,cen,16);
+
+    var a=len(sub(B,C))/UNIT, b=len(sub(C,A))/UNIT, c=len(sub(A,B))/UNIT, r=R/UNIT;
+    sideAlab.textContent='a='+fmt1(a); sideBlab.textContent='b='+fmt1(b); sideClab.textContent='c='+fmt1(c);
+    var sd=showSides?'':'none'; sideAlab.style.display=sideBlab.style.display=sideClab.style.display=sd;
+
+    var formula=a*b*c/(4*r);
+    var area=Math.abs((B.x-A.x)*(C.y-A.y)-(C.x-A.x)*(B.y-A.y))/2/(UNIT*UNIT);
+    var ok=Math.abs(formula-area)<0.02*Math.max(1,area);
+
+    statusBadge.textContent = ok ? 'Area = abc / (4R) ✓' : 'computing…';
+    statusBadge.style.background = ok ? '#E3F4EC' : '#FBECEC';
+    statusBadge.style.color = ok ? '#1d7a4d' : '#a23b3b';
+
+    eqRow.innerHTML =
+      '<span>abc / (4R) = ('+fmt1(a)+'·'+fmt1(b)+'·'+fmt1(c)+') / (4·'+fmt1(r)+') = <b>'+fmt(formula)+'</b></span>'+
+      '<span style="color:#1d9e75;font-weight:700;">=</span>'+
+      '<span>actual area = <b>'+fmt(area)+'</b></span>';
+    detailRow.textContent='sides a='+fmt1(a)+', b='+fmt1(b)+', c='+fmt1(c)+';  circumradius R='+fmt1(r)+'  (area in unit²).';
+  }
+
+  var dragging=null;
+  function toSvgPoint(evt){
+    var rect=svg.getBoundingClientRect(), vb=svg.viewBox.baseVal;
+    return { x:(evt.clientX-rect.left)/rect.width*vb.width+vb.x, y:(evt.clientY-rect.top)/rect.height*vb.height+vb.y };
+  }
+  function onDown(key){ return function(e){ dragging=key; if(e.target.setPointerCapture){try{e.target.setPointerCapture(e.pointerId);}catch(err){}} e.preventDefault(); }; }
+  function onMove(e){
+    if(!dragging) return;
+    var p=toSvgPoint(e);
+    pts[dragging]={x:Math.min(maxX,Math.max(minX,p.x)), y:Math.min(maxY,Math.max(minY,p.y))};
+    update();
+  }
+  function onUp(){ dragging=null; }
+  hA.addEventListener('pointerdown',onDown('A'));
+  hB.addEventListener('pointerdown',onDown('B'));
+  hC.addEventListener('pointerdown',onDown('C'));
+  svg.addEventListener('pointermove',onMove);
+  window.addEventListener('pointerup',onUp);
+
+  toggleSides.addEventListener('click',function(){ showSides=!showSides; toggleSides.classList.toggle('active',showSides); update(); });
+  toggleCirc.addEventListener('click',function(){ showCirc=!showCirc; toggleCirc.classList.toggle('active',showCirc); update(); });
+
+  var infoToggle=document.getElementById('info-toggle-btn');
+  var infoDrawer=document.getElementById('info-drawer');
+  var infoBackdrop=document.getElementById('info-backdrop');
+  var infoClose=document.getElementById('info-close');
+  function openDrawer(){ infoDrawer.classList.add('open'); infoBackdrop.classList.add('open'); }
+  function closeDrawer(){ infoDrawer.classList.remove('open'); infoBackdrop.classList.remove('open'); }
+  infoToggle.addEventListener('click',function(){ if(infoDrawer.classList.contains('open')) closeDrawer(); else openDrawer(); });
+  infoClose.addEventListener('click',closeDrawer);
+  infoBackdrop.addEventListener('click',closeDrawer);
+  document.addEventListener('keydown',function(e){ if(e.key==='Escape') closeDrawer(); });
+
+  update();
+})();
+</script>
+<script defer src="site-chrome.js"></script>
+</body>
+</html>

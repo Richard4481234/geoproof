@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<script>/*gp-noflash*/(function(){try{var t=localStorage.getItem('gp:theme')||(matchMedia('(prefers-color-scheme:dark)').matches?'dark':'light');document.documentElement.setAttribute('data-theme',t);if(t==='dark'){var s=document.createElement('style');s.textContent='html[data-theme=dark]{background:#14151a}html[data-theme=dark] body{background:#14151a!important;color:#e6e6e8!important}';document.head.appendChild(s);}}catch(e){}})();</script>
+<title>GeoProof — Pick's Theorem explorer</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="Count grid dots inside and on a lattice polygon: its area is I + B/2 − 1.">
+<link rel="canonical" href="https://richard4481234.github.io/geoproof/Picks-Visual.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="GeoProof">
+<meta property="og:title" content="Pick's Theorem — GeoProof">
+<meta property="og:description" content="Count grid dots inside and on a lattice polygon: its area is I + B/2 − 1.">
+<meta property="og:url" content="https://richard4481234.github.io/geoproof/Picks-Visual.html">
+<meta property="og:image" content="https://richard4481234.github.io/geoproof/og/Picks-Visual.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Pick's Theorem — GeoProof">
+<meta name="twitter:description" content="Count grid dots inside and on a lattice polygon: its area is I + B/2 − 1.">
+<meta name="twitter:image" content="https://richard4481234.github.io/geoproof/og/Picks-Visual.png">
+<style>
+  body{background:#f4f4f5;display:flex;justify-content:center;padding:40px 16px;font-family:sans-serif;}
+  .widget{width:680px;max-width:100%;}
+  .card{background:#ffffff;border:1px solid #e2e2e2;padding:1.25rem;}
+  .sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;}
+  #pk-svg{width:100%;height:auto;display:block;touch-action:none;}
+  .handle{cursor:grab;}
+  .handle:active{cursor:grabbing;}
+  .toggle-btn{padding:6px 14px;border-radius:999px;border:1px solid #d8d8d8;background:#f4f4f5;color:#888888;font-size:13px;font-weight:500;cursor:pointer;}
+  .toggle-btn.active{background:#1a1a1a;color:#ffffff;border-color:#1a1a1a;}
+  .stage{position:relative;border-radius:12px;overflow:hidden;border:1px solid #e2e2e2;}
+  .stage .card{border:none;}
+  .info-toggle{position:absolute;top:14px;right:14px;z-index:30;background:#1a1a1a;color:#ffffff;border:none;border-radius:999px;padding:7px 14px;font-size:13px;font-weight:500;cursor:pointer;}
+  .info-toggle:hover{background:#333333;}
+  .info-backdrop{position:absolute;inset:0;background:rgba(0,0,0,0.22);opacity:0;visibility:hidden;transition:opacity .2s ease;z-index:25;}
+  .info-backdrop.open{opacity:1;visibility:visible;}
+  .info-drawer{position:absolute;top:0;right:0;height:100%;width:320px;max-width:88%;background:#ffffff;border-left:1px solid #e2e2e2;box-shadow:-8px 0 24px rgba(0,0,0,0.14);padding:22px 20px;overflow-y:auto;transform:translateX(100%);transition:transform .25s ease;z-index:28;box-sizing:border-box;}
+  .info-drawer.open{transform:translateX(0);}
+  .info-close{position:absolute;top:14px;right:14px;background:#f4f4f5;border:1px solid #e2e2e2;border-radius:50%;width:28px;height:28px;font-size:14px;cursor:pointer;color:#555555;}
+  .info-drawer h3{font-size:17px;margin:6px 0 12px;padding-right:30px;color:#1a1a1a;}
+  .info-drawer h4{font-size:12px;margin:18px 0 6px;color:#666666;text-transform:uppercase;letter-spacing:.04em;}
+  .info-drawer p{font-size:13.5px;line-height:1.55;color:#333333;margin:0 0 10px;}
+  .formula-box{background:#f4f4f5;border-radius:8px;padding:10px 12px;text-align:center;font-size:13px;font-weight:600;margin:10px 0;color:#1a1a1a;}
+  .legend{display:flex;justify-content:center;gap:16px;flex-wrap:wrap;margin-top:0.7rem;font-size:12.5px;color:#555;}
+  .legend span{display:inline-flex;align-items:center;gap:6px;}
+  .dot{display:inline-block;width:11px;height:11px;border-radius:50%;}
+  .widget svg text{paint-order:stroke;stroke:#ffffff;stroke-width:3px;stroke-linejoin:round;stroke-opacity:0.92;}
+</style>
+</head>
+<body>
+<div class="widget">
+<div style="margin-bottom:12px;"><a href="index.html" style="font-size:14px;color:#1a1a1a;text-decoration:none;">&larr; GeoProof</a></div>
+<div class="stage">
+<div class="card">
+<h2 class="sr-only">A simple polygon is drawn on a grid of dots, with every corner sitting on a grid point. You can drag the four corners; they snap to grid points. Two kinds of grid points are highlighted: interior points strictly inside the polygon, and boundary points lying on its edges. Pick's theorem says the polygon's area equals the number of interior points, plus half the number of boundary points, minus one. The interior count I, the boundary count B, the Pick area I plus B over two minus one, and the directly computed area are all shown live and agree. An info button opens a drawer with the explanation.</h2>
+<svg id="pk-svg" viewBox="0 0 680 560" aria-hidden="true">
+  <g id="grid"></g>
+  <polygon id="poly" fill="#378ADD" fill-opacity="0.12" stroke="#1a1a1a" stroke-width="2.5"></polygon>
+  <g id="bpts"></g>
+  <g id="ipts"></g>
+  <circle id="h0" class="handle" r="11" fill="#ffffff" stroke="#1a1a1a" stroke-width="2.5"></circle>
+  <circle id="h1" class="handle" r="11" fill="#ffffff" stroke="#1a1a1a" stroke-width="2.5"></circle>
+  <circle id="h2" class="handle" r="11" fill="#ffffff" stroke="#1a1a1a" stroke-width="2.5"></circle>
+  <circle id="h3" class="handle" r="11" fill="#ffffff" stroke="#1a1a1a" stroke-width="2.5"></circle>
+</svg>
+
+<div class="legend">
+  <span><span class="dot" style="background:#378ADD;"></span>interior point (I)</span>
+  <span><span class="dot" style="background:#BA7517;"></span>boundary point (B)</span>
+  <span><span class="dot" style="background:#cfcfcf;width:7px;height:7px;"></span>other grid point</span>
+</div>
+
+<div style="display:flex; justify-content:center; margin-top:0.9rem;">
+  <span id="status-badge" style="display:inline-block; padding:4px 14px; border-radius:999px; font-size:14px; font-weight:500;"></span>
+</div>
+
+<div id="formula-symbolic" style="text-align:center; font-size:14px; font-weight:600; color:#1a1a1a; margin-top:1.1rem;">Area = I + B/2 − 1</div>
+<div id="eq-row" style="display:flex; align-items:center; justify-content:center; gap:16px; flex-wrap:wrap; margin-top:0.6rem; font-size:14.5px; color:#1a1a1a;"></div>
+<div id="detail-row" style="text-align:center; font-size:12.5px; color:#777777; margin-top:0.5rem;"></div>
+</div>
+
+<button type="button" id="info-toggle-btn" class="info-toggle">ⓘ About this theorem</button>
+<div id="info-backdrop" class="info-backdrop"></div>
+<aside id="info-drawer" class="info-drawer">
+  <button type="button" id="info-close" class="info-close" aria-label="Close">✕</button>
+  <h3>Pick's Theorem</h3>
+  <p>For a simple polygon whose vertices all land on grid (lattice) points, the area is found just by counting dots:</p>
+  <div class="formula-box">Area = I + B/2 − 1</div>
+  <p>I = grid points strictly inside, B = grid points on the boundary (including the corners). No lengths or coordinates needed.</p>
+  <h4>A quick sense of it</h4>
+  <p>Each interior point "owns" a full unit of area; each boundary point owns about half; and the −1 is a fixed correction for going once around a closed loop. Remarkably, it's exact for every lattice polygon.</p>
+  <h4>Counting the boundary</h4>
+  <p>An edge from one lattice point to another passes through gcd(|Δx|, |Δy|) lattice steps, so the number of boundary points is the sum of those gcds over all edges.</p>
+  <h4>Keep it simple</h4>
+  <p>Pick's theorem needs a <i>simple</i> polygon — edges that don't cross. If you drag the corners so the shape self-intersects, the count no longer matches the area; the badge will warn you.</p>
+</aside>
+</div>
+</div>
+
+<script>
+(function(){
+  var svg=document.getElementById('pk-svg');
+  var OX=86, OY=70, GU=38, NI=14, NJ=11;   // lattice (i,j): i in 0..NI, j in 0..NJ
+  var verts=[{i:2,j:9},{i:11,j:10},{i:13,j:4},{i:4,j:1}];   // four lattice corners
+
+  function px(v){ return {x:OX+v.i*GU, y:OY+v.j*GU}; }
+  function gcd(a,b){ a=Math.abs(a);b=Math.abs(b); while(b){var t=b;b=a%b;a=t;} return a; }
+  function fmt(n){ var r=Math.round(n*10)/10; return (Math.abs(r-Math.round(r))<1e-9)?Math.round(r).toString():r.toFixed(1); }
+
+  var gridG=document.getElementById('grid'), poly=document.getElementById('poly');
+  var bG=document.getElementById('bpts'), iG=document.getElementById('ipts');
+  var handles=[document.getElementById('h0'),document.getElementById('h1'),document.getElementById('h2'),document.getElementById('h3')];
+  var statusBadge=document.getElementById('status-badge');
+  var eqRow=document.getElementById('eq-row'), detailRow=document.getElementById('detail-row');
+
+  function svgEl(tag,attrs){ var el=document.createElementNS('http://www.w3.org/2000/svg',tag); for(var k in attrs){el.setAttribute(k,attrs[k]);} return el; }
+  function clearKids(el){ while(el.firstChild) el.removeChild(el.firstChild); }
+
+  // base grid of faint dots (drawn once)
+  for(var i=0;i<=NI;i++) for(var j=0;j<=NJ;j++){ var p=px({i:i,j:j}); gridG.appendChild(svgEl('circle',{cx:p.x,cy:p.y,r:2.4,fill:'#cfcfcf'})); }
+
+  function onSeg(pi,pj, a,b){ // is lattice point (pi,pj) on segment a→b (lattice)?
+    var cross=(b.i-a.i)*(pj-a.j)-(b.j-a.j)*(pi-a.i);
+    if(cross!==0) return false;
+    if(pi<Math.min(a.i,b.i)||pi>Math.max(a.i,b.i)) return false;
+    if(pj<Math.min(a.j,b.j)||pj>Math.max(a.j,b.j)) return false;
+    return true;
+  }
+  function isBoundary(pi,pj){
+    for(var k=0;k<verts.length;k++){ if(onSeg(pi,pj,verts[k],verts[(k+1)%verts.length])) return true; }
+    return false;
+  }
+  function inside(pi,pj){ // ray cast on lattice coords (point is not on boundary when this is called)
+    var c=false, n=verts.length;
+    for(var k=0,l=n-1;k<n;l=k++){
+      var vi=verts[k].i, vj=verts[k].j, wi=verts[l].i, wj=verts[l].j;
+      if(((vj>pj)!==(wj>pj)) && (pi < (wi-vi)*(pj-vj)/(wj-vj)+vi)) c=!c;
+    }
+    return c;
+  }
+  function segInt(a,b,c,d){ // proper intersection of segments ab, cd (lattice)
+    function o(p,q,r){ return (q.i-p.i)*(r.j-p.j)-(q.j-p.j)*(r.i-p.i); }
+    var o1=o(a,b,c),o2=o(a,b,d),o3=o(c,d,a),o4=o(c,d,b);
+    return ((o1>0)!==(o2>0)) && ((o3>0)!==(o4>0));
+  }
+  function isSimple(){
+    // check non-adjacent edge pairs for a 4-gon: (0,1)&(2,3), (1,2)&(3,0)
+    return !segInt(verts[0],verts[1],verts[2],verts[3]) && !segInt(verts[1],verts[2],verts[3],verts[0]);
+  }
+  function shoelace(){
+    var s=0,n=verts.length;
+    for(var k=0;k<n;k++){ var a=verts[k],b=verts[(k+1)%n]; s+=a.i*b.j-b.i*a.j; }
+    return Math.abs(s)/2;
+  }
+
+  function update(){
+    for(var k=0;k<verts.length;k++){ var p=px(verts[k]); handles[k].setAttribute('cx',p.x); handles[k].setAttribute('cy',p.y); }
+    poly.setAttribute('points',verts.map(function(v){var p=px(v);return p.x.toFixed(1)+','+p.y.toFixed(1);}).join(' '));
+
+    var simple=isSimple();
+
+    // boundary count via gcd of edges
+    var B=0;
+    for(var e=0;e<verts.length;e++){ var a=verts[e],b=verts[(e+1)%verts.length]; B+=gcd(b.i-a.i,b.j-a.j); }
+
+    // count & mark interior / boundary lattice points
+    clearKids(bG); clearKids(iG);
+    var I=0;
+    for(var i=0;i<=NI;i++) for(var j=0;j<=NJ;j++){
+      if(isBoundary(i,j)){ var p=px({i:i,j:j}); bG.appendChild(svgEl('circle',{cx:p.x,cy:p.y,r:4.5,fill:'#BA7517'})); }
+      else if(simple && inside(i,j)){ I++; var q=px({i:i,j:j}); iG.appendChild(svgEl('circle',{cx:q.x,cy:q.y,r:4.5,fill:'#378ADD'})); }
+    }
+
+    var pick=I + B/2 - 1;
+    var shoe=shoelace();
+    var ok = simple && Math.abs(pick-shoe)<1e-6;
+
+    if(!simple){
+      statusBadge.textContent='Polygon self-intersects — keep edges from crossing';
+      statusBadge.style.background='#FBECEC'; statusBadge.style.color='#a23b3b';
+      eqRow.innerHTML='<span style="color:#a23b3b;">Pick’s theorem needs a simple polygon.</span>';
+      detailRow.textContent='Drag a corner so the outline stops crossing itself.';
+      return;
+    }
+
+    statusBadge.textContent = ok ? 'Pick area = actual area' : 'computing…';
+    statusBadge.style.background = ok ? '#E3F4EC' : '#FBECEC';
+    statusBadge.style.color = ok ? '#1d7a4d' : '#a23b3b';
+
+    eqRow.innerHTML =
+      '<span>I + B/2 − 1 = '+I+' + '+B+'/2 − 1 = <b>'+fmt(pick)+'</b></span>'+
+      '<span style="color:#1d9e75;font-weight:700;">=</span>'+
+      '<span>actual area = <b>'+fmt(shoe)+'</b></span>';
+
+    detailRow.textContent='I = '+I+' interior points, B = '+B+' boundary points  (area in unit squares).';
+  }
+
+  var dragging=null;
+  function toSvgPoint(evt){
+    var rect=svg.getBoundingClientRect(), vb=svg.viewBox.baseVal;
+    return { x:(evt.clientX-rect.left)/rect.width*vb.width+vb.x, y:(evt.clientY-rect.top)/rect.height*vb.height+vb.y };
+  }
+  function onDown(k){ return function(e){ dragging=k; if(e.target.setPointerCapture){try{e.target.setPointerCapture(e.pointerId);}catch(err){}} e.preventDefault(); }; }
+  function onMove(e){
+    if(dragging===null) return;
+    var p=toSvgPoint(e);
+    var ni=Math.round((p.x-OX)/GU), nj=Math.round((p.y-OY)/GU);
+    ni=Math.min(NI,Math.max(0,ni)); nj=Math.min(NJ,Math.max(0,nj));
+    // don't allow two corners to coincide
+    var clash=false;
+    for(var k=0;k<verts.length;k++){ if(k!==dragging && verts[k].i===ni && verts[k].j===nj) clash=true; }
+    if(!clash){ verts[dragging]={i:ni,j:nj}; update(); }
+  }
+  function onUp(){ dragging=null; }
+  for(var h=0;h<4;h++) handles[h].addEventListener('pointerdown',onDown(h));
+  svg.addEventListener('pointermove',onMove);
+  window.addEventListener('pointerup',onUp);
+
+  var infoToggle=document.getElementById('info-toggle-btn');
+  var infoDrawer=document.getElementById('info-drawer');
+  var infoBackdrop=document.getElementById('info-backdrop');
+  var infoClose=document.getElementById('info-close');
+  function openDrawer(){ infoDrawer.classList.add('open'); infoBackdrop.classList.add('open'); }
+  function closeDrawer(){ infoDrawer.classList.remove('open'); infoBackdrop.classList.remove('open'); }
+  infoToggle.addEventListener('click',function(){ if(infoDrawer.classList.contains('open')) closeDrawer(); else openDrawer(); });
+  infoClose.addEventListener('click',closeDrawer);
+  infoBackdrop.addEventListener('click',closeDrawer);
+  document.addEventListener('keydown',function(e){ if(e.key==='Escape') closeDrawer(); });
+
+  update();
+})();
+</script>
+<script defer src="site-chrome.js"></script>
+</body>
+</html>

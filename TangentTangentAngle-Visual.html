@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<script>/*gp-noflash*/(function(){try{var t=localStorage.getItem('gp:theme')||(matchMedia('(prefers-color-scheme:dark)').matches?'dark':'light');document.documentElement.setAttribute('data-theme',t);if(t==='dark'){var s=document.createElement('style');s.textContent='html[data-theme=dark]{background:#14151a}html[data-theme=dark] body{background:#14151a!important;color:#e6e6e8!important}';document.head.appendChild(s);}}catch(e){}})();</script>
+<title>GeoProof — Tangent–Tangent Angle explorer</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="Draw the two tangents from a point outside a circle — the angle between them plus the central angle always makes a straight 180°.">
+<link rel="canonical" href="https://richard4481234.github.io/geoproof/TangentTangentAngle-Visual.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="GeoProof">
+<meta property="og:title" content="Tangent–Tangent Angle — GeoProof">
+<meta property="og:description" content="Draw the two tangents from a point outside a circle — the angle between them plus the central angle always makes a straight 180°.">
+<meta property="og:url" content="https://richard4481234.github.io/geoproof/TangentTangentAngle-Visual.html">
+<meta property="og:image" content="https://richard4481234.github.io/geoproof/og/TangentTangentAngle-Visual.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Tangent–Tangent Angle — GeoProof">
+<meta name="twitter:description" content="Draw the two tangents from a point outside a circle — the angle between them plus the central angle always makes a straight 180°.">
+<meta name="twitter:image" content="https://richard4481234.github.io/geoproof/og/TangentTangentAngle-Visual.png">
+<style>
+  body{background:#f4f4f5;display:flex;justify-content:center;padding:40px 16px;font-family:sans-serif;}
+  .widget{width:680px;max-width:100%;}
+  .card{background:#ffffff;border:1px solid #e2e2e2;padding:1.25rem;}
+  .sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;}
+  #tt-svg{width:100%;height:auto;display:block;touch-action:none;}
+  .handle{cursor:grab;}
+  .handle:active{cursor:grabbing;}
+  .swatch{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:6px;vertical-align:middle;}
+  .toggle-btn{padding:6px 14px;border-radius:999px;border:1px solid #d8d8d8;background:#f4f4f5;color:#888888;font-size:13px;font-weight:500;cursor:pointer;}
+  .toggle-btn.active{background:#1a1a1a;color:#ffffff;border-color:#1a1a1a;}
+  .stage{position:relative;border-radius:12px;overflow:hidden;border:1px solid #e2e2e2;}
+  .stage .card{border:none;}
+  .info-toggle{position:absolute;top:14px;right:14px;z-index:30;background:#1a1a1a;color:#ffffff;border:none;border-radius:999px;padding:7px 14px;font-size:13px;font-weight:500;cursor:pointer;}
+  .info-toggle:hover{background:#333333;}
+  .info-backdrop{position:absolute;inset:0;background:rgba(0,0,0,0.22);opacity:0;visibility:hidden;transition:opacity .2s ease;z-index:25;}
+  .info-backdrop.open{opacity:1;visibility:visible;}
+  .info-drawer{position:absolute;top:0;right:0;height:100%;width:320px;max-width:88%;background:#ffffff;border-left:1px solid #e2e2e2;box-shadow:-8px 0 24px rgba(0,0,0,0.14);padding:22px 20px;overflow-y:auto;transform:translateX(100%);transition:transform .25s ease;z-index:28;box-sizing:border-box;}
+  .info-drawer.open{transform:translateX(0);}
+  .info-close{position:absolute;top:14px;right:14px;background:#f4f4f5;border:1px solid #e2e2e2;border-radius:50%;width:28px;height:28px;font-size:14px;cursor:pointer;color:#555555;}
+  .info-drawer h3{font-size:17px;margin:6px 0 12px;padding-right:30px;color:#1a1a1a;}
+  .info-drawer h4{font-size:12px;margin:18px 0 6px;color:#666666;text-transform:uppercase;letter-spacing:.04em;}
+  .info-drawer p{font-size:13.5px;line-height:1.55;color:#333333;margin:0 0 10px;}
+  .formula-box{background:#f4f4f5;border-radius:8px;padding:10px 12px;text-align:center;font-size:15px;font-weight:600;margin:10px 0;color:#1a1a1a;}
+  .widget svg text{paint-order:stroke;stroke:#ffffff;stroke-width:3px;stroke-linejoin:round;stroke-opacity:0.92;}
+</style>
+</head>
+<body>
+<div class="widget">
+<div style="margin-bottom:12px;"><a href="index.html" style="font-size:14px;color:#1a1a1a;text-decoration:none;">&larr; GeoProof</a></div>
+<div class="stage">
+<div class="card">
+<h2 class="sr-only">Drag the external point P around outside a circle. Two tangent lines run from P to touch the circle at A and B. The blue wedge at P is the angle between the two tangents; the gold wedge at the center O is the central angle of the arc between the touch points. The two angles always add to 180 degrees, and the tangent angle equals half the difference between the far arc and the near arc. The two tangent segments PA and PB are always equal, and each radius meets its tangent at a right angle. A rim handle resizes the circle. An info button opens a drawer explaining the theorem.</h2>
+<svg id="tt-svg" viewBox="0 0 680 560" aria-hidden="true">
+  <circle id="main-circle" fill="none" stroke="#c8c8cc" stroke-width="2"></circle>
+  <polyline id="arc-minor" fill="none" stroke="#BA7517" stroke-width="6" stroke-linecap="round" stroke-opacity="0.6"></polyline>
+  <polyline id="arc-major" fill="none" stroke="#5b3886" stroke-width="6" stroke-linecap="round" stroke-opacity="0.45"></polyline>
+  <line id="op-axis" stroke="#cccccc" stroke-width="1.5" stroke-dasharray="4,4"></line>
+  <polygon id="central-wedge" fill="#BA7517" fill-opacity="0.22" stroke="#BA7517" stroke-width="1.2" stroke-opacity="0.6"></polygon>
+  <polygon id="apb-wedge" fill="#185FA5" fill-opacity="0.20" stroke="#185FA5" stroke-width="1.2" stroke-opacity="0.6"></polygon>
+  <line id="radius-a" stroke="#BA7517" stroke-width="2.5" stroke-linecap="round"></line>
+  <line id="radius-b" stroke="#BA7517" stroke-width="2.5" stroke-linecap="round"></line>
+  <line id="tangent-a" stroke="#185FA5" stroke-width="3.5" stroke-linecap="round"></line>
+  <line id="tangent-b" stroke="#185FA5" stroke-width="3.5" stroke-linecap="round"></line>
+  <polygon id="ra-a" fill="none" stroke="#9aa0a6" stroke-width="1.5"></polygon>
+  <polygon id="ra-b" fill="none" stroke="#9aa0a6" stroke-width="1.5"></polygon>
+  <text id="central-label" text-anchor="middle" dominant-baseline="middle" fill="#7A4D0B" font-size="14" font-weight="600"></text>
+  <text id="apb-label" text-anchor="middle" dominant-baseline="middle" fill="#185FA5" font-size="14" font-weight="600"></text>
+  <text id="ta-label" text-anchor="middle" dominant-baseline="middle" fill="#185FA5" font-size="12.5" font-weight="600"></text>
+  <text id="tb-label" text-anchor="middle" dominant-baseline="middle" fill="#185FA5" font-size="12.5" font-weight="600"></text>
+  <circle id="dot-a" r="3.5" fill="#1a1a1a"></circle>
+  <circle id="dot-b" r="3.5" fill="#1a1a1a"></circle>
+  <circle id="center-dot" r="4" fill="#1a1a1a"></circle>
+  <text id="tag-O" text-anchor="middle" dominant-baseline="middle" fill="#666666" font-size="13" font-weight="600">O</text>
+  <text id="tag-A" text-anchor="middle" dominant-baseline="middle" fill="#1a1a1a" font-size="14" font-weight="700">A</text>
+  <text id="tag-B" text-anchor="middle" dominant-baseline="middle" fill="#1a1a1a" font-size="14" font-weight="700">B</text>
+  <text id="tag-P" text-anchor="middle" dominant-baseline="middle" fill="#185FA5" font-size="14" font-weight="700">P</text>
+  <circle id="handle-rim" class="handle" r="9" fill="#ffffff" stroke="#BA7517" stroke-width="2.5"></circle>
+  <circle id="handle-P" class="handle" r="12" fill="#ffffff" stroke="#185FA5" stroke-width="2.5"></circle>
+</svg>
+
+<div style="display:flex; justify-content:center; gap:10px; flex-wrap:wrap; margin-top:0.75rem;">
+  <button type="button" id="toggle-central" class="toggle-btn active">Central angle</button>
+  <button type="button" id="toggle-right" class="toggle-btn active">Tangent ⟂ radius</button>
+  <button type="button" id="toggle-arcs" class="toggle-btn active">Arcs</button>
+</div>
+
+<div style="display:flex; justify-content:center; margin-top:0.85rem;">
+  <span id="status-badge" style="display:inline-block; padding:4px 14px; border-radius:999px; font-size:14px; font-weight:500;"></span>
+</div>
+
+<div id="formula-symbolic" style="text-align:center; font-size:15px; font-weight:600; color:#1a1a1a; margin-top:1.1rem;">angle between tangents + central angle = 180°</div>
+
+<div id="rel-row" style="display:flex; align-items:center; justify-content:center; gap:8px; flex-wrap:wrap; margin-top:0.6rem; font-size:15px; color:#1a1a1a;"></div>
+<div id="arc-row" style="text-align:center; font-size:13.5px; color:#555555; margin-top:0.65rem;"></div>
+<div id="tan-row" style="text-align:center; font-size:13px; color:#777777; margin-top:0.5rem;"></div>
+</div>
+
+<button type="button" id="info-toggle-btn" class="info-toggle">ⓘ About this theorem</button>
+<div id="info-backdrop" class="info-backdrop"></div>
+<aside id="info-drawer" class="info-drawer">
+  <button type="button" id="info-close" class="info-close" aria-label="Close">✕</button>
+  <h3>The Tangent–Tangent Angle</h3>
+  <p>From a point P outside a circle, exactly two tangent lines can be drawn, touching the circle at A and B. The angle between them relates to the arcs they cut off:</p>
+  <div class="formula-box">∠APB = ½ (far arc − near arc)</div>
+  <p>Equivalently, the tangent angle and the central angle ∠AOB of the near arc are supplementary:</p>
+  <div class="formula-box">∠APB + ∠AOB = 180°</div>
+  <h4>Why supplementary</h4>
+  <p>O, A, P, B form a kite. Each radius meets its tangent at 90° (OA ⟂ PA and OB ⟂ PB), so the four angles of quadrilateral OAPB are ∠AOB, 90°, ∠APB, 90°. They must total 360°, which leaves ∠APB + ∠AOB = 180°.</p>
+  <h4>Equal tangents</h4>
+  <p>The two tangent segments are always equal: PA = PB = √(OP² − R²). The line OP is an axis of symmetry — it bisects both the tangent angle at P and the central angle at O.</p>
+  <h4>Moving P</h4>
+  <p>Push P far away and the tangents become nearly parallel, so ∠APB shrinks toward 0° while the near arc grows toward a semicircle. Bring P close to the circle and ∠APB opens toward 180°. At every position the two angles still sum to 180°.</p>
+  <h4>Half the difference of arcs</h4>
+  <p>This is the "external angle" rule for circles: an angle formed outside a circle by two tangents (or secants, or one of each) equals half the difference of the intercepted arcs. Here the far arc is 360° − (near arc), so half their difference reduces to 180° − ∠AOB.</p>
+</aside>
+</div>
+</div>
+
+<script>
+(function(){
+  var svg=document.getElementById('tt-svg');
+  var O={x:332,y:282}, R=165, UNIT=30;
+  var P={x:566,y:300};
+  var showCentral=true, showRight=true, showArcs=true;
+
+  function sub(a,b){return{x:a.x-b.x,y:a.y-b.y};}
+  function add(a,b){return{x:a.x+b.x,y:a.y+b.y};}
+  function scl(a,k){return{x:a.x*k,y:a.y*k};}
+  function len(a){return Math.hypot(a.x,a.y);}
+  function dot(a,b){return a.x*b.x+a.y*b.y;}
+  function norm(a){var l=len(a)||1;return{x:a.x/l,y:a.y/l};}
+  function mid(a,b){return{x:(a.x+b.x)/2,y:(a.y+b.y)/2};}
+  function fmt(n){var r=Math.round(n*10)/10;return (Math.abs(r-Math.round(r))<1e-9)?String(Math.round(r)):r.toFixed(1);}
+  function fmt2(n){var r=Math.round(n*100)/100;return (Math.abs(r-Math.round(r))<1e-9)?String(Math.round(r)):r.toFixed(2);}
+  function ptAng(c,ang,rad){return{x:c.x+rad*Math.cos(ang),y:c.y+rad*Math.sin(ang)};}
+  function arcPts(c,start,sweep,rad){var steps=Math.max(2,Math.round(Math.abs(sweep)*180/Math.PI/4));var arr=[];for(var i=0;i<=steps;i++)arr.push(ptAng(c,start+sweep*(i/steps),rad));return arr;}
+  function ptsToStr(arr){return arr.map(function(p){return p.x.toFixed(1)+','+p.y.toFixed(1);}).join(' ');}
+  function raMark(corner,toA,toB,size){var u=scl(norm(toA),size),v=scl(norm(toB),size);return [corner,add(corner,u),add(add(corner,u),v),add(corner,v)];}
+
+  var el={};
+  ['main-circle','arc-minor','arc-major','op-axis','central-wedge','apb-wedge','radius-a','radius-b',
+   'tangent-a','tangent-b','ra-a','ra-b','central-label','apb-label','ta-label','tb-label',
+   'dot-a','dot-b','center-dot','tag-O','tag-A','tag-B','tag-P','handle-rim','handle-P'].forEach(function(id){el[id]=document.getElementById(id);});
+  var statusBadge=document.getElementById('status-badge');
+  var relRow=document.getElementById('rel-row');
+  var arcRow=document.getElementById('arc-row');
+  var tanRow=document.getElementById('tan-row');
+
+  function setLine(e,P1,P2){e.setAttribute('x1',P1.x);e.setAttribute('y1',P1.y);e.setAttribute('x2',P2.x);e.setAttribute('y2',P2.y);}
+  function setPt(e,p){e.setAttribute('cx',p.x);e.setAttribute('cy',p.y);}
+  function setText(e,p,s){e.setAttribute('x',p.x);e.setAttribute('y',p.y);if(s!==undefined)e.textContent=s;}
+
+  function update(){
+    el['main-circle'].setAttribute('cx',O.x);el['main-circle'].setAttribute('cy',O.y);el['main-circle'].setAttribute('r',R);
+    setPt(el['center-dot'],O); setText(el['tag-O'],add(O,{x:0,y:16}));
+    setPt(el['handle-rim'],ptAng(O,-Math.PI/2,R));
+
+    var d=len(sub(P,O));
+    var u=norm(sub(P,O)), theta=Math.atan2(u.y,u.x);
+    var alpha=Math.acos(Math.min(1,R/d));
+    var A=ptAng(O,theta+alpha,R), B=ptAng(O,theta-alpha,R);
+
+    setPt(el['handle-P'],P);
+    setPt(el['dot-a'],A); setPt(el['dot-b'],B);
+    setText(el['tag-A'],ptAng(O,theta+alpha,R+18));
+    setText(el['tag-B'],ptAng(O,theta-alpha,R+18));
+    setText(el['tag-P'],add(P,scl(u,18)));
+
+    setLine(el['op-axis'],O,P);
+    setLine(el['radius-a'],O,A); setLine(el['radius-b'],O,B);
+    setLine(el['tangent-a'],P,A); setLine(el['tangent-b'],P,B);
+
+    // arcs: minor (near, toward P) centred at theta, width 2*alpha; major = the rest
+    el['arc-minor'].setAttribute('points',ptsToStr(arcPts(O,theta-alpha,2*alpha,R)));
+    el['arc-major'].setAttribute('points',ptsToStr(arcPts(O,theta+alpha,2*Math.PI-2*alpha,R)));
+
+    // central wedge at O (toward P)
+    var rC=52;
+    el['central-wedge'].setAttribute('points',ptsToStr([O].concat(arcPts(O,theta-alpha,2*alpha,rC))));
+    var cLab=ptAng(O,theta,rC+20);
+    setText(el['central-label'],cLab,Math.round(2*alpha*180/Math.PI)+'°');
+
+    // apb wedge at P (short way, through P->O direction)
+    var angA=Math.atan2(A.y-P.y,A.x-P.x), angB=Math.atan2(B.y-P.y,B.x-P.x);
+    var diff=((angB-angA+3*Math.PI)% (2*Math.PI))-Math.PI;
+    var rP=32;
+    el['apb-wedge'].setAttribute('points',ptsToStr([P].concat(arcPts(P,angA,diff,rP))));
+    var apbDeg=180-2*alpha*180/Math.PI;
+    var pBis=angA+diff/2;
+    setText(el['apb-label'],{x:P.x+(rP+16)*Math.cos(pBis),y:P.y+(rP+16)*Math.sin(pBis)},Math.round(apbDeg)+'°');
+
+    // right-angle marks at A and B
+    el['ra-a'].setAttribute('points',ptsToStr(raMark(A,sub(O,A),sub(P,A),12)));
+    el['ra-b'].setAttribute('points',ptsToStr(raMark(B,sub(O,B),sub(P,B),12)));
+
+    // tangent length labels
+    var t=Math.sqrt(Math.max(0,d*d-R*R));
+    var na={x:-norm(sub(A,P)).y,y:norm(sub(A,P)).x}, nb={x:-norm(sub(B,P)).y,y:norm(sub(B,P)).x};
+    var ctr=O;
+    if(dot(na,sub(mid(P,A),ctr))<0) na=scl(na,-1);
+    if(dot(nb,sub(mid(P,B),ctr))<0) nb=scl(nb,-1);
+    setText(el['ta-label'],add(mid(P,A),scl(na,14)),fmt2(t/UNIT));
+    setText(el['tb-label'],add(mid(P,B),scl(nb,14)),fmt2(t/UNIT));
+
+    // visibility
+    el['central-wedge'].style.display=showCentral?'block':'none';
+    el['radius-a'].style.display=(showCentral||showRight)?'block':'none';
+    el['radius-b'].style.display=(showCentral||showRight)?'block':'none';
+    el['central-label'].style.display=showCentral?'block':'none';
+    el['ra-a'].style.display=showRight?'block':'none';
+    el['ra-b'].style.display=showRight?'block':'none';
+    el['arc-minor'].style.display=showArcs?'block':'none';
+    el['arc-major'].style.display=showArcs?'block':'none';
+
+    // badge
+    var apb=apbDeg;
+    if(apb<14){ statusBadge.textContent='P far away → tangents almost parallel (∠APB → 0°)'; statusBadge.style.background='#E1F0FB'; statusBadge.style.color='#0E3F66'; }
+    else if(apb>150){ statusBadge.textContent='P near the circle → tangents nearly fold flat (∠APB → 180°)'; statusBadge.style.background='#FBF0E7'; statusBadge.style.color='#5C3413'; }
+    else { statusBadge.textContent='Tangent angle + central angle = 180°'; statusBadge.style.background='#EAF3DE'; statusBadge.style.color='#173404'; }
+
+    var central=2*alpha*180/Math.PI;
+    relRow.innerHTML=
+      '<span><span class="swatch" style="background:#185FA5"></span>∠APB = '+fmt(apb)+'°</span>'+
+      '<span style="color:#888;">+</span>'+
+      '<span><span class="swatch" style="background:#BA7517"></span>∠AOB = '+fmt(central)+'°</span>'+
+      '<b style="color:#1d9e75;font-size:16px;">=</b><span><b>'+fmt(apb+central)+'°</b></span>'+
+      '<span style="color:#1d9e75;font-weight:700;">'+(Math.abs(apb+central-180)<0.6?'✓':'')+'</span>';
+    var nearArc=central, farArc=360-central;
+    arcRow.innerHTML='∠APB = ½ (far arc − near arc) = ½ ('+fmt(farArc)+'° − '+fmt(nearArc)+'°) = <b>'+fmt(apb)+'°</b>';
+    tanRow.innerHTML='Equal tangents: PA = PB = √(OP² − R²) = <b>'+fmt2(t/UNIT)+'</b> units &nbsp;·&nbsp; OP = '+fmt2(d/UNIT)+', R = '+fmt2(R/UNIT);
+  }
+
+  function toSvgPoint(evt){var rect=svg.getBoundingClientRect(),vb=svg.viewBox.baseVal;return {x:(evt.clientX-rect.left)/rect.width*vb.width+vb.x,y:(evt.clientY-rect.top)/rect.height*vb.height+vb.y};}
+  var dragging=null;
+  function onDown(key){return function(e){dragging=key;if(e.target.setPointerCapture){try{e.target.setPointerCapture(e.pointerId);}catch(err){}}e.preventDefault();};}
+  function onMove(e){
+    if(!dragging)return;
+    var p=toSvgPoint(e);
+    if(dragging==='P'){
+      var d=len(sub(p,O));
+      if(d<R+16){ p=add(O,scl(norm(sub(p,O)),R+16)); }
+      P={x:Math.min(668,Math.max(12,p.x)),y:Math.min(548,Math.max(12,p.y))};
+    } else if(dragging==='rim'){
+      var nd=len(sub(P,O));
+      R=Math.max(60,Math.min(nd-16,len(sub(p,O))));
+    }
+    update();
+  }
+  function onUp(){dragging=null;}
+  el['handle-P'].addEventListener('pointerdown',onDown('P'));
+  el['handle-rim'].addEventListener('pointerdown',onDown('rim'));
+  svg.addEventListener('pointermove',onMove);
+  window.addEventListener('pointerup',onUp);
+
+  function tog(id,set){document.getElementById(id).addEventListener('click',function(){set();update();});}
+  tog('toggle-central',function(){showCentral=!showCentral;document.getElementById('toggle-central').classList.toggle('active',showCentral);});
+  tog('toggle-right',function(){showRight=!showRight;document.getElementById('toggle-right').classList.toggle('active',showRight);});
+  tog('toggle-arcs',function(){showArcs=!showArcs;document.getElementById('toggle-arcs').classList.toggle('active',showArcs);});
+
+  var infoDrawer=document.getElementById('info-drawer'),infoBackdrop=document.getElementById('info-backdrop');
+  function openD(){infoDrawer.classList.add('open');infoBackdrop.classList.add('open');}
+  function closeD(){infoDrawer.classList.remove('open');infoBackdrop.classList.remove('open');}
+  document.getElementById('info-toggle-btn').addEventListener('click',function(){infoDrawer.classList.contains('open')?closeD():openD();});
+  document.getElementById('info-close').addEventListener('click',closeD);
+  infoBackdrop.addEventListener('click',closeD);
+  document.addEventListener('keydown',function(e){if(e.key==='Escape')closeD();});
+
+  update();
+})();
+</script>
+<script defer src="site-chrome.js"></script>
+</body>
+</html>

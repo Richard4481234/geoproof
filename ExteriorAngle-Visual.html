@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<script>/*gp-noflash*/(function(){try{var t=localStorage.getItem('gp:theme')||(matchMedia('(prefers-color-scheme:dark)').matches?'dark':'light');document.documentElement.setAttribute('data-theme',t);if(t==='dark'){var s=document.createElement('style');s.textContent='html[data-theme=dark]{background:#14151a}html[data-theme=dark] body{background:#14151a!important;color:#e6e6e8!important}';document.head.appendChild(s);}}catch(e){}})();</script>
+<title>GeoProof — Exterior Angle Theorem explorer</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="Extend a triangle's side and see the exterior angle equal the sum of the two remote interior angles.">
+<link rel="canonical" href="https://richard4481234.github.io/geoproof/ExteriorAngle-Visual.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="GeoProof">
+<meta property="og:title" content="Exterior Angle Theorem — GeoProof">
+<meta property="og:description" content="Extend a triangle's side and see the exterior angle equal the sum of the two remote interior angles.">
+<meta property="og:url" content="https://richard4481234.github.io/geoproof/ExteriorAngle-Visual.html">
+<meta property="og:image" content="https://richard4481234.github.io/geoproof/og/ExteriorAngle-Visual.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Exterior Angle Theorem — GeoProof">
+<meta name="twitter:description" content="Extend a triangle's side and see the exterior angle equal the sum of the two remote interior angles.">
+<meta name="twitter:image" content="https://richard4481234.github.io/geoproof/og/ExteriorAngle-Visual.png">
+<style>
+  body{background:#f4f4f5;display:flex;justify-content:center;padding:40px 16px;font-family:sans-serif;}
+  .widget{width:680px;max-width:100%;}
+  .card{background:#ffffff;border:1px solid #e2e2e2;padding:1.25rem;}
+  .sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;}
+  #ea-svg{width:100%;height:auto;display:block;touch-action:none;}
+  .handle{cursor:grab;}
+  .handle:active{cursor:grabbing;}
+  .swatch{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:6px;vertical-align:middle;}
+  .toggle-btn{padding:6px 14px;border-radius:999px;border:1px solid #d8d8d8;background:#f4f4f5;color:#888888;font-size:13px;font-weight:500;cursor:pointer;}
+  .toggle-btn.active{background:#1a1a1a;color:#ffffff;border-color:#1a1a1a;}
+  .stage{position:relative;border-radius:12px;overflow:hidden;border:1px solid #e2e2e2;}
+  .stage .card{border:none;}
+  .info-toggle{position:absolute;top:14px;right:14px;z-index:30;background:#1a1a1a;color:#ffffff;border:none;border-radius:999px;padding:7px 14px;font-size:13px;font-weight:500;cursor:pointer;}
+  .info-toggle:hover{background:#333333;}
+  .info-backdrop{position:absolute;inset:0;background:rgba(0,0,0,0.22);opacity:0;visibility:hidden;transition:opacity .2s ease;z-index:25;}
+  .info-backdrop.open{opacity:1;visibility:visible;}
+  .info-drawer{position:absolute;top:0;right:0;height:100%;width:320px;max-width:88%;background:#ffffff;border-left:1px solid #e2e2e2;box-shadow:-8px 0 24px rgba(0,0,0,0.14);padding:22px 20px;overflow-y:auto;transform:translateX(100%);transition:transform .25s ease;z-index:28;box-sizing:border-box;}
+  .info-drawer.open{transform:translateX(0);}
+  .info-close{position:absolute;top:14px;right:14px;background:#f4f4f5;border:1px solid #e2e2e2;border-radius:50%;width:28px;height:28px;font-size:14px;cursor:pointer;color:#555555;}
+  .info-drawer h3{font-size:17px;margin:6px 0 12px;padding-right:30px;color:#1a1a1a;}
+  .info-drawer h4{font-size:12px;margin:18px 0 6px;color:#666666;text-transform:uppercase;letter-spacing:.04em;}
+  .info-drawer p{font-size:13.5px;line-height:1.55;color:#333333;margin:0 0 10px;}
+  .formula-box{background:#f4f4f5;border-radius:8px;padding:10px 12px;text-align:center;font-size:14px;font-weight:600;margin:10px 0;color:#1a1a1a;}
+  .widget svg text{paint-order:stroke;stroke:#ffffff;stroke-width:3px;stroke-linejoin:round;stroke-opacity:0.92;}
+</style>
+</head>
+<body>
+<div class="widget">
+<div style="margin-bottom:12px;"><a href="index.html" style="font-size:14px;color:#1a1a1a;text-decoration:none;">&larr; GeoProof</a></div>
+<div class="stage">
+<div class="card">
+<h2 class="sr-only">A triangle ABC has one side extended past a vertex, forming an exterior angle there. Drag any vertex. The exterior angle equals the sum of the two interior angles at the other two corners — the remote interior angles. The exterior angle and the two remote interior angles are shown with their measures, and the readout confirms they add up. A button cycles which vertex's exterior angle is shown. An info button opens a drawer explaining the theorem.</h2>
+<svg id="ea-svg" viewBox="0 0 680 560" aria-hidden="true">
+  <line id="ext-ray" stroke="#1a1a1a" stroke-width="2" stroke-dasharray="6,4"></line>
+  <polygon id="tri-poly" fill="#1a1a1a" fill-opacity="0.03" stroke="#1a1a1a" stroke-width="2.5"></polygon>
+  <polygon id="wedge-r1" fill="#378ADD" fill-opacity="0.28" stroke="#378ADD" stroke-width="1" stroke-opacity="0.6"></polygon>
+  <polygon id="wedge-r2" fill="#639922" fill-opacity="0.28" stroke="#639922" stroke-width="1" stroke-opacity="0.6"></polygon>
+  <polygon id="wedge-ext" fill="#D4537E" fill-opacity="0.22" stroke="#D4537E" stroke-width="1" stroke-opacity="0.6"></polygon>
+  <text id="lab-r1" text-anchor="middle" dominant-baseline="middle" fill="#185FA5" font-size="13" font-weight="600"></text>
+  <text id="lab-r2" text-anchor="middle" dominant-baseline="middle" fill="#3B6D11" font-size="13" font-weight="600"></text>
+  <text id="lab-ext" text-anchor="middle" dominant-baseline="middle" fill="#993556" font-size="13" font-weight="600"></text>
+  <text id="tag-A" text-anchor="middle" dominant-baseline="middle" fill="#1a1a1a" font-size="14" font-weight="700">A</text>
+  <text id="tag-B" text-anchor="middle" dominant-baseline="middle" fill="#1a1a1a" font-size="14" font-weight="700">B</text>
+  <text id="tag-C" text-anchor="middle" dominant-baseline="middle" fill="#1a1a1a" font-size="14" font-weight="700">C</text>
+  <circle id="handle-A" class="handle" r="12" fill="#ffffff" stroke="#1a1a1a" stroke-width="2"></circle>
+  <circle id="handle-B" class="handle" r="12" fill="#ffffff" stroke="#1a1a1a" stroke-width="2"></circle>
+  <circle id="handle-C" class="handle" r="12" fill="#ffffff" stroke="#1a1a1a" stroke-width="2"></circle>
+</svg>
+
+<div style="display:flex; justify-content:center; gap:10px; flex-wrap:wrap; margin-top:0.75rem;">
+  <button type="button" id="cycle-btn" class="toggle-btn active">Exterior angle at: C</button>
+  <button type="button" id="toggle-labels" class="toggle-btn active">Angle labels</button>
+</div>
+
+<div style="display:flex; justify-content:center; margin-top:0.85rem;">
+  <span id="status-badge" style="display:inline-block; padding:4px 14px; border-radius:999px; font-size:14px; font-weight:500;"></span>
+</div>
+
+<div id="formula-symbolic" style="text-align:center; font-size:14.5px; font-weight:600; color:#1a1a1a; margin-top:1.1rem;">exterior angle = sum of the two remote interior angles</div>
+
+<div id="eq-row" style="display:flex; align-items:center; justify-content:center; gap:10px; flex-wrap:wrap; margin-top:0.6rem; font-size:15px; color:#1a1a1a;"></div>
+<div id="detail-row" style="text-align:center; font-size:12.5px; color:#777777; margin-top:0.55rem;"></div>
+</div>
+
+<button type="button" id="info-toggle-btn" class="info-toggle">ⓘ About this theorem</button>
+<div id="info-backdrop" class="info-backdrop"></div>
+<aside id="info-drawer" class="info-drawer">
+  <button type="button" id="info-close" class="info-close" aria-label="Close">✕</button>
+  <h3>The Exterior Angle Theorem</h3>
+  <p>Extend one side of a triangle past a vertex. The angle formed outside the triangle there — the <i>exterior angle</i> — equals the sum of the two interior angles at the <i>other</i> two vertices (the "remote" interior angles):</p>
+  <div class="formula-box">exterior angle = remote interior angle + remote interior angle</div>
+  <p>For example, the exterior angle at C equals angle A + angle B.</p>
+  <h4>Why it's true</h4>
+  <p>The interior angle and its exterior angle sit on a straight line, so they add to 180°. The three interior angles of a triangle also add to 180°. Subtracting the shared interior angle leaves exterior = the other two interior angles.</p>
+  <h4>A consequence</h4>
+  <p>An exterior angle is always larger than either remote interior angle on its own (since you're adding a positive amount). This fact — the "exterior angle inequality" — is used in many classical proofs.</p>
+  <h4>Connection to polygons</h4>
+  <p>Add up one exterior angle at each vertex, walking around any convex polygon, and the total is always 360° — the companion "sum of exterior angles" result.</p>
+  <h4>A bit of history</h4>
+  <p>The theorem is Proposition 32 in Book I of Euclid's <i>Elements</i> (c. 300 BCE), proved right alongside the fact that a triangle's angles sum to two right angles.</p>
+</aside>
+</div>
+</div>
+
+<script>
+(function(){
+  var svg=document.getElementById('ea-svg');
+  var pts={ A:{x:300,y:130}, B:{x:170,y:420}, C:{x:520,y:410} };
+  var minX=40,maxX=640,minY=60,maxY=500;
+  var vertexKey='C';      // which vertex's exterior angle
+  var showLabels=true;
+
+  function sub(p,q){return {x:p.x-q.x,y:p.y-q.y};}
+  function add(p,q){return {x:p.x+q.x,y:p.y+q.y};}
+  function len(v){return Math.hypot(v.x,v.y);}
+  function angleDeg(P,Q,R){ var u=sub(Q,P),v=sub(R,P),lu=len(u),lv=len(v); if(lu<1e-6||lv<1e-6)return 0; var c=(u.x*v.x+u.y*v.y)/(lu*lv); c=Math.min(1,Math.max(-1,c)); return Math.acos(c)*180/Math.PI; }
+  function wedge(P,Q,R,radius){
+    var ua=Math.atan2(Q.y-P.y,Q.x-P.x)*180/Math.PI, ub=Math.atan2(R.y-P.y,R.x-P.x)*180/Math.PI;
+    var diff=((ub-ua+540)%360)-180, steps=Math.max(2,Math.round(Math.abs(diff)/4)), arr=[P];
+    for(var i=0;i<=steps;i++){ var a=(ua+diff*(i/steps))*Math.PI/180; arr.push({x:P.x+radius*Math.cos(a),y:P.y+radius*Math.sin(a)}); }
+    return {pts:arr, bis:(ua+diff/2)*Math.PI/180};
+  }
+  function ptsToStr(arr){return arr.map(function(p){return p.x.toFixed(1)+','+p.y.toFixed(1);}).join(' ');}
+
+  var extRay=document.getElementById('ext-ray');
+  var triPoly=document.getElementById('tri-poly');
+  var wR1=document.getElementById('wedge-r1'),wR2=document.getElementById('wedge-r2'),wExt=document.getElementById('wedge-ext');
+  var labR1=document.getElementById('lab-r1'),labR2=document.getElementById('lab-r2'),labExt=document.getElementById('lab-ext');
+  var tagA=document.getElementById('tag-A'),tagB=document.getElementById('tag-B'),tagC=document.getElementById('tag-C');
+  var hA=document.getElementById('handle-A'),hB=document.getElementById('handle-B'),hC=document.getElementById('handle-C');
+  var statusBadge=document.getElementById('status-badge');
+  var eqRow=document.getElementById('eq-row');
+  var detailRow=document.getElementById('detail-row');
+  var cycleBtn=document.getElementById('cycle-btn');
+  var toggleLabels=document.getElementById('toggle-labels');
+
+  function setLine(el,p,q){ el.setAttribute('x1',p.x); el.setAttribute('y1',p.y); el.setAttribute('x2',q.x); el.setAttribute('y2',q.y); }
+  function disp(el,on){ el.style.display=on?'block':'none'; }
+
+  function update(){
+    var A=pts.A,B=pts.B,C=pts.C;
+    hA.setAttribute('cx',A.x); hA.setAttribute('cy',A.y);
+    hB.setAttribute('cx',B.x); hB.setAttribute('cy',B.y);
+    hC.setAttribute('cx',C.x); hC.setAttribute('cy',C.y);
+    triPoly.setAttribute('points', A.x+','+A.y+' '+B.x+','+B.y+' '+C.x+','+C.y);
+
+    var cen={x:(A.x+B.x+C.x)/3,y:(A.y+B.y+C.y)/3};
+    function vtag(el,V){ var d=sub(V,cen),l=len(d)||1; el.setAttribute('x',V.x+d.x/l*22); el.setAttribute('y',V.y+d.y/l*22); }
+    vtag(tagA,A); vtag(tagB,B); vtag(tagC,C);
+
+    // choose vertex V (exterior), with the two remote vertices and the side that gets extended
+    // exterior at V: extend the side (prevV -> V) beyond V; exterior angle between (V->otherV) and the extension
+    var V, P1, P2; // P1,P2 are the two remote vertices
+    if(vertexKey==='A'){ V=A; P1=B; P2=C; }
+    else if(vertexKey==='B'){ V=B; P1=C; P2=A; }
+    else { V=C; P1=A; P2=B; }
+
+    // extend side P1->V beyond V to D (so the extension direction is V + (V-P1))
+    var dir=sub(V,P1), dl=len(dir)||1, u={x:dir.x/dl,y:dir.y/dl};
+    var D={x:V.x+u.x*120, y:V.y+u.y*120};
+    var Dfar={x:V.x+u.x*900,y:V.y+u.y*900}, Pback={x:V.x-u.x*40,y:V.y-u.y*40};
+    setLine(extRay,Pback,Dfar);
+
+    // exterior angle at V = between ray V->P2 (the other side at V) and ray V->D (extension)
+    var extAng=angleDeg(V,P2,D);
+    // remote interior angles at P1 and P2
+    var iA1=angleDeg(P1,V,P2);
+    var iA2=angleDeg(P2,V,P1);
+
+    var wE=wedge(V,P2,D,30);
+    wExt.setAttribute('points',ptsToStr(wE.pts));
+    labExt.setAttribute('x',V.x+46*Math.cos(wE.bis)); labExt.setAttribute('y',V.y+46*Math.sin(wE.bis));
+    labExt.textContent=Math.round(extAng)+'°';
+
+    var w1=wedge(P1,V,P2,26);
+    wR1.setAttribute('points',ptsToStr(w1.pts));
+    labR1.setAttribute('x',P1.x+42*Math.cos(w1.bis)); labR1.setAttribute('y',P1.y+42*Math.sin(w1.bis));
+    labR1.textContent=Math.round(iA1)+'°';
+
+    var w2=wedge(P2,V,P1,26);
+    wR2.setAttribute('points',ptsToStr(w2.pts));
+    labR2.setAttribute('x',P2.x+42*Math.cos(w2.bis)); labR2.setAttribute('y',P2.y+42*Math.sin(w2.bis));
+    labR2.textContent=Math.round(iA2)+'°';
+
+    disp(wExt,true); disp(wR1,true); disp(wR2,true);
+    disp(labExt,showLabels); disp(labR1,showLabels); disp(labR2,showLabels);
+
+    var sum=iA1+iA2, ok=Math.abs(extAng-sum)<1.0;
+    statusBadge.textContent='Exterior angle at '+vertexKey+' = the two remote interior angles';
+    statusBadge.style.background='#FBF3D9'; statusBadge.style.color='#5C4813';
+
+    var r1name=(vertexKey==='C'?'A':(vertexKey==='A'?'B':'C'));
+    var r2name=(vertexKey==='C'?'B':(vertexKey==='A'?'C':'A'));
+    eqRow.innerHTML =
+      '<span><span class="swatch" style="background:#D4537E"></span>exterior '+vertexKey+' = '+Math.round(extAng)+'°</span>'+
+      '<b style="color:'+(ok?'#1d9e75':'#e24b4a')+';font-size:18px;">=</b>'+
+      '<span><span class="swatch" style="background:#378ADD"></span>'+r1name+' ('+Math.round(iA1)+'°) <span style="color:#888;">+</span> <span class="swatch" style="background:#639922"></span>'+r2name+' ('+Math.round(iA2)+'°) = '+Math.round(sum)+'°</span>'+
+      (ok?'<span style="color:#1d9e75;font-weight:700;">&check;</span>':'');
+
+    detailRow.textContent='Interior '+vertexKey+' + exterior '+vertexKey+' = 180°, and the three interior angles sum to 180° — so the exterior angle equals the other two.';
+  }
+
+  var dragging=null;
+  function toSvgPoint(evt){
+    var rect=svg.getBoundingClientRect();
+    var vb=svg.viewBox.baseVal;
+    return { x:(evt.clientX-rect.left)/rect.width*vb.width+vb.x, y:(evt.clientY-rect.top)/rect.height*vb.height+vb.y };
+  }
+  function onDown(key){
+    return function(e){
+      dragging=key;
+      if(e.target.setPointerCapture){ try{ e.target.setPointerCapture(e.pointerId); }catch(err){} }
+      e.preventDefault();
+    };
+  }
+  function onMove(e){
+    if(!dragging) return;
+    var p=toSvgPoint(e);
+    pts[dragging]={x:Math.min(maxX,Math.max(minX,p.x)), y:Math.min(maxY,Math.max(minY,p.y))};
+    update();
+  }
+  function onUp(){ dragging=null; }
+  hA.addEventListener('pointerdown',onDown('A'));
+  hB.addEventListener('pointerdown',onDown('B'));
+  hC.addEventListener('pointerdown',onDown('C'));
+  svg.addEventListener('pointermove',onMove);
+  window.addEventListener('pointerup',onUp);
+
+  cycleBtn.addEventListener('click',function(){
+    vertexKey = vertexKey==='C'?'A':(vertexKey==='A'?'B':'C');
+    cycleBtn.textContent='Exterior angle at: '+vertexKey;
+    update();
+  });
+  toggleLabels.addEventListener('click',function(){ showLabels=!showLabels; toggleLabels.classList.toggle('active',showLabels); update(); });
+
+  var infoToggle=document.getElementById('info-toggle-btn');
+  var infoDrawer=document.getElementById('info-drawer');
+  var infoBackdrop=document.getElementById('info-backdrop');
+  var infoClose=document.getElementById('info-close');
+  function openDrawer(){ infoDrawer.classList.add('open'); infoBackdrop.classList.add('open'); }
+  function closeDrawer(){ infoDrawer.classList.remove('open'); infoBackdrop.classList.remove('open'); }
+  infoToggle.addEventListener('click',function(){
+    if(infoDrawer.classList.contains('open')) closeDrawer(); else openDrawer();
+  });
+  infoClose.addEventListener('click',closeDrawer);
+  infoBackdrop.addEventListener('click',closeDrawer);
+  document.addEventListener('keydown',function(e){ if(e.key==='Escape') closeDrawer(); });
+
+  update();
+})();
+</script>
+<script defer src="site-chrome.js"></script>
+</body>
+</html>

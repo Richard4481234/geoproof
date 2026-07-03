@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<script>/*gp-noflash*/(function(){try{var t=localStorage.getItem('gp:theme')||(matchMedia('(prefers-color-scheme:dark)').matches?'dark':'light');document.documentElement.setAttribute('data-theme',t);if(t==='dark'){var s=document.createElement('style');s.textContent='html[data-theme=dark]{background:#14151a}html[data-theme=dark] body{background:#14151a!important;color:#e6e6e8!important}';document.head.appendChild(s);}}catch(e){}})();</script>
+<title>GeoProof — Brahmagupta's Formula explorer</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="Reshape a quadrilateral inscribed in a circle and see its area come straight from the four side lengths.">
+<link rel="canonical" href="https://richard4481234.github.io/geoproof/Brahmagupta-Visual.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="GeoProof">
+<meta property="og:title" content="Brahmagupta's Formula — GeoProof">
+<meta property="og:description" content="Reshape a quadrilateral inscribed in a circle and see its area come straight from the four side lengths.">
+<meta property="og:url" content="https://richard4481234.github.io/geoproof/Brahmagupta-Visual.html">
+<meta property="og:image" content="https://richard4481234.github.io/geoproof/og/Brahmagupta-Visual.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Brahmagupta's Formula — GeoProof">
+<meta name="twitter:description" content="Reshape a quadrilateral inscribed in a circle and see its area come straight from the four side lengths.">
+<meta name="twitter:image" content="https://richard4481234.github.io/geoproof/og/Brahmagupta-Visual.png">
+<style>
+  body{background:#f4f4f5;display:flex;justify-content:center;padding:40px 16px;font-family:sans-serif;}
+  .widget{width:680px;max-width:100%;}
+  .card{background:#ffffff;border:1px solid #e2e2e2;padding:1.25rem;}
+  .sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;}
+  #bg-svg{width:100%;height:auto;display:block;touch-action:none;}
+  .handle{cursor:grab;}
+  .handle:active{cursor:grabbing;}
+  .swatch{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:6px;vertical-align:middle;}
+  .toggle-btn{padding:6px 14px;border-radius:999px;border:1px solid #d8d8d8;background:#f4f4f5;color:#888888;font-size:13px;font-weight:500;cursor:pointer;}
+  .toggle-btn.active{background:#1a1a1a;color:#ffffff;border-color:#1a1a1a;}
+  .stage{position:relative;border-radius:12px;overflow:hidden;border:1px solid #e2e2e2;}
+  .stage .card{border:none;}
+  .info-toggle{position:absolute;top:14px;right:14px;z-index:30;background:#1a1a1a;color:#ffffff;border:none;border-radius:999px;padding:7px 14px;font-size:13px;font-weight:500;cursor:pointer;}
+  .info-toggle:hover{background:#333333;}
+  .info-backdrop{position:absolute;inset:0;background:rgba(0,0,0,0.22);opacity:0;visibility:hidden;transition:opacity .2s ease;z-index:25;}
+  .info-backdrop.open{opacity:1;visibility:visible;}
+  .info-drawer{position:absolute;top:0;right:0;height:100%;width:320px;max-width:88%;background:#ffffff;border-left:1px solid #e2e2e2;box-shadow:-8px 0 24px rgba(0,0,0,0.14);padding:22px 20px;overflow-y:auto;transform:translateX(100%);transition:transform .25s ease;z-index:28;box-sizing:border-box;}
+  .info-drawer.open{transform:translateX(0);}
+  .info-close{position:absolute;top:14px;right:14px;background:#f4f4f5;border:1px solid #e2e2e2;border-radius:50%;width:28px;height:28px;font-size:14px;cursor:pointer;color:#555555;}
+  .info-drawer h3{font-size:17px;margin:6px 0 12px;padding-right:30px;color:#1a1a1a;}
+  .info-drawer h4{font-size:12px;margin:18px 0 6px;color:#666666;text-transform:uppercase;letter-spacing:.04em;}
+  .info-drawer p{font-size:13.5px;line-height:1.55;color:#333333;margin:0 0 10px;}
+  .formula-box{background:#f4f4f5;border-radius:8px;padding:10px 12px;text-align:center;font-size:13px;font-weight:600;margin:10px 0;color:#1a1a1a;}
+  .widget svg text{paint-order:stroke;stroke:#ffffff;stroke-width:3px;stroke-linejoin:round;stroke-opacity:0.92;}
+</style>
+</head>
+<body>
+<div class="widget">
+<div style="margin-bottom:12px;"><a href="index.html" style="font-size:14px;color:#1a1a1a;text-decoration:none;">&larr; GeoProof</a></div>
+<div class="stage">
+<div class="card">
+<h2 class="sr-only">Four points A, B, C, D lie on a circle, forming a cyclic quadrilateral. Drag them around the circle to reshape it. Brahmagupta's formula gives the quadrilateral's area straight from its four side lengths: with s the semiperimeter, the area is the square root of (s minus a) times (s minus b) times (s minus c) times (s minus d). The formula's value is shown alongside the area measured directly, and the two always agree. An info button opens a drawer explaining the theorem.</h2>
+<svg id="bg-svg" viewBox="0 0 680 560" aria-hidden="true">
+  <circle id="circle" fill="none" stroke="#BA7517" stroke-width="1.5" stroke-dasharray="5,4" stroke-opacity="0.55"></circle>
+  <polygon id="quad" fill="#8B5FBF" fill-opacity="0.16" stroke="none"></polygon>
+  <line id="side-a" stroke="#378ADD" stroke-width="3.5" stroke-linecap="round"></line>
+  <line id="side-b" stroke="#639922" stroke-width="3.5" stroke-linecap="round"></line>
+  <line id="side-c" stroke="#D4537E" stroke-width="3.5" stroke-linecap="round"></line>
+  <line id="side-d" stroke="#BA7517" stroke-width="3.5" stroke-linecap="round"></line>
+  <text id="lab-a" text-anchor="middle" dominant-baseline="middle" fill="#185FA5" font-size="12.5" font-weight="600"></text>
+  <text id="lab-b" text-anchor="middle" dominant-baseline="middle" fill="#3B6D11" font-size="12.5" font-weight="600"></text>
+  <text id="lab-c" text-anchor="middle" dominant-baseline="middle" fill="#993556" font-size="12.5" font-weight="600"></text>
+  <text id="lab-d" text-anchor="middle" dominant-baseline="middle" fill="#7A4D0B" font-size="12.5" font-weight="600"></text>
+  <text id="area-inside" text-anchor="middle" dominant-baseline="middle" fill="#3F2A5C" font-size="15" font-weight="700"></text>
+  <text id="area-inside-sub" text-anchor="middle" dominant-baseline="middle" fill="#5B3886" font-size="11" font-weight="500"></text>
+  <text id="tag-A" text-anchor="middle" dominant-baseline="middle" fill="#1a1a1a" font-size="14" font-weight="700">A</text>
+  <text id="tag-B" text-anchor="middle" dominant-baseline="middle" fill="#1a1a1a" font-size="14" font-weight="700">B</text>
+  <text id="tag-C" text-anchor="middle" dominant-baseline="middle" fill="#1a1a1a" font-size="14" font-weight="700">C</text>
+  <text id="tag-D" text-anchor="middle" dominant-baseline="middle" fill="#1a1a1a" font-size="14" font-weight="700">D</text>
+  <circle id="handle-A" class="handle" r="11" fill="#ffffff" stroke="#1a1a1a" stroke-width="2"></circle>
+  <circle id="handle-B" class="handle" r="11" fill="#ffffff" stroke="#1a1a1a" stroke-width="2"></circle>
+  <circle id="handle-C" class="handle" r="11" fill="#ffffff" stroke="#1a1a1a" stroke-width="2"></circle>
+  <circle id="handle-D" class="handle" r="11" fill="#ffffff" stroke="#1a1a1a" stroke-width="2"></circle>
+</svg>
+
+<div style="display:flex; justify-content:center; gap:10px; flex-wrap:wrap; margin-top:0.75rem;">
+  <button type="button" id="toggle-circle" class="toggle-btn active">Circle</button>
+  <button type="button" id="toggle-labels" class="toggle-btn active">Side labels</button>
+  <button type="button" id="toggle-area" class="toggle-btn active">Area</button>
+</div>
+
+<div style="display:flex; justify-content:center; margin-top:0.85rem;">
+  <span id="status-badge" style="display:inline-block; padding:4px 14px; border-radius:999px; font-size:14px; font-weight:500;"></span>
+</div>
+
+<div id="formula-symbolic" style="text-align:center; font-size:13.5px; font-weight:600; color:#1a1a1a; margin-top:1.1rem;">Area = √( (s−a)(s−b)(s−c)(s−d) ) &nbsp;&nbsp;<span style="font-weight:500;color:#777;">where s = semiperimeter = (a+b+c+d)/2</span></div>
+
+<div id="area-row" style="display:flex; align-items:center; justify-content:center; gap:10px; flex-wrap:wrap; margin-top:0.6rem; font-size:15px; color:#1a1a1a;"></div>
+<div id="detail-row" style="text-align:center; font-size:12.5px; color:#777777; margin-top:0.55rem;"></div>
+<div style="text-align:center; font-size:13px; color:#777777; margin-top:0.55rem;">Drag the four vertices around the circle. The side-based formula always matches the directly measured area.</div>
+</div>
+
+<button type="button" id="info-toggle-btn" class="info-toggle">ⓘ About this theorem</button>
+<div id="info-backdrop" class="info-backdrop"></div>
+<aside id="info-drawer" class="info-drawer">
+  <button type="button" id="info-close" class="info-close" aria-label="Close">✕</button>
+  <h3>Brahmagupta's Formula</h3>
+  <p>For a cyclic quadrilateral — one whose four vertices lie on a circle — with side lengths a, b, c, d and semiperimeter s = (a + b + c + d) / 2, the area is:</p>
+  <div class="formula-box">Area = √( (s−a)(s−b)(s−c)(s−d) )</div>
+  <p>Remarkably, the area depends only on the side lengths (for a cyclic quadrilateral), not on any angle.</p>
+  <h4>It generalizes Heron's formula</h4>
+  <p>Let one side shrink to zero (d → 0) and the quadrilateral becomes a triangle; the formula collapses to Heron's formula √(s(s−a)(s−b)(s−c)). So Heron is the triangle case of Brahmagupta.</p>
+  <h4>Cyclic gives the maximum area</h4>
+  <p>Among all quadrilaterals with the same four side lengths in the same order, the cyclic one has the largest possible area. So Brahmagupta's value is also the maximum area those four sides can enclose.</p>
+  <h4>The general (non-cyclic) case</h4>
+  <p>For a quadrilateral that isn't cyclic, Bretschneider's formula adds a correction term involving the two opposite angles; when those angles sum to 180° (the cyclic condition) the correction vanishes and Brahmagupta's formula returns.</p>
+  <h4>A bit of history</h4>
+  <p>Brahmagupta (598–668 CE), the Indian mathematician and astronomer, gave this result in his work the <i>Brāhmasphuṭasiddhānta</i> in 628 CE.</p>
+</aside>
+</div>
+</div>
+
+<script>
+(function(){
+  var svg=document.getElementById('bg-svg');
+  var O={x:340,y:288}, R=160;
+  var ang=[55,140,215,310];   // vertex angles (deg), kept sorted ascending
+  var UNIT=30;
+  var showCircle=true, showLabels=true, showArea=true;
+
+  function sub(p,q){return {x:p.x-q.x,y:p.y-q.y};}
+  function len(v){return Math.hypot(v.x,v.y);}
+  function mid(p,q){return {x:(p.x+q.x)/2,y:(p.y+q.y)/2};}
+  function fmt(n){ var r=Math.round(n*10)/10; return (Math.abs(r-Math.round(r))<1e-9)?Math.round(r).toString():r.toFixed(1); }
+  function vtx(th){ var r=th*Math.PI/180; return {x:O.x+R*Math.cos(r), y:O.y+R*Math.sin(r)}; }
+  function shoelace(poly){var s=0;for(var i=0;i<poly.length;i++){var a=poly[i],b=poly[(i+1)%poly.length];s+=a.x*b.y-b.x*a.y;}return Math.abs(s)/2;}
+
+  var circleEl=document.getElementById('circle');
+  var quad=document.getElementById('quad');
+  var sideA=document.getElementById('side-a');
+  var sideB=document.getElementById('side-b');
+  var sideC=document.getElementById('side-c');
+  var sideD=document.getElementById('side-d');
+  var labA=document.getElementById('lab-a');
+  var labB=document.getElementById('lab-b');
+  var labC=document.getElementById('lab-c');
+  var labD=document.getElementById('lab-d');
+  var areaInside=document.getElementById('area-inside');
+  var areaInsideSub=document.getElementById('area-inside-sub');
+  var tagA=document.getElementById('tag-A');
+  var tagB=document.getElementById('tag-B');
+  var tagC=document.getElementById('tag-C');
+  var tagD=document.getElementById('tag-D');
+  var hA=document.getElementById('handle-A');
+  var hB=document.getElementById('handle-B');
+  var hC=document.getElementById('handle-C');
+  var hD=document.getElementById('handle-D');
+  var H=[hA,hB,hC,hD];
+  var statusBadge=document.getElementById('status-badge');
+  var areaRow=document.getElementById('area-row');
+  var detailRow=document.getElementById('detail-row');
+  var toggleCircle=document.getElementById('toggle-circle');
+  var toggleLabels=document.getElementById('toggle-labels');
+  var toggleArea=document.getElementById('toggle-area');
+
+  circleEl.setAttribute('cx',O.x); circleEl.setAttribute('cy',O.y); circleEl.setAttribute('r',R);
+
+  function setLine(el,p,q){ el.setAttribute('x1',p.x); el.setAttribute('y1',p.y); el.setAttribute('x2',q.x); el.setAttribute('y2',q.y); }
+  function disp(el,on){ el.style.display=on?'block':'none'; }
+
+  function update(){
+    var V=ang.map(vtx);
+    for(var i=0;i<4;i++){ H[i].setAttribute('cx',V[i].x); H[i].setAttribute('cy',V[i].y); }
+    var A=V[0],B=V[1],C=V[2],D=V[3];
+
+    disp(circleEl,showCircle);
+    quad.setAttribute('points', A.x+','+A.y+' '+B.x+','+B.y+' '+C.x+','+C.y+' '+D.x+','+D.y);
+    setLine(sideA,A,B); setLine(sideB,B,C); setLine(sideC,C,D); setLine(sideD,D,A);
+
+    function outTag(el,th){ var r=th*Math.PI/180; el.setAttribute('x',O.x+(R+20)*Math.cos(r)); el.setAttribute('y',O.y+(R+20)*Math.sin(r)); }
+    outTag(tagA,ang[0]); outTag(tagB,ang[1]); outTag(tagC,ang[2]); outTag(tagD,ang[3]);
+
+    var a=len(sub(A,B))/UNIT, b=len(sub(B,C))/UNIT, c=len(sub(C,D))/UNIT, d=len(sub(D,A))/UNIT;
+    var cen={x:(A.x+B.x+C.x+D.x)/4,y:(A.y+B.y+C.y+D.y)/4};
+    function sideLbl(el,P,Q,val){ var m=mid(P,Q); var dd=sub(m,cen),l=len(dd)||1; el.setAttribute('x',m.x+dd.x/l*14); el.setAttribute('y',m.y+dd.y/l*14); el.textContent=fmt(val); }
+    sideLbl(labA,A,B,a); sideLbl(labB,B,C,b); sideLbl(labC,C,D,c); sideLbl(labD,D,A,d);
+    disp(labA,showLabels); disp(labB,showLabels); disp(labC,showLabels); disp(labD,showLabels);
+
+    var s=(a+b+c+d)/2;
+    var brah=Math.sqrt(Math.max(0,(s-a)*(s-b)*(s-c)*(s-d)));
+    var shoe=shoelace([A,B,C,D])/(UNIT*UNIT);
+    var ok=Math.abs(brah-shoe)<0.02*Math.max(1,shoe);
+
+    // area value printed inside the quadrilateral, at its centroid (toggleable)
+    areaInside.setAttribute('x',cen.x); areaInside.setAttribute('y',cen.y);
+    areaInside.textContent='Area = '+fmt(shoe);
+    disp(areaInside,showArea);
+    areaInsideSub.style.display='none';
+
+    statusBadge.textContent='Cyclic quadrilateral — vertices on the circle';
+    statusBadge.style.background='#FBF3D9'; statusBadge.style.color='#5C4813';
+
+    areaRow.innerHTML =
+      '<span>Brahmagupta = √((s−a)(s−b)(s−c)(s−d)) = <b>'+fmt(brah)+'</b></span>'+
+      '<b style="color:'+(ok?'#1d9e75':'#e24b4a')+';font-size:18px;">=</b>'+
+      '<span>measured area = <b>'+fmt(shoe)+'</b></span>'+
+      (ok?'<span style="color:#1d9e75;font-weight:700;">&check;</span>':'');
+
+    detailRow.textContent='sides a='+fmt(a)+', b='+fmt(b)+', c='+fmt(c)+', d='+fmt(d)+'   ·   s = semiperimeter = (a+b+c+d)/2 = '+fmt(s);
+  }
+
+  // dragging vertices around the circle, keeping cyclic order
+  var dragging=-1;
+  function toSvgPoint(evt){
+    var rect=svg.getBoundingClientRect();
+    var vb=svg.viewBox.baseVal;
+    return { x:(evt.clientX-rect.left)/rect.width*vb.width+vb.x, y:(evt.clientY-rect.top)/rect.height*vb.height+vb.y };
+  }
+  function onDown(idx){
+    return function(e){
+      dragging=idx;
+      if(e.target.setPointerCapture){ try{ e.target.setPointerCapture(e.pointerId); }catch(err){} }
+      e.preventDefault();
+    };
+  }
+  function norm(x){return ((x%360)+360)%360;}
+  function onMove(e){
+    if(dragging<0) return;
+    var p=toSvgPoint(e), v=sub(p,O); if(len(v)<1e-6) return;
+    var a=norm(Math.atan2(v.y,v.x)*180/Math.PI);
+    var prev=ang[(dragging+3)%4], next=ang[(dragging+1)%4];
+    var lo=norm(prev+6), hi=norm(next-6);
+    function within(x){ return norm(x-lo) <= norm(hi-lo); }
+    if(!within(a)){ var dLo=Math.min(norm(a-lo),norm(lo-a)), dHi=Math.min(norm(a-hi),norm(hi-a)); a=dLo<dHi?lo:hi; }
+    ang[dragging]=a;
+    update();
+  }
+  function onUp(){ dragging=-1; }
+  for(var i=0;i<4;i++){ H[i].addEventListener('pointerdown',onDown(i)); }
+  svg.addEventListener('pointermove',onMove);
+  window.addEventListener('pointerup',onUp);
+
+  toggleCircle.addEventListener('click',function(){ showCircle=!showCircle; toggleCircle.classList.toggle('active',showCircle); update(); });
+  toggleLabels.addEventListener('click',function(){ showLabels=!showLabels; toggleLabels.classList.toggle('active',showLabels); update(); });
+  toggleArea.addEventListener('click',function(){ showArea=!showArea; toggleArea.classList.toggle('active',showArea); update(); });
+
+  var infoToggle=document.getElementById('info-toggle-btn');
+  var infoDrawer=document.getElementById('info-drawer');
+  var infoBackdrop=document.getElementById('info-backdrop');
+  var infoClose=document.getElementById('info-close');
+  function openDrawer(){ infoDrawer.classList.add('open'); infoBackdrop.classList.add('open'); }
+  function closeDrawer(){ infoDrawer.classList.remove('open'); infoBackdrop.classList.remove('open'); }
+  infoToggle.addEventListener('click',function(){
+    if(infoDrawer.classList.contains('open')) closeDrawer(); else openDrawer();
+  });
+  infoClose.addEventListener('click',closeDrawer);
+  infoBackdrop.addEventListener('click',closeDrawer);
+  document.addEventListener('keydown',function(e){ if(e.key==='Escape') closeDrawer(); });
+
+  update();
+})();
+</script>
+<script defer src="site-chrome.js"></script>
+</body>
+</html>

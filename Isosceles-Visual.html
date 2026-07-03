@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<script>/*gp-noflash*/(function(){try{var t=localStorage.getItem('gp:theme')||(matchMedia('(prefers-color-scheme:dark)').matches?'dark':'light');document.documentElement.setAttribute('data-theme',t);if(t==='dark'){var s=document.createElement('style');s.textContent='html[data-theme=dark]{background:#14151a}html[data-theme=dark] body{background:#14151a!important;color:#e6e6e8!important}';document.head.appendChild(s);}}catch(e){}})();</script>
+<title>GeoProof — Isosceles Triangle Theorem explorer</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="Make two sides equal and watch the base angles opposite them stay equal too.">
+<link rel="canonical" href="https://richard4481234.github.io/geoproof/Isosceles-Visual.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="GeoProof">
+<meta property="og:title" content="Isosceles Triangle — GeoProof">
+<meta property="og:description" content="Make two sides equal and watch the base angles opposite them stay equal too.">
+<meta property="og:url" content="https://richard4481234.github.io/geoproof/Isosceles-Visual.html">
+<meta property="og:image" content="https://richard4481234.github.io/geoproof/og/Isosceles-Visual.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Isosceles Triangle — GeoProof">
+<meta name="twitter:description" content="Make two sides equal and watch the base angles opposite them stay equal too.">
+<meta name="twitter:image" content="https://richard4481234.github.io/geoproof/og/Isosceles-Visual.png">
+<style>
+  body{background:#f4f4f5;display:flex;justify-content:center;padding:40px 16px;font-family:sans-serif;}
+  .widget{width:680px;max-width:100%;}
+  .card{background:#ffffff;border:1px solid #e2e2e2;padding:1.25rem;}
+  .sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;}
+  #is-svg{width:100%;height:auto;display:block;touch-action:none;}
+  .handle{cursor:grab;}
+  .handle:active{cursor:grabbing;}
+  .swatch{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:6px;vertical-align:middle;}
+  .toggle-btn{padding:6px 14px;border-radius:999px;border:1px solid #d8d8d8;background:#f4f4f5;color:#888888;font-size:13px;font-weight:500;cursor:pointer;}
+  .toggle-btn.active{background:#1a1a1a;color:#ffffff;border-color:#1a1a1a;}
+  .stage{position:relative;border-radius:12px;overflow:hidden;border:1px solid #e2e2e2;}
+  .stage .card{border:none;}
+  .info-toggle{position:absolute;top:14px;right:14px;z-index:30;background:#1a1a1a;color:#ffffff;border:none;border-radius:999px;padding:7px 14px;font-size:13px;font-weight:500;cursor:pointer;}
+  .info-toggle:hover{background:#333333;}
+  .info-backdrop{position:absolute;inset:0;background:rgba(0,0,0,0.22);opacity:0;visibility:hidden;transition:opacity .2s ease;z-index:25;}
+  .info-backdrop.open{opacity:1;visibility:visible;}
+  .info-drawer{position:absolute;top:0;right:0;height:100%;width:320px;max-width:88%;background:#ffffff;border-left:1px solid #e2e2e2;box-shadow:-8px 0 24px rgba(0,0,0,0.14);padding:22px 20px;overflow-y:auto;transform:translateX(100%);transition:transform .25s ease;z-index:28;box-sizing:border-box;}
+  .info-drawer.open{transform:translateX(0);}
+  .info-close{position:absolute;top:14px;right:14px;background:#f4f4f5;border:1px solid #e2e2e2;border-radius:50%;width:28px;height:28px;font-size:14px;cursor:pointer;color:#555555;}
+  .info-drawer h3{font-size:17px;margin:6px 0 12px;padding-right:30px;color:#1a1a1a;}
+  .info-drawer h4{font-size:12px;margin:18px 0 6px;color:#666666;text-transform:uppercase;letter-spacing:.04em;}
+  .info-drawer p{font-size:13.5px;line-height:1.55;color:#333333;margin:0 0 10px;}
+  .formula-box{background:#f4f4f5;border-radius:8px;padding:10px 12px;text-align:center;font-size:13.5px;font-weight:600;margin:10px 0;color:#1a1a1a;}
+  .widget svg text{paint-order:stroke;stroke:#ffffff;stroke-width:3px;stroke-linejoin:round;stroke-opacity:0.92;}
+</style>
+</head>
+<body>
+<div class="widget">
+<div style="margin-bottom:12px;"><a href="index.html" style="font-size:14px;color:#1a1a1a;text-decoration:none;">&larr; GeoProof</a></div>
+<div class="stage">
+<div class="card">
+<h2 class="sr-only">A triangle ABC has apex A above base BC. Drag any vertex. The two sides from the apex, AB and AC, are the legs; the angles at B and C are the base angles. The isosceles triangle theorem says that when the two legs are equal in length, the two base angles are equal too — and the other way around. Lengths and base angles are shown live, with tick marks when the legs match. A toggle locks the triangle isosceles by keeping the apex above the base's midpoint. An info button opens a drawer explaining the theorem.</h2>
+<svg id="is-svg" viewBox="0 0 680 560" aria-hidden="true">
+  <line id="axis" stroke="#8B5FBF" stroke-width="1.4" stroke-dasharray="6,4" stroke-opacity="0.6" style="display:none"></line>
+  <polygon id="tri-poly" fill="#1a1a1a" fill-opacity="0.03" stroke="#1a1a1a" stroke-width="2.5"></polygon>
+  <line id="leg-ab" stroke="#378ADD" stroke-width="4" stroke-linecap="round"></line>
+  <line id="leg-ac" stroke="#639922" stroke-width="4" stroke-linecap="round"></line>
+  <line id="base-bc" stroke="#1a1a1a" stroke-width="3" stroke-linecap="round"></line>
+  <g id="tick-group"></g>
+  <polygon id="ang-B" fill="#BA7517" fill-opacity="0.28" stroke="#BA7517" stroke-width="1" stroke-opacity="0.6"></polygon>
+  <polygon id="ang-C" fill="#BA7517" fill-opacity="0.28" stroke="#BA7517" stroke-width="1" stroke-opacity="0.6"></polygon>
+  <text id="lab-ab" text-anchor="middle" dominant-baseline="middle" fill="#185FA5" font-size="13" font-weight="600"></text>
+  <text id="lab-ac" text-anchor="middle" dominant-baseline="middle" fill="#3B6D11" font-size="13" font-weight="600"></text>
+  <text id="lab-B" text-anchor="middle" dominant-baseline="middle" fill="#7A4D0B" font-size="13" font-weight="600"></text>
+  <text id="lab-C" text-anchor="middle" dominant-baseline="middle" fill="#7A4D0B" font-size="13" font-weight="600"></text>
+  <text id="tag-A" text-anchor="middle" dominant-baseline="middle" fill="#1a1a1a" font-size="14" font-weight="700">A</text>
+  <text id="tag-B" text-anchor="middle" dominant-baseline="middle" fill="#1a1a1a" font-size="14" font-weight="700">B</text>
+  <text id="tag-C" text-anchor="middle" dominant-baseline="middle" fill="#1a1a1a" font-size="14" font-weight="700">C</text>
+  <circle id="handle-A" class="handle" r="12" fill="#ffffff" stroke="#1a1a1a" stroke-width="2"></circle>
+  <circle id="handle-B" class="handle" r="12" fill="#ffffff" stroke="#1a1a1a" stroke-width="2"></circle>
+  <circle id="handle-C" class="handle" r="12" fill="#ffffff" stroke="#1a1a1a" stroke-width="2"></circle>
+</svg>
+
+<div style="display:flex; justify-content:center; gap:10px; flex-wrap:wrap; margin-top:0.75rem;">
+  <button type="button" id="toggle-lock" class="toggle-btn">Lock isosceles (AB = AC)</button>
+  <button type="button" id="toggle-labels" class="toggle-btn active">Labels</button>
+</div>
+
+<div style="display:flex; justify-content:center; margin-top:0.85rem;">
+  <span id="status-badge" style="display:inline-block; padding:4px 14px; border-radius:999px; font-size:14px; font-weight:500;"></span>
+</div>
+
+<div id="formula-symbolic" style="text-align:center; font-size:14px; font-weight:600; color:#1a1a1a; margin-top:1.1rem;">AB = AC &nbsp;⟺&nbsp; ∠B = ∠C</div>
+
+<div id="eq-row" style="display:flex; align-items:center; justify-content:center; gap:14px; flex-wrap:wrap; margin-top:0.6rem; font-size:15px; color:#1a1a1a;"></div>
+<div id="detail-row" style="text-align:center; font-size:12.5px; color:#777777; margin-top:0.55rem;"></div>
+</div>
+
+<button type="button" id="info-toggle-btn" class="info-toggle">ⓘ About this theorem</button>
+<div id="info-backdrop" class="info-backdrop"></div>
+<aside id="info-drawer" class="info-drawer">
+  <button type="button" id="info-close" class="info-close" aria-label="Close">✕</button>
+  <h3>The Isosceles Triangle Theorem</h3>
+  <p>An <i>isosceles</i> triangle has two equal sides. The theorem says the angles opposite those equal sides — the <i>base angles</i> — are equal:</p>
+  <div class="formula-box">if AB = AC then ∠B = ∠C (and the converse)</div>
+  <p>Here AB and AC are the legs from the apex A; ∠B and ∠C are the base angles. Lock the triangle isosceles and drag — the base angles stay equal however tall or flat it gets.</p>
+  <h4>The converse</h4>
+  <p>It also runs the other way: if two angles of a triangle are equal, the sides opposite them are equal, so the triangle is isosceles. Equal sides and equal base angles always come together.</p>
+  <h4>Why it's true</h4>
+  <p>Drop the line from the apex A to the midpoint of BC. It splits the triangle into two pieces with the same three side lengths (AB = AC, the shared median, and equal half-bases), so the two pieces are congruent — making ∠B and ∠C equal. For an isosceles triangle this line is at once the median, the altitude, the angle bisector from A, and the axis of symmetry.</p>
+  <h4>Special case</h4>
+  <p>If all three sides are equal (equilateral), all three angles are equal — each 60°.</p>
+  <h4>A bit of history</h4>
+  <p>This is Proposition 5 of Book I of Euclid's <i>Elements</i>, famously nicknamed the <i>pons asinorum</i> ("bridge of asses") — an early test of a geometry student.</p>
+</aside>
+</div>
+</div>
+
+<script>
+(function(){
+  var svg=document.getElementById('is-svg');
+  var pts={ A:{x:340,y:120}, B:{x:200,y:430}, C:{x:480,y:430} };
+  var minX=40,maxX=640,minY=60,maxY=500;
+  var UNIT=30;
+  var lock=false, showLabels=true;
+
+  function sub(p,q){return {x:p.x-q.x,y:p.y-q.y};}
+  function add(p,q){return {x:p.x+q.x,y:p.y+q.y};}
+  function len(v){return Math.hypot(v.x,v.y);}
+  function mid(p,q){return {x:(p.x+q.x)/2,y:(p.y+q.y)/2};}
+  function fmt(n){ var r=Math.round(n*10)/10; return (Math.abs(r-Math.round(r))<1e-9)?Math.round(r).toString():r.toFixed(1); }
+  function angleDeg(P,Q,R){ var u=sub(Q,P),v=sub(R,P),lu=len(u),lv=len(v); if(lu<1e-6||lv<1e-6)return 0; var c=(u.x*v.x+u.y*v.y)/(lu*lv); c=Math.min(1,Math.max(-1,c)); return Math.acos(c)*180/Math.PI; }
+  function wedge(P,Q,R,radius){
+    var ua=Math.atan2(Q.y-P.y,Q.x-P.x)*180/Math.PI, ub=Math.atan2(R.y-P.y,R.x-P.x)*180/Math.PI;
+    var diff=((ub-ua+540)%360)-180, steps=Math.max(2,Math.round(Math.abs(diff)/4)), arr=[P];
+    for(var i=0;i<=steps;i++){ var a=(ua+diff*(i/steps))*Math.PI/180; arr.push({x:P.x+radius*Math.cos(a),y:P.y+radius*Math.sin(a)}); }
+    return {pts:arr, bis:(ua+diff/2)*Math.PI/180};
+  }
+  function ptsToStr(arr){return arr.map(function(p){return p.x.toFixed(1)+','+p.y.toFixed(1);}).join(' ');}
+  function svgEl(tag,attrs){ var el=document.createElementNS('http://www.w3.org/2000/svg',tag); for(var k in attrs){el.setAttribute(k,attrs[k]);} return el; }
+  function clearKids(el){ while(el.firstChild) el.removeChild(el.firstChild); }
+
+  var axis=document.getElementById('axis');
+  var triPoly=document.getElementById('tri-poly');
+  var legAB=document.getElementById('leg-ab'),legAC=document.getElementById('leg-ac'),baseBC=document.getElementById('base-bc');
+  var tickGroup=document.getElementById('tick-group');
+  var angB=document.getElementById('ang-B'),angC=document.getElementById('ang-C');
+  var labAB=document.getElementById('lab-ab'),labAC=document.getElementById('lab-ac'),labB=document.getElementById('lab-B'),labC=document.getElementById('lab-C');
+  var tagA=document.getElementById('tag-A'),tagB=document.getElementById('tag-B'),tagC=document.getElementById('tag-C');
+  var hA=document.getElementById('handle-A'),hB=document.getElementById('handle-B'),hC=document.getElementById('handle-C');
+  var statusBadge=document.getElementById('status-badge');
+  var eqRow=document.getElementById('eq-row');
+  var detailRow=document.getElementById('detail-row');
+  var toggleLock=document.getElementById('toggle-lock');
+  var toggleLabels=document.getElementById('toggle-labels');
+
+  function setLine(el,p,q){ el.setAttribute('x1',p.x); el.setAttribute('y1',p.y); el.setAttribute('x2',q.x); el.setAttribute('y2',q.y); }
+  function disp(el,on){ el.style.display=on?'block':'none'; }
+  function tickMark(P,Q,n){
+    var m=mid(P,Q), d=sub(Q,P), l=len(d)||1, u={x:d.x/l,y:d.y/l}, perp={x:-u.y,y:u.x};
+    for(var k=0;k<n;k++){ var c={x:m.x+u.x*(k-(n-1)/2)*6,y:m.y+u.y*(k-(n-1)/2)*6}; tickGroup.appendChild(svgEl('line',{x1:c.x-perp.x*6,y1:c.y-perp.y*6,x2:c.x+perp.x*6,y2:c.y+perp.y*6,stroke:'#444','stroke-width':1.6,'stroke-linecap':'round'})); }
+  }
+
+  function update(){
+    var A=pts.A,B=pts.B,C=pts.C;
+    if(lock){
+      // keep A on the perpendicular bisector of BC (so AB = AC): project A onto that line
+      var m=mid(B,C), d=sub(C,B), l2=(d.x*d.x+d.y*d.y)||1;
+      var t=((A.x-m.x)*d.x+(A.y-m.y)*d.y)/l2;      // component along BC
+      A={x:A.x-t*d.x, y:A.y-t*d.y};                 // remove along-BC component from m
+      pts.A=A;
+    }
+    hA.setAttribute('cx',A.x); hA.setAttribute('cy',A.y);
+    hB.setAttribute('cx',B.x); hB.setAttribute('cy',B.y);
+    hC.setAttribute('cx',C.x); hC.setAttribute('cy',C.y);
+    triPoly.setAttribute('points', A.x+','+A.y+' '+B.x+','+B.y+' '+C.x+','+C.y);
+    setLine(legAB,A,B); setLine(legAC,A,C); setLine(baseBC,B,C);
+
+    // symmetry axis A -> midpoint BC
+    var mBC=mid(B,C);
+    disp(axis,lock); if(lock){ setLine(axis,A,mBC); }
+
+    var cen={x:(A.x+B.x+C.x)/3,y:(A.y+B.y+C.y)/3};
+    function vtag(el,V){ var dd=sub(V,cen),l=len(dd)||1; el.setAttribute('x',V.x+dd.x/l*22); el.setAttribute('y',V.y+dd.y/l*22); }
+    vtag(tagA,A); vtag(tagB,B); vtag(tagC,C);
+
+    var AB=len(sub(A,B))/UNIT, AC=len(sub(A,C))/UNIT;
+    var aB=angleDeg(B,A,C), aC=angleDeg(C,A,B);
+
+    function sideLbl(el,P,Q,val){ var m=mid(P,Q); var dd=sub(m,cen),l=len(dd)||1; el.setAttribute('x',m.x+dd.x/l*15); el.setAttribute('y',m.y+dd.y/l*15); el.textContent=val; }
+    sideLbl(labAB,A,B,'AB='+fmt(AB)); sideLbl(labAC,A,C,'AC='+fmt(AC));
+
+    var wB=wedge(B,A,C,26), wC=wedge(C,A,B,26);
+    angB.setAttribute('points',ptsToStr(wB.pts)); angC.setAttribute('points',ptsToStr(wC.pts));
+    labB.setAttribute('x',B.x+42*Math.cos(wB.bis)); labB.setAttribute('y',B.y+42*Math.sin(wB.bis)); labB.textContent=Math.round(aB)+'°';
+    labC.setAttribute('x',C.x+42*Math.cos(wC.bis)); labC.setAttribute('y',C.y+42*Math.sin(wC.bis)); labC.textContent=Math.round(aC)+'°';
+    disp(labAB,showLabels); disp(labAC,showLabels); disp(labB,showLabels); disp(labC,showLabels);
+
+    var equal=Math.abs(AB-AC)<0.05*Math.max(1,AB);
+    clearKids(tickGroup);
+    if(equal){ tickMark(A,B,1); tickMark(A,C,1); }   // equal-length tick marks on the legs
+
+    statusBadge.textContent=equal?'Isosceles: equal legs → equal base angles':'Scalene: legs differ, so base angles differ';
+    statusBadge.style.background=equal?'#EAF3DE':'#FAECE7'; statusBadge.style.color=equal?'#173404':'#4A1B0C';
+
+    eqRow.innerHTML =
+      '<span><span class="swatch" style="background:#378ADD"></span>AB = '+fmt(AB)+'  ,  <span class="swatch" style="background:#639922"></span>AC = '+fmt(AC)+'</span>'+
+      '<span style="color:#888;">→</span>'+
+      '<span><span class="swatch" style="background:#BA7517"></span>∠B = '+Math.round(aB)+'°  ,  ∠C = '+Math.round(aC)+'°</span>'+
+      (equal?'<span style="color:#1d9e75;font-weight:700;">&check; equal</span>':'');
+
+    detailRow.textContent=lock?'Locked isosceles: A stays above the midpoint of BC, so AB = AC and ∠B = ∠C exactly.':'Drag A onto the dashed axis (or lock it) to make AB = AC and watch ∠B = ∠C.';
+  }
+
+  var dragging=null;
+  function toSvgPoint(evt){
+    var rect=svg.getBoundingClientRect();
+    var vb=svg.viewBox.baseVal;
+    return { x:(evt.clientX-rect.left)/rect.width*vb.width+vb.x, y:(evt.clientY-rect.top)/rect.height*vb.height+vb.y };
+  }
+  function onDown(key){
+    return function(e){
+      dragging=key;
+      if(e.target.setPointerCapture){ try{ e.target.setPointerCapture(e.pointerId); }catch(err){} }
+      e.preventDefault();
+    };
+  }
+  function onMove(e){
+    if(!dragging) return;
+    var p=toSvgPoint(e);
+    pts[dragging]={x:Math.min(maxX,Math.max(minX,p.x)), y:Math.min(maxY,Math.max(minY,p.y))};
+    update();
+  }
+  function onUp(){ dragging=null; }
+  hA.addEventListener('pointerdown',onDown('A'));
+  hB.addEventListener('pointerdown',onDown('B'));
+  hC.addEventListener('pointerdown',onDown('C'));
+  svg.addEventListener('pointermove',onMove);
+  window.addEventListener('pointerup',onUp);
+
+  toggleLock.addEventListener('click',function(){ lock=!lock; toggleLock.classList.toggle('active',lock); update(); });
+  toggleLabels.addEventListener('click',function(){ showLabels=!showLabels; toggleLabels.classList.toggle('active',showLabels); update(); });
+
+  var infoToggle=document.getElementById('info-toggle-btn');
+  var infoDrawer=document.getElementById('info-drawer');
+  var infoBackdrop=document.getElementById('info-backdrop');
+  var infoClose=document.getElementById('info-close');
+  function openDrawer(){ infoDrawer.classList.add('open'); infoBackdrop.classList.add('open'); }
+  function closeDrawer(){ infoDrawer.classList.remove('open'); infoBackdrop.classList.remove('open'); }
+  infoToggle.addEventListener('click',function(){
+    if(infoDrawer.classList.contains('open')) closeDrawer(); else openDrawer();
+  });
+  infoClose.addEventListener('click',closeDrawer);
+  infoBackdrop.addEventListener('click',closeDrawer);
+  document.addEventListener('keydown',function(e){ if(e.key==='Escape') closeDrawer(); });
+
+  update();
+})();
+</script>
+<script defer src="site-chrome.js"></script>
+</body>
+</html>

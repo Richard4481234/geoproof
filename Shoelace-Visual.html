@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<script>/*gp-noflash*/(function(){try{var t=localStorage.getItem('gp:theme')||(matchMedia('(prefers-color-scheme:dark)').matches?'dark':'light');document.documentElement.setAttribute('data-theme',t);if(t==='dark'){var s=document.createElement('style');s.textContent='html[data-theme=dark]{background:#14151a}html[data-theme=dark] body{background:#14151a!important;color:#e6e6e8!important}';document.head.appendChild(s);}}catch(e){}})();</script>
+<title>GeoProof — Shoelace Formula explorer</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="Drag a polygon's corners on a grid and get its area straight from the coordinates.">
+<link rel="canonical" href="https://richard4481234.github.io/geoproof/Shoelace-Visual.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="GeoProof">
+<meta property="og:title" content="Shoelace Formula — GeoProof">
+<meta property="og:description" content="Drag a polygon's corners on a grid and get its area straight from the coordinates.">
+<meta property="og:url" content="https://richard4481234.github.io/geoproof/Shoelace-Visual.html">
+<meta property="og:image" content="https://richard4481234.github.io/geoproof/og/Shoelace-Visual.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Shoelace Formula — GeoProof">
+<meta name="twitter:description" content="Drag a polygon's corners on a grid and get its area straight from the coordinates.">
+<meta name="twitter:image" content="https://richard4481234.github.io/geoproof/og/Shoelace-Visual.png">
+<style>
+  body{background:#f4f4f5;display:flex;justify-content:center;padding:40px 16px;font-family:sans-serif;}
+  .widget{width:680px;max-width:100%;}
+  .card{background:#ffffff;border:1px solid #e2e2e2;padding:1.25rem;}
+  .sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;}
+  #sl-svg{width:100%;height:auto;display:block;touch-action:none;}
+  .handle{cursor:grab;}
+  .handle:active{cursor:grabbing;}
+  .swatch{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:6px;vertical-align:middle;}
+  .toggle-btn{padding:6px 14px;border-radius:999px;border:1px solid #d8d8d8;background:#f4f4f5;color:#888888;font-size:13px;font-weight:500;cursor:pointer;}
+  .toggle-btn.active{background:#1a1a1a;color:#ffffff;border-color:#1a1a1a;}
+  .stage{position:relative;border-radius:12px;overflow:hidden;border:1px solid #e2e2e2;}
+  .stage .card{border:none;}
+  .info-toggle{position:absolute;top:14px;right:14px;z-index:30;background:#1a1a1a;color:#ffffff;border:none;border-radius:999px;padding:7px 14px;font-size:13px;font-weight:500;cursor:pointer;}
+  .info-toggle:hover{background:#333333;}
+  .info-backdrop{position:absolute;inset:0;background:rgba(0,0,0,0.22);opacity:0;visibility:hidden;transition:opacity .2s ease;z-index:25;}
+  .info-backdrop.open{opacity:1;visibility:visible;}
+  .info-drawer{position:absolute;top:0;right:0;height:100%;width:320px;max-width:88%;background:#ffffff;border-left:1px solid #e2e2e2;box-shadow:-8px 0 24px rgba(0,0,0,0.14);padding:22px 20px;overflow-y:auto;transform:translateX(100%);transition:transform .25s ease;z-index:28;box-sizing:border-box;}
+  .info-drawer.open{transform:translateX(0);}
+  .info-close{position:absolute;top:14px;right:14px;background:#f4f4f5;border:1px solid #e2e2e2;border-radius:50%;width:28px;height:28px;font-size:14px;cursor:pointer;color:#555555;}
+  .info-drawer h3{font-size:17px;margin:6px 0 12px;padding-right:30px;color:#1a1a1a;}
+  .info-drawer h4{font-size:12px;margin:18px 0 6px;color:#666666;text-transform:uppercase;letter-spacing:.04em;}
+  .info-drawer p{font-size:13.5px;line-height:1.55;color:#333333;margin:0 0 10px;}
+  .formula-box{background:#f4f4f5;border-radius:8px;padding:10px 12px;text-align:center;font-size:12.5px;font-weight:600;margin:10px 0;color:#1a1a1a;}
+  .widget svg text{paint-order:stroke;stroke:#ffffff;stroke-width:3px;stroke-linejoin:round;stroke-opacity:0.92;}
+</style>
+</head>
+<body>
+<div class="widget">
+<div style="margin-bottom:12px;"><a href="index.html" style="font-size:14px;color:#1a1a1a;text-decoration:none;">&larr; GeoProof</a></div>
+<div class="stage">
+<div class="card">
+<h2 class="sr-only">A polygon sits on a coordinate grid; its corners snap to whole-number points and can be dragged, and a stepper changes how many corners it has. The shoelace formula computes the polygon's area straight from the corner coordinates: add up each x times the next y, subtract each next x times the y, take half the absolute value. The area is shown live and matches the shape. An info button opens a drawer explaining the formula.</h2>
+<svg id="sl-svg" viewBox="0 0 680 560" aria-hidden="true">
+  <g id="grid"></g>
+  <line id="axis-x" stroke="#9a9a9a" stroke-width="1.4"></line>
+  <line id="axis-y" stroke="#9a9a9a" stroke-width="1.4"></line>
+  <polygon id="poly" fill="#378ADD" fill-opacity="0.14" stroke="#1a1a1a" stroke-width="2.5"></polygon>
+  <g id="vtx-group"></g>
+  <g id="handle-group"></g>
+</svg>
+
+<div style="display:flex; align-items:center; justify-content:center; gap:14px; margin-top:0.85rem;">
+  <button type="button" id="dec" class="toggle-btn" aria-label="Fewer corners">−</button>
+  <span id="count-label" style="font-size:15px;font-weight:600;min-width:96px;text-align:center;color:#1a1a1a;">5 corners</span>
+  <button type="button" id="inc" class="toggle-btn" aria-label="More corners">+</button>
+  <button type="button" id="toggle-coords" class="toggle-btn active">Coordinates</button>
+</div>
+
+<div style="display:flex; justify-content:center; margin-top:0.85rem;">
+  <span id="status-badge" style="display:inline-block; padding:4px 14px; border-radius:999px; font-size:14px; font-weight:500;"></span>
+</div>
+
+<div id="formula-symbolic" style="text-align:center; font-size:13px; font-weight:600; color:#1a1a1a; margin-top:1.1rem;">Area = ½ · | Σ (xᵢ·yᵢ₊₁ − xᵢ₊₁·yᵢ) |</div>
+
+<div id="area-row" style="text-align:center; font-size:15px; color:#1a1a1a; margin-top:0.6rem;"></div>
+<div id="detail-row" style="text-align:center; font-size:12px; color:#777777; margin-top:0.5rem; word-break:break-word;"></div>
+</div>
+
+<button type="button" id="info-toggle-btn" class="info-toggle">ⓘ About this formula</button>
+<div id="info-backdrop" class="info-backdrop"></div>
+<aside id="info-drawer" class="info-drawer">
+  <button type="button" id="info-close" class="info-close" aria-label="Close">✕</button>
+  <h3>The Shoelace Formula</h3>
+  <p>The shoelace (or surveyor's) formula gives the area of any simple polygon directly from its corner coordinates (x₁,y₁), …, (xₙ,yₙ), taken in order:</p>
+  <div class="formula-box">Area = ½ · | Σ (xᵢ·yᵢ₊₁ − xᵢ₊₁·yᵢ) |</div>
+  <p>(the indices wrap around, so after the last corner you return to the first).</p>
+  <h4>Why "shoelace"?</h4>
+  <p>If you list the coordinates in a column and multiply diagonally — down-right then down-left — the crossing pattern looks like lacing a shoe. Each x·y product is one "cross."</p>
+  <h4>What it's really doing</h4>
+  <p>Each term is twice the signed area of the triangle from the origin to one edge. Going around the polygon, the outside parts cancel and only the inside is left — so the sum is twice the polygon's area. The sign tracks direction (counter-clockwise is positive), which is why we take the absolute value.</p>
+  <h4>Handy because</h4>
+  <p>It needs no heights or angles — just coordinates — so it's the go-to method in surveying, computer graphics, and GIS for the area of a plotted region.</p>
+</aside>
+</div>
+</div>
+
+<script>
+(function(){
+  var svg=document.getElementById('sl-svg');
+  var origin={x:330,y:300}, S=40;
+  var verts=[ {x:-3,y:-2},{x:3,y:-3},{x:5,y:1},{x:1,y:4},{x:-4,y:2} ];
+  var showCoords=true;
+
+  function toPx(u){ return {x:origin.x+u.x*S, y:origin.y-u.y*S}; }
+  function snap(px){ return {x:Math.round((px.x-origin.x)/S), y:Math.round((origin.y-px.y)/S)}; }
+  function fmt(n){ var r=Math.round(n*100)/100; return (Math.abs(r-Math.round(r))<1e-9)?Math.round(r).toString():r.toFixed(2); }
+  function svgEl(tag,attrs){ var el=document.createElementNS('http://www.w3.org/2000/svg',tag); for(var k in attrs){el.setAttribute(k,attrs[k]);} return el; }
+  function clearKids(el){ while(el.firstChild) el.removeChild(el.firstChild); }
+
+  var grid=document.getElementById('grid');
+  var axisX=document.getElementById('axis-x'), axisY=document.getElementById('axis-y');
+  var poly=document.getElementById('poly');
+  var vtxGroup=document.getElementById('vtx-group');
+  var handleGroup=document.getElementById('handle-group');
+  var countLabel=document.getElementById('count-label');
+  var statusBadge=document.getElementById('status-badge');
+  var areaRow=document.getElementById('area-row'), detailRow=document.getElementById('detail-row');
+  var decBtn=document.getElementById('dec'), incBtn=document.getElementById('inc'), toggleCoords=document.getElementById('toggle-coords');
+
+  (function buildGrid(){
+    clearKids(grid);
+    var x0=20,x1=660,y0=20,y1=540;
+    for(var gx=Math.ceil((x0-origin.x)/S); gx*S+origin.x<=x1; gx++){ var X=origin.x+gx*S; grid.appendChild(svgEl('line',{x1:X,y1:y0,x2:X,y2:y1,stroke:'#ececec','stroke-width':1})); }
+    for(var gy=Math.ceil((origin.y-y1)/S); origin.y-gy*S>=y0; gy++){ var Y=origin.y-gy*S; grid.appendChild(svgEl('line',{x1:x0,y1:Y,x2:x1,y2:Y,stroke:'#ececec','stroke-width':1})); }
+    axisX.setAttribute('x1',x0); axisX.setAttribute('y1',origin.y); axisX.setAttribute('x2',x1); axisX.setAttribute('y2',origin.y);
+    axisY.setAttribute('x1',origin.x); axisY.setAttribute('y1',y0); axisY.setAttribute('x2',origin.x); axisY.setAttribute('y2',y1);
+  })();
+
+  var dragging=-1;
+  function rebuild(){
+    clearKids(handleGroup);
+    for(var i=0;i<verts.length;i++){
+      (function(idx){
+        var h=svgEl('circle',{r:10,fill:'#ffffff',stroke:'#1a1a1a','stroke-width':2.5,'class':'handle'});
+        handleGroup.appendChild(h);
+        h.addEventListener('pointerdown',function(e){ dragging=idx; if(e.target.setPointerCapture){try{e.target.setPointerCapture(e.pointerId);}catch(err){}} e.preventDefault(); });
+      })(i);
+    }
+  }
+
+  function shoelaceSigned(){
+    var s=0; for(var i=0;i<verts.length;i++){ var a=verts[i], b=verts[(i+1)%verts.length]; s+=a.x*b.y-b.x*a.y; } return s/2;
+  }
+
+  function update(){
+    var pxs=verts.map(toPx);
+    poly.setAttribute('points', pxs.map(function(p){return p.x.toFixed(1)+','+p.y.toFixed(1);}).join(' '));
+    var handles=handleGroup.childNodes;
+    clearKids(vtxGroup);
+    for(var i=0;i<verts.length;i++){
+      handles[i].setAttribute('cx',pxs[i].x); handles[i].setAttribute('cy',pxs[i].y);
+      if(showCoords){
+        var t=svgEl('text',{x:pxs[i].x,y:pxs[i].y-16,'text-anchor':'middle','dominant-baseline':'middle',fill:'#1a1a1a','font-size':11.5,'font-weight':600});
+        t.textContent='('+verts[i].x+', '+verts[i].y+')';
+        vtxGroup.appendChild(t);
+      }
+    }
+    var signed=shoelaceSigned(), area=Math.abs(signed);
+    countLabel.textContent=verts.length+' corners';
+    statusBadge.textContent=(signed>=0?'Vertices counter-clockwise':'Vertices clockwise')+' — area = |½·Σ|';
+    statusBadge.style.background='#E1F0FB'; statusBadge.style.color='#0E3F66';
+    areaRow.innerHTML='<b>Area</b> = ½ · |Σ| = ½ · |'+fmt(2*signed)+'| = <b style="color:#185FA5">'+fmt(area)+'</b> square units';
+
+    // term breakdown (compact)
+    var terms=[];
+    for(var j=0;j<verts.length;j++){ var a=verts[j], b=verts[(j+1)%verts.length]; terms.push('('+a.x+'·'+b.y+'−'+b.x+'·'+a.y+')'); }
+    detailRow.textContent='Σ = '+terms.join(' + ')+' = '+fmt(2*signed);
+  }
+
+  function setCount(n){
+    n=Math.min(8,Math.max(3,n));
+    if(n>verts.length){
+      // insert a vertex at the midpoint of the last edge, nudged out
+      var a=verts[verts.length-1], b=verts[0];
+      verts.push({x:Math.round((a.x+b.x)/2), y:Math.round((a.y+b.y)/2)-1});
+    } else if(n<verts.length){
+      verts.pop();
+    }
+    rebuild(); update();
+  }
+
+  function toSvgPoint(evt){
+    var rect=svg.getBoundingClientRect();
+    var vb=svg.viewBox.baseVal;
+    return { x:(evt.clientX-rect.left)/rect.width*vb.width+vb.x, y:(evt.clientY-rect.top)/rect.height*vb.height+vb.y };
+  }
+  svg.addEventListener('pointermove',function(e){
+    if(dragging<0) return;
+    var u=snap(toSvgPoint(e));
+    u.x=Math.min(7,Math.max(-7,u.x)); u.y=Math.min(5,Math.max(-5,u.y));
+    verts[dragging]=u;
+    update();
+  });
+  window.addEventListener('pointerup',function(){ dragging=-1; });
+
+  decBtn.addEventListener('click',function(){ setCount(verts.length-1); });
+  incBtn.addEventListener('click',function(){ setCount(verts.length+1); });
+  toggleCoords.addEventListener('click',function(){ showCoords=!showCoords; toggleCoords.classList.toggle('active',showCoords); update(); });
+
+  var infoToggle=document.getElementById('info-toggle-btn');
+  var infoDrawer=document.getElementById('info-drawer');
+  var infoBackdrop=document.getElementById('info-backdrop');
+  var infoClose=document.getElementById('info-close');
+  function openDrawer(){ infoDrawer.classList.add('open'); infoBackdrop.classList.add('open'); }
+  function closeDrawer(){ infoDrawer.classList.remove('open'); infoBackdrop.classList.remove('open'); }
+  infoToggle.addEventListener('click',function(){
+    if(infoDrawer.classList.contains('open')) closeDrawer(); else openDrawer();
+  });
+  infoClose.addEventListener('click',closeDrawer);
+  infoBackdrop.addEventListener('click',closeDrawer);
+  document.addEventListener('keydown',function(e){ if(e.key==='Escape') closeDrawer(); });
+
+  rebuild();
+  update();
+})();
+</script>
+<script defer src="site-chrome.js"></script>
+</body>
+</html>

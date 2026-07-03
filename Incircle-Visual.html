@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<script>/*gp-noflash*/(function(){try{var t=localStorage.getItem('gp:theme')||(matchMedia('(prefers-color-scheme:dark)').matches?'dark':'light');document.documentElement.setAttribute('data-theme',t);if(t==='dark'){var s=document.createElement('style');s.textContent='html[data-theme=dark]{background:#14151a}html[data-theme=dark] body{background:#14151a!important;color:#e6e6e8!important}';document.head.appendChild(s);}}catch(e){}})();</script>
+<title>GeoProof — Incenter &amp; Incircle explorer</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="Drag a triangle and watch its angle bisectors meet at the incenter, the center of the inscribed circle.">
+<link rel="canonical" href="https://richard4481234.github.io/geoproof/Incircle-Visual.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="GeoProof">
+<meta property="og:title" content="Incenter &amp; Incircle — GeoProof">
+<meta property="og:description" content="Drag a triangle and watch its angle bisectors meet at the incenter, the center of the inscribed circle.">
+<meta property="og:url" content="https://richard4481234.github.io/geoproof/Incircle-Visual.html">
+<meta property="og:image" content="https://richard4481234.github.io/geoproof/og/Incircle-Visual.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Incenter &amp; Incircle — GeoProof">
+<meta name="twitter:description" content="Drag a triangle and watch its angle bisectors meet at the incenter, the center of the inscribed circle.">
+<meta name="twitter:image" content="https://richard4481234.github.io/geoproof/og/Incircle-Visual.png">
+<style>
+  body{background:#f4f4f5;display:flex;justify-content:center;padding:40px 16px;font-family:sans-serif;}
+  .widget{width:680px;max-width:100%;}
+  .card{background:#ffffff;border:1px solid #e2e2e2;padding:1.25rem;}
+  .sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;}
+  #ic-svg{width:100%;height:auto;display:block;touch-action:none;}
+  .handle{cursor:grab;}
+  .handle:active{cursor:grabbing;}
+  .swatch{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:6px;vertical-align:middle;}
+  .toggle-btn{padding:6px 14px;border-radius:999px;border:1px solid #d8d8d8;background:#f4f4f5;color:#888888;font-size:13px;font-weight:500;cursor:pointer;}
+  .toggle-btn.active{background:#1a1a1a;color:#ffffff;border-color:#1a1a1a;}
+  .stage{position:relative;border-radius:12px;overflow:hidden;border:1px solid #e2e2e2;}
+  .stage .card{border:none;}
+  .info-toggle{position:absolute;top:14px;right:14px;z-index:30;background:#1a1a1a;color:#ffffff;border:none;border-radius:999px;padding:7px 14px;font-size:13px;font-weight:500;cursor:pointer;}
+  .info-toggle:hover{background:#333333;}
+  .info-backdrop{position:absolute;inset:0;background:rgba(0,0,0,0.22);opacity:0;visibility:hidden;transition:opacity .2s ease;z-index:25;}
+  .info-backdrop.open{opacity:1;visibility:visible;}
+  .info-drawer{position:absolute;top:0;right:0;height:100%;width:320px;max-width:88%;background:#ffffff;border-left:1px solid #e2e2e2;box-shadow:-8px 0 24px rgba(0,0,0,0.14);padding:22px 20px;overflow-y:auto;transform:translateX(100%);transition:transform .25s ease;z-index:28;box-sizing:border-box;}
+  .info-drawer.open{transform:translateX(0);}
+  .info-close{position:absolute;top:14px;right:14px;background:#f4f4f5;border:1px solid #e2e2e2;border-radius:50%;width:28px;height:28px;font-size:14px;cursor:pointer;color:#555555;}
+  .info-drawer h3{font-size:17px;margin:6px 0 12px;padding-right:30px;color:#1a1a1a;}
+  .info-drawer h4{font-size:12px;margin:18px 0 6px;color:#666666;text-transform:uppercase;letter-spacing:.04em;}
+  .info-drawer p{font-size:13.5px;line-height:1.55;color:#333333;margin:0 0 10px;}
+  .formula-box{background:#f4f4f5;border-radius:8px;padding:10px 12px;text-align:center;font-size:14px;font-weight:600;margin:10px 0;color:#1a1a1a;}
+  .widget svg text{paint-order:stroke;stroke:#ffffff;stroke-width:3px;stroke-linejoin:round;stroke-opacity:0.92;}
+</style>
+</head>
+<body>
+<div class="widget">
+<div style="margin-bottom:12px;"><a href="index.html" style="font-size:14px;color:#1a1a1a;text-decoration:none;">&larr; GeoProof</a></div>
+<div class="stage">
+<div class="card">
+<h2 class="sr-only">A triangle ABC is shown. Drag any vertex. The three angle bisectors — each splitting a corner angle in half — all meet at a single point, the incenter I. The incenter is the same distance from all three sides, and that distance is the inradius. A circle centered at I with that radius, the incircle, is drawn touching all three sides from inside. Toggles show the angle bisectors, the incircle, and the equal perpendicular distances to the sides. An info button opens a drawer explaining the concept.</h2>
+<svg id="ic-svg" viewBox="0 0 680 560" aria-hidden="true">
+  <polygon id="tri-poly" fill="#1a1a1a" fill-opacity="0.03" stroke="#1a1a1a" stroke-width="2.5"></polygon>
+  <g id="bisector-group"></g>
+  <circle id="incircle" fill="#1D9E75" fill-opacity="0.10" stroke="#1D9E75" stroke-width="2"></circle>
+  <line id="r-a" stroke="#BA7517" stroke-width="2" stroke-dasharray="4,3"></line>
+  <line id="r-b" stroke="#BA7517" stroke-width="2" stroke-dasharray="4,3"></line>
+  <line id="r-c" stroke="#BA7517" stroke-width="2" stroke-dasharray="4,3"></line>
+  <circle id="touch-a" r="3.5" fill="#BA7517"></circle>
+  <circle id="touch-b" r="3.5" fill="#BA7517"></circle>
+  <circle id="touch-c" r="3.5" fill="#BA7517"></circle>
+  <text id="lab-ra" text-anchor="middle" dominant-baseline="middle" fill="#7A4D0B" font-size="11.5" font-weight="600"></text>
+  <text id="lab-rb" text-anchor="middle" dominant-baseline="middle" fill="#7A4D0B" font-size="11.5" font-weight="600"></text>
+  <text id="lab-rc" text-anchor="middle" dominant-baseline="middle" fill="#7A4D0B" font-size="11.5" font-weight="600"></text>
+  <circle id="dot-I" r="5.5" fill="#1D9E75"></circle>
+  <text id="tag-I" text-anchor="middle" dominant-baseline="middle" fill="#0F5A3D" font-size="13" font-weight="700">I</text>
+  <text id="tag-A" text-anchor="middle" dominant-baseline="middle" fill="#1a1a1a" font-size="14" font-weight="700">A</text>
+  <text id="tag-B" text-anchor="middle" dominant-baseline="middle" fill="#1a1a1a" font-size="14" font-weight="700">B</text>
+  <text id="tag-C" text-anchor="middle" dominant-baseline="middle" fill="#1a1a1a" font-size="14" font-weight="700">C</text>
+  <circle id="handle-A" class="handle" r="12" fill="#ffffff" stroke="#1a1a1a" stroke-width="2"></circle>
+  <circle id="handle-B" class="handle" r="12" fill="#ffffff" stroke="#1a1a1a" stroke-width="2"></circle>
+  <circle id="handle-C" class="handle" r="12" fill="#ffffff" stroke="#1a1a1a" stroke-width="2"></circle>
+</svg>
+
+<div style="display:flex; justify-content:center; gap:10px; flex-wrap:wrap; margin-top:0.75rem;">
+  <button type="button" id="toggle-bisectors" class="toggle-btn active">Angle bisectors</button>
+  <button type="button" id="toggle-incircle" class="toggle-btn active">Incircle</button>
+  <button type="button" id="toggle-radii" class="toggle-btn active">Equal distances</button>
+</div>
+
+<div style="display:flex; justify-content:center; margin-top:0.85rem;">
+  <span id="status-badge" style="display:inline-block; padding:4px 14px; border-radius:999px; font-size:14px; font-weight:500;"></span>
+</div>
+
+<div id="formula-symbolic" style="text-align:center; font-size:14px; font-weight:600; color:#1a1a1a; margin-top:1.1rem;">The incenter is equidistant from all three sides — that distance is the inradius r</div>
+
+<div id="r-row" style="display:flex; align-items:center; justify-content:center; gap:10px; flex-wrap:wrap; margin-top:0.6rem; font-size:15px; color:#1a1a1a;"></div>
+<div id="detail-row" style="text-align:center; font-size:12.5px; color:#777777; margin-top:0.55rem;"></div>
+</div>
+
+<button type="button" id="info-toggle-btn" class="info-toggle">ⓘ About this concept</button>
+<div id="info-backdrop" class="info-backdrop"></div>
+<aside id="info-drawer" class="info-drawer">
+  <button type="button" id="info-close" class="info-close" aria-label="Close">✕</button>
+  <h3>The Incenter &amp; Incircle</h3>
+  <p>An <i>angle bisector</i> cuts a corner of the triangle into two equal angles. A triangle has three of them, and they all pass through one point — the <i>incenter</i> I:</p>
+  <div class="formula-box">three angle bisectors meet at the incenter I</div>
+  <p>The incenter is special because it is the same perpendicular distance from all three sides. That distance is the <i>inradius</i> r, and the circle centered at I with radius r — the <i>incircle</i> — touches (is tangent to) all three sides from the inside.</p>
+  <h4>Why equidistant?</h4>
+  <p>Any point on the bisector of an angle is equally far from the two sides forming that angle. A point on all three bisectors is therefore equally far from all three sides — so such a point exists and is unique.</p>
+  <h4>A handy formula</h4>
+  <p>The inradius relates the triangle's area and semiperimeter by r = Area ÷ s, where s = (a + b + c) / 2. So the area also equals r · s — the incircle "spreads" the area evenly along the perimeter.</p>
+  <h4>Always inside</h4>
+  <p>Unlike the circumcenter or orthocenter, the incenter is always inside the triangle, even for obtuse triangles — drag a vertex to make a very flat triangle and watch I stay within.</p>
+  <h4>Where it's used</h4>
+  <p>The incircle is the largest circle that fits inside the triangle. Incenters appear throughout geometry — in tangential polygons (see Pitot's theorem), constructions, and optimization problems.</p>
+</aside>
+</div>
+</div>
+
+<script>
+(function(){
+  var svg=document.getElementById('ic-svg');
+  var pts={ A:{x:330,y:120}, B:{x:170,y:430}, C:{x:520,y:410} };
+  var minX=40,maxX=640,minY=60,maxY=500;
+  var UNIT=30;
+  var showBisectors=true, showIncircle=true, showRadii=true;
+
+  function sub(p,q){return {x:p.x-q.x,y:p.y-q.y};}
+  function len(v){return Math.hypot(v.x,v.y);}
+  function mid(p,q){return {x:(p.x+q.x)/2,y:(p.y+q.y)/2};}
+  function fmt(n){ var r=Math.round(n*10)/10; return (Math.abs(r-Math.round(r))<1e-9)?Math.round(r).toString():r.toFixed(1); }
+  function area(A,B,C){return Math.abs((B.x-A.x)*(C.y-A.y)-(C.x-A.x)*(B.y-A.y))/2;}
+  function foot(P,V1,V2){ var d=sub(V2,V1), t=((P.x-V1.x)*d.x+(P.y-V1.y)*d.y)/(d.x*d.x+d.y*d.y); return {x:V1.x+t*d.x,y:V1.y+t*d.y}; }
+  function svgEl(tag,attrs){ var el=document.createElementNS('http://www.w3.org/2000/svg',tag); for(var k in attrs){el.setAttribute(k,attrs[k]);} return el; }
+  function clearKids(el){ while(el.firstChild) el.removeChild(el.firstChild); }
+
+  var triPoly=document.getElementById('tri-poly');
+  var bisectorGroup=document.getElementById('bisector-group');
+  var incircle=document.getElementById('incircle');
+  var rA=document.getElementById('r-a'), rB=document.getElementById('r-b'), rC=document.getElementById('r-c');
+  var touchA=document.getElementById('touch-a'), touchB=document.getElementById('touch-b'), touchC=document.getElementById('touch-c');
+  var labRa=document.getElementById('lab-ra'), labRb=document.getElementById('lab-rb'), labRc=document.getElementById('lab-rc');
+  var dotI=document.getElementById('dot-I'), tagI=document.getElementById('tag-I');
+  var tagA=document.getElementById('tag-A'), tagB=document.getElementById('tag-B'), tagC=document.getElementById('tag-C');
+  var hA=document.getElementById('handle-A'), hB=document.getElementById('handle-B'), hC=document.getElementById('handle-C');
+  var statusBadge=document.getElementById('status-badge');
+  var rRow=document.getElementById('r-row');
+  var detailRow=document.getElementById('detail-row');
+  var toggleBisectors=document.getElementById('toggle-bisectors');
+  var toggleIncircle=document.getElementById('toggle-incircle');
+  var toggleRadii=document.getElementById('toggle-radii');
+
+  function setLine(el,p,q){ el.setAttribute('x1',p.x); el.setAttribute('y1',p.y); el.setAttribute('x2',q.x); el.setAttribute('y2',q.y); }
+  function disp(el,on){ el.style.display=on?'block':'none'; }
+
+  function update(){
+    var A=pts.A,B=pts.B,C=pts.C;
+    hA.setAttribute('cx',A.x); hA.setAttribute('cy',A.y);
+    hB.setAttribute('cx',B.x); hB.setAttribute('cy',B.y);
+    hC.setAttribute('cx',C.x); hC.setAttribute('cy',C.y);
+    triPoly.setAttribute('points', A.x+','+A.y+' '+B.x+','+B.y+' '+C.x+','+C.y);
+
+    var a=len(sub(B,C)), b=len(sub(C,A)), c=len(sub(A,B));
+    var P=a+b+c;
+    var I={x:(a*A.x+b*B.x+c*C.x)/P, y:(a*A.y+b*B.y+c*C.y)/P};
+    var ar=area(A,B,C), s=P/2, r=ar/s;
+
+    var cen={x:(A.x+B.x+C.x)/3,y:(A.y+B.y+C.y)/3};
+    function vtag(el,V){ var d=sub(V,cen),l=len(d)||1; el.setAttribute('x',V.x+d.x/l*22); el.setAttribute('y',V.y+d.y/l*22); }
+    vtag(tagA,A); vtag(tagB,B); vtag(tagC,C);
+
+    // angle bisectors from each vertex through I, to the opposite side
+    clearKids(bisectorGroup);
+    if(showBisectors){
+      [A,B,C].forEach(function(V){
+        // extend V through I to the opposite side
+        var dir=sub(I,V), l=len(dir)||1; var far={x:V.x+dir.x/l*900,y:V.y+dir.y/l*900};
+        bisectorGroup.appendChild(svgEl('line',{x1:V.x,y1:V.y,x2:far.x,y2:far.y,stroke:'#8B5FBF','stroke-width':1.3,'stroke-opacity':0.6}));
+      });
+    }
+
+    disp(incircle,showIncircle);
+    incircle.setAttribute('cx',I.x); incircle.setAttribute('cy',I.y); incircle.setAttribute('r',r);
+
+    dotI.setAttribute('cx',I.x); dotI.setAttribute('cy',I.y);
+    tagI.setAttribute('x',I.x+13); tagI.setAttribute('y',I.y+12);
+
+    // perpendicular radii to the three touch points
+    var Fa=foot(I,B,C),Fb=foot(I,C,A),Fc=foot(I,A,B);
+    setLine(rA,I,Fa); setLine(rB,I,Fb); setLine(rC,I,Fc);
+    touchA.setAttribute('cx',Fa.x); touchA.setAttribute('cy',Fa.y);
+    touchB.setAttribute('cx',Fb.x); touchB.setAttribute('cy',Fb.y);
+    touchC.setAttribute('cx',Fc.x); touchC.setAttribute('cy',Fc.y);
+    function rlbl(el,F){ var m=mid(I,F); el.setAttribute('x',m.x); el.setAttribute('y',m.y-7); el.textContent='r='+fmt(r/UNIT); }
+    rlbl(labRa,Fa); rlbl(labRb,Fb); rlbl(labRc,Fc);
+    [rA,rB,rC,touchA,touchB,touchC,labRa,labRb,labRc].forEach(function(el){ disp(el,showRadii); });
+
+    statusBadge.textContent='Bisectors meet at the incenter I (always inside)';
+    statusBadge.style.background='#E1F5EE'; statusBadge.style.color='#04342C';
+
+    rRow.innerHTML =
+      '<span><span class="swatch" style="background:#1D9E75"></span>inradius r = '+fmt(r/UNIT)+'</span>'+
+      '<span style="color:#888;">=</span>'+
+      '<span>Area / s = '+fmt(ar/(UNIT*UNIT))+' / '+fmt(s/UNIT)+'</span>'+
+      '<span style="color:#1d9e75;font-weight:700;">&check;</span>';
+
+    detailRow.textContent='Distances from I to the three sides are all equal to r — the incircle touches each side once.';
+  }
+
+  var dragging=null;
+  function toSvgPoint(evt){
+    var rect=svg.getBoundingClientRect();
+    var vb=svg.viewBox.baseVal;
+    return { x:(evt.clientX-rect.left)/rect.width*vb.width+vb.x, y:(evt.clientY-rect.top)/rect.height*vb.height+vb.y };
+  }
+  function onDown(key){
+    return function(e){
+      dragging=key;
+      if(e.target.setPointerCapture){ try{ e.target.setPointerCapture(e.pointerId); }catch(err){} }
+      e.preventDefault();
+    };
+  }
+  function onMove(e){
+    if(!dragging) return;
+    var p=toSvgPoint(e);
+    pts[dragging]={x:Math.min(maxX,Math.max(minX,p.x)), y:Math.min(maxY,Math.max(minY,p.y))};
+    update();
+  }
+  function onUp(){ dragging=null; }
+  hA.addEventListener('pointerdown',onDown('A'));
+  hB.addEventListener('pointerdown',onDown('B'));
+  hC.addEventListener('pointerdown',onDown('C'));
+  svg.addEventListener('pointermove',onMove);
+  window.addEventListener('pointerup',onUp);
+
+  toggleBisectors.addEventListener('click',function(){ showBisectors=!showBisectors; toggleBisectors.classList.toggle('active',showBisectors); update(); });
+  toggleIncircle.addEventListener('click',function(){ showIncircle=!showIncircle; toggleIncircle.classList.toggle('active',showIncircle); update(); });
+  toggleRadii.addEventListener('click',function(){ showRadii=!showRadii; toggleRadii.classList.toggle('active',showRadii); update(); });
+
+  var infoToggle=document.getElementById('info-toggle-btn');
+  var infoDrawer=document.getElementById('info-drawer');
+  var infoBackdrop=document.getElementById('info-backdrop');
+  var infoClose=document.getElementById('info-close');
+  function openDrawer(){ infoDrawer.classList.add('open'); infoBackdrop.classList.add('open'); }
+  function closeDrawer(){ infoDrawer.classList.remove('open'); infoBackdrop.classList.remove('open'); }
+  infoToggle.addEventListener('click',function(){
+    if(infoDrawer.classList.contains('open')) closeDrawer(); else openDrawer();
+  });
+  infoClose.addEventListener('click',closeDrawer);
+  infoBackdrop.addEventListener('click',closeDrawer);
+  document.addEventListener('keydown',function(e){ if(e.key==='Escape') closeDrawer(); });
+
+  update();
+})();
+</script>
+<script defer src="site-chrome.js"></script>
+</body>
+</html>

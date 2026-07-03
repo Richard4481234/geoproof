@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<script>/*gp-noflash*/(function(){try{var t=localStorage.getItem('gp:theme')||(matchMedia('(prefers-color-scheme:dark)').matches?'dark':'light');document.documentElement.setAttribute('data-theme',t);if(t==='dark'){var s=document.createElement('style');s.textContent='html[data-theme=dark]{background:#14151a}html[data-theme=dark] body{background:#14151a!important;color:#e6e6e8!important}';document.head.appendChild(s);}}catch(e){}})();</script>
+<title>GeoProof — Equal Tangents explorer</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="Drag a point outside a circle and see its two tangent segments stay equal in length.">
+<link rel="canonical" href="https://richard4481234.github.io/geoproof/EqualTangents-Visual.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="GeoProof">
+<meta property="og:title" content="Equal Tangents — GeoProof">
+<meta property="og:description" content="Drag a point outside a circle and see its two tangent segments stay equal in length.">
+<meta property="og:url" content="https://richard4481234.github.io/geoproof/EqualTangents-Visual.html">
+<meta property="og:image" content="https://richard4481234.github.io/geoproof/og/EqualTangents-Visual.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Equal Tangents — GeoProof">
+<meta name="twitter:description" content="Drag a point outside a circle and see its two tangent segments stay equal in length.">
+<meta name="twitter:image" content="https://richard4481234.github.io/geoproof/og/EqualTangents-Visual.png">
+<style>
+  body{background:#f4f4f5;display:flex;justify-content:center;padding:40px 16px;font-family:sans-serif;}
+  .widget{width:680px;max-width:100%;}
+  .card{background:#ffffff;border:1px solid #e2e2e2;padding:1.25rem;}
+  .sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;}
+  #et-svg{width:100%;height:auto;display:block;touch-action:none;}
+  .handle{cursor:grab;}
+  .handle:active{cursor:grabbing;}
+  .swatch{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:6px;vertical-align:middle;}
+  .toggle-btn{padding:6px 14px;border-radius:999px;border:1px solid #d8d8d8;background:#f4f4f5;color:#888888;font-size:13px;font-weight:500;cursor:pointer;}
+  .toggle-btn.active{background:#1a1a1a;color:#ffffff;border-color:#1a1a1a;}
+  .stage{position:relative;border-radius:12px;overflow:hidden;border:1px solid #e2e2e2;}
+  .stage .card{border:none;}
+  .info-toggle{position:absolute;top:14px;right:14px;z-index:30;background:#1a1a1a;color:#ffffff;border:none;border-radius:999px;padding:7px 14px;font-size:13px;font-weight:500;cursor:pointer;}
+  .info-toggle:hover{background:#333333;}
+  .info-backdrop{position:absolute;inset:0;background:rgba(0,0,0,0.22);opacity:0;visibility:hidden;transition:opacity .2s ease;z-index:25;}
+  .info-backdrop.open{opacity:1;visibility:visible;}
+  .info-drawer{position:absolute;top:0;right:0;height:100%;width:320px;max-width:88%;background:#ffffff;border-left:1px solid #e2e2e2;box-shadow:-8px 0 24px rgba(0,0,0,0.14);padding:22px 20px;overflow-y:auto;transform:translateX(100%);transition:transform .25s ease;z-index:28;box-sizing:border-box;}
+  .info-drawer.open{transform:translateX(0);}
+  .info-close{position:absolute;top:14px;right:14px;background:#f4f4f5;border:1px solid #e2e2e2;border-radius:50%;width:28px;height:28px;font-size:14px;cursor:pointer;color:#555555;}
+  .info-drawer h3{font-size:17px;margin:6px 0 12px;padding-right:30px;color:#1a1a1a;}
+  .info-drawer h4{font-size:12px;margin:18px 0 6px;color:#666666;text-transform:uppercase;letter-spacing:.04em;}
+  .info-drawer p{font-size:13.5px;line-height:1.55;color:#333333;margin:0 0 10px;}
+  .formula-box{background:#f4f4f5;border-radius:8px;padding:10px 12px;text-align:center;font-size:13.5px;font-weight:600;margin:10px 0;color:#1a1a1a;}
+  .widget svg text{paint-order:stroke;stroke:#ffffff;stroke-width:3px;stroke-linejoin:round;stroke-opacity:0.92;}
+</style>
+</head>
+<body>
+<div class="widget">
+<div style="margin-bottom:12px;"><a href="index.html" style="font-size:14px;color:#1a1a1a;text-decoration:none;">&larr; GeoProof</a></div>
+<div class="stage">
+<div class="card">
+<h2 class="sr-only">A circle has centre O. A point P sits outside it; drag P, or resize the circle. From P, the two tangent lines that just touch the circle are drawn, touching at points T1 and T2. The two tangent segments from P, namely PT1 and PT2, are always equal in length. The lengths are shown live, along with the radii to the touch points, which meet each tangent at a right angle. An info button opens a drawer explaining why.</h2>
+<svg id="et-svg" viewBox="0 0 680 560" aria-hidden="true">
+  <circle id="circle" fill="#1D9E75" fill-opacity="0.06" stroke="#1D9E75" stroke-width="2"></circle>
+  <line id="radius-1" stroke="#BA7517" stroke-width="2" stroke-dasharray="4,3"></line>
+  <line id="radius-2" stroke="#BA7517" stroke-width="2" stroke-dasharray="4,3"></line>
+  <line id="tan-1" stroke="#378ADD" stroke-width="3.5" stroke-linecap="round"></line>
+  <line id="tan-2" stroke="#D4537E" stroke-width="3.5" stroke-linecap="round"></line>
+  <polyline id="rt-1" fill="none" stroke="#999999" stroke-width="1.5"></polyline>
+  <polyline id="rt-2" fill="none" stroke="#999999" stroke-width="1.5"></polyline>
+  <text id="lab-1" text-anchor="middle" dominant-baseline="middle" fill="#185FA5" font-size="13" font-weight="600"></text>
+  <text id="lab-2" text-anchor="middle" dominant-baseline="middle" fill="#993556" font-size="13" font-weight="600"></text>
+  <circle id="dot-O" r="4.5" fill="#1a1a1a"></circle>
+  <circle id="dot-T1" r="3.5" fill="#378ADD"></circle>
+  <circle id="dot-T2" r="3.5" fill="#D4537E"></circle>
+  <text id="tag-O" text-anchor="middle" dominant-baseline="middle" fill="#1a1a1a" font-size="14" font-weight="700">O</text>
+  <text id="tag-P" text-anchor="middle" dominant-baseline="middle" fill="#1a1a1a" font-size="14" font-weight="700">P</text>
+  <text id="tag-T1" text-anchor="middle" dominant-baseline="middle" fill="#185FA5" font-size="12.5" font-weight="700">T₁</text>
+  <text id="tag-T2" text-anchor="middle" dominant-baseline="middle" fill="#993556" font-size="12.5" font-weight="700">T₂</text>
+  <circle id="handle-P" class="handle" r="12" fill="#ffffff" stroke="#1a1a1a" stroke-width="2.5"></circle>
+  <circle id="handle-R" class="handle" r="10" fill="#ffffff" stroke="#1D9E75" stroke-width="2.5"></circle>
+</svg>
+
+<div style="display:flex; justify-content:center; gap:10px; flex-wrap:wrap; margin-top:0.75rem;">
+  <button type="button" id="toggle-radii" class="toggle-btn active">Radii &amp; right angles</button>
+  <button type="button" id="toggle-labels" class="toggle-btn active">Length labels</button>
+</div>
+
+<div style="display:flex; justify-content:center; margin-top:0.85rem;">
+  <span id="status-badge" style="display:inline-block; padding:4px 14px; border-radius:999px; font-size:14px; font-weight:500;"></span>
+</div>
+
+<div id="formula-symbolic" style="text-align:center; font-size:14px; font-weight:600; color:#1a1a1a; margin-top:1.1rem;">PT₁ = PT₂ = √(OP² − r²)</div>
+
+<div id="eq-row" style="display:flex; align-items:center; justify-content:center; gap:10px; flex-wrap:wrap; margin-top:0.6rem; font-size:15px; color:#1a1a1a;"></div>
+<div id="detail-row" style="text-align:center; font-size:12.5px; color:#777777; margin-top:0.55rem;"></div>
+</div>
+
+<button type="button" id="info-toggle-btn" class="info-toggle">ⓘ About this fact</button>
+<div id="info-backdrop" class="info-backdrop"></div>
+<aside id="info-drawer" class="info-drawer">
+  <button type="button" id="info-close" class="info-close" aria-label="Close">✕</button>
+  <h3>Equal Tangents from a Point</h3>
+  <p>From a point P outside a circle there are exactly two tangent lines to the circle. The two tangent segments — from P to each point of contact — are always equal in length:</p>
+  <div class="formula-box">PT₁ = PT₂ = √(OP² − r²)</div>
+  <p>Drag P anywhere outside and the two lengths stay matched.</p>
+  <h4>Why it's true</h4>
+  <p>Each radius meets its tangent at a right angle (tangent ⟂ radius). So triangles OT₁P and OT₂P are right triangles that share the hypotenuse OP and have equal legs OT₁ = OT₂ = r. They are congruent, which forces PT₁ = PT₂. The common length is √(OP² − r²) by the Pythagorean theorem.</p>
+  <h4>A line of symmetry</h4>
+  <p>The figure is mirror-symmetric across the line OP: it bisects the angle T₁PT₂ and the angle T₁OT₂. So OP is the angle bisector of the two tangents.</p>
+  <h4>Where it's used</h4>
+  <p>Equal tangents are the reason a circle can be inscribed in a triangle or polygon (each vertex sends two equal tangents to the incircle) — the key step behind Pitot's theorem for tangential quadrilaterals.</p>
+</aside>
+</div>
+</div>
+
+<script>
+(function(){
+  var svg=document.getElementById('et-svg');
+  var O={x:280,y:290}, R=120;
+  var P={x:540,y:210};
+  var showRadii=true, showLabels=true;
+  var UNIT=30;
+
+  function sub(p,q){return {x:p.x-q.x,y:p.y-q.y};}
+  function len(v){return Math.hypot(v.x,v.y);}
+  function fmt(n){ var r=Math.round(n*10)/10; return (Math.abs(r-Math.round(r))<1e-9)?Math.round(r).toString():r.toFixed(1); }
+
+  var circle=document.getElementById('circle');
+  var rad1=document.getElementById('radius-1'), rad2=document.getElementById('radius-2');
+  var tan1=document.getElementById('tan-1'), tan2=document.getElementById('tan-2');
+  var rt1=document.getElementById('rt-1'), rt2=document.getElementById('rt-2');
+  var lab1=document.getElementById('lab-1'), lab2=document.getElementById('lab-2');
+  var dotO=document.getElementById('dot-O'), dotT1=document.getElementById('dot-T1'), dotT2=document.getElementById('dot-T2');
+  var tagO=document.getElementById('tag-O'), tagP=document.getElementById('tag-P'), tagT1=document.getElementById('tag-T1'), tagT2=document.getElementById('tag-T2');
+  var hP=document.getElementById('handle-P'), hR=document.getElementById('handle-R');
+  var statusBadge=document.getElementById('status-badge');
+  var eqRow=document.getElementById('eq-row');
+  var detailRow=document.getElementById('detail-row');
+  var toggleRadii=document.getElementById('toggle-radii');
+  var toggleLabels=document.getElementById('toggle-labels');
+
+  function setLine(el,p,q){ el.setAttribute('x1',p.x); el.setAttribute('y1',p.y); el.setAttribute('x2',q.x); el.setAttribute('y2',q.y); }
+  function disp(el,on){ el.style.display=on?'block':'none'; }
+  function rtMark(Tp, towardO, towardP){
+    var s=14;
+    var uo=sub(towardO,Tp), lo=len(uo)||1; uo={x:uo.x/lo*s,y:uo.y/lo*s};
+    var up=sub(towardP,Tp), lp=len(up)||1; up={x:up.x/lp*s,y:up.y/lp*s};
+    var c1={x:Tp.x+uo.x,y:Tp.y+uo.y}, c2={x:Tp.x+uo.x+up.x,y:Tp.y+uo.y+up.y}, c3={x:Tp.x+up.x,y:Tp.y+up.y};
+    return c1.x+','+c1.y+' '+c2.x+','+c2.y+' '+c3.x+','+c3.y;
+  }
+
+  function update(){
+    circle.setAttribute('cx',O.x); circle.setAttribute('cy',O.y); circle.setAttribute('r',R);
+    dotO.setAttribute('cx',O.x); dotO.setAttribute('cy',O.y);
+    tagO.setAttribute('x',O.x-14); tagO.setAttribute('y',O.y+14);
+    hR.setAttribute('cx',O.x+R); hR.setAttribute('cy',O.y);
+    hP.setAttribute('cx',P.x); hP.setAttribute('cy',P.y);
+    tagP.setAttribute('x',P.x+14); tagP.setAttribute('y',P.y-12);
+
+    var d=len(sub(P,O));
+    if(d<=R+2){
+      [rad1,rad2,tan1,tan2,rt1,rt2,lab1,lab2,dotT1,dotT2,tagT1,tagT2].forEach(function(e){e.style.display='none';});
+      statusBadge.textContent='Move P outside the circle to draw tangents';
+      statusBadge.style.background='#FAECE7'; statusBadge.style.color='#4A1B0C';
+      eqRow.innerHTML=''; detailRow.textContent=''; return;
+    }
+    var phi=Math.atan2(P.y-O.y,P.x-O.x);
+    var alpha=Math.acos(Math.min(1,Math.max(-1,R/d)));
+    var T1={x:O.x+R*Math.cos(phi+alpha), y:O.y+R*Math.sin(phi+alpha)};
+    var T2={x:O.x+R*Math.cos(phi-alpha), y:O.y+R*Math.sin(phi-alpha)};
+
+    setLine(tan1,P,T1); setLine(tan2,P,T2);
+    setLine(rad1,O,T1); setLine(rad2,O,T2);
+    disp(rad1,showRadii); disp(rad2,showRadii);
+    dotT1.style.display='block'; dotT2.style.display='block';
+    dotT1.setAttribute('cx',T1.x); dotT1.setAttribute('cy',T1.y);
+    dotT2.setAttribute('cx',T2.x); dotT2.setAttribute('cy',T2.y);
+    function ttag(el,T){ var u=sub(T,O),l=len(u)||1; el.setAttribute('x',T.x+u.x/l*15); el.setAttribute('y',T.y+u.y/l*15); el.style.display='block'; }
+    ttag(tagT1,T1); ttag(tagT2,T2);
+
+    rt1.setAttribute('points',rtMark(T1,O,P)); rt2.setAttribute('points',rtMark(T2,O,P));
+    disp(rt1,showRadii); disp(rt2,showRadii);
+
+    var L1=len(sub(P,T1))/UNIT, L2=len(sub(P,T2))/UNIT;
+    var m1={x:(P.x+T1.x)/2,y:(P.y+T1.y)/2}, m2={x:(P.x+T2.x)/2,y:(P.y+T2.y)/2};
+    lab1.setAttribute('x',m1.x); lab1.setAttribute('y',m1.y-8); lab1.textContent='PT₁='+fmt(L1);
+    lab2.setAttribute('x',m2.x); lab2.setAttribute('y',m2.y-8); lab2.textContent='PT₂='+fmt(L2);
+    disp(lab1,showLabels); disp(lab2,showLabels);
+
+    var Lform=Math.sqrt(Math.max(0,d*d-R*R))/UNIT;
+    statusBadge.textContent='Two tangents from P have equal length';
+    statusBadge.style.background='#E1F5EE'; statusBadge.style.color='#04342C';
+
+    eqRow.innerHTML =
+      '<span><span class="swatch" style="background:#378ADD"></span>PT₁ = '+fmt(L1)+'</span>'+
+      '<b style="color:#1d9e75;font-size:18px;">=</b>'+
+      '<span><span class="swatch" style="background:#D4537E"></span>PT₂ = '+fmt(L2)+'</span>'+
+      '<span style="color:#888;">=</span>'+
+      '<span>√(OP² − r²) = '+fmt(Lform)+'</span>'+
+      '<span style="color:#1d9e75;font-weight:700;">&check;</span>';
+
+    detailRow.textContent='Right triangles OT₁P and OT₂P share OP and have equal radii, so they are congruent — making the tangents equal.';
+  }
+
+  var dragging=null;
+  function toSvgPoint(evt){
+    var rect=svg.getBoundingClientRect();
+    var vb=svg.viewBox.baseVal;
+    return { x:(evt.clientX-rect.left)/rect.width*vb.width+vb.x, y:(evt.clientY-rect.top)/rect.height*vb.height+vb.y };
+  }
+  function onDown(key){
+    return function(e){
+      dragging=key;
+      if(e.target.setPointerCapture){ try{ e.target.setPointerCapture(e.pointerId); }catch(err){} }
+      e.preventDefault();
+    };
+  }
+  function onMove(e){
+    if(!dragging) return;
+    var p=toSvgPoint(e);
+    if(dragging==='P'){ P={x:Math.min(660,Math.max(20,p.x)), y:Math.min(540,Math.max(20,p.y))}; }
+    else if(dragging==='R'){ R=Math.min(220,Math.max(40,len(sub(p,O)))); }
+    update();
+  }
+  function onUp(){ dragging=null; }
+  hP.addEventListener('pointerdown',onDown('P'));
+  hR.addEventListener('pointerdown',onDown('R'));
+  svg.addEventListener('pointermove',onMove);
+  window.addEventListener('pointerup',onUp);
+
+  toggleRadii.addEventListener('click',function(){ showRadii=!showRadii; toggleRadii.classList.toggle('active',showRadii); update(); });
+  toggleLabels.addEventListener('click',function(){ showLabels=!showLabels; toggleLabels.classList.toggle('active',showLabels); update(); });
+
+  var infoToggle=document.getElementById('info-toggle-btn');
+  var infoDrawer=document.getElementById('info-drawer');
+  var infoBackdrop=document.getElementById('info-backdrop');
+  var infoClose=document.getElementById('info-close');
+  function openDrawer(){ infoDrawer.classList.add('open'); infoBackdrop.classList.add('open'); }
+  function closeDrawer(){ infoDrawer.classList.remove('open'); infoBackdrop.classList.remove('open'); }
+  infoToggle.addEventListener('click',function(){
+    if(infoDrawer.classList.contains('open')) closeDrawer(); else openDrawer();
+  });
+  infoClose.addEventListener('click',closeDrawer);
+  infoBackdrop.addEventListener('click',closeDrawer);
+  document.addEventListener('keydown',function(e){ if(e.key==='Escape') closeDrawer(); });
+
+  update();
+})();
+</script>
+<script defer src="site-chrome.js"></script>
+</body>
+</html>

@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<script>/*gp-noflash*/(function(){try{var t=localStorage.getItem('gp:theme')||(matchMedia('(prefers-color-scheme:dark)').matches?'dark':'light');document.documentElement.setAttribute('data-theme',t);if(t==='dark'){var s=document.createElement('style');s.textContent='html[data-theme=dark]{background:#14151a}html[data-theme=dark] body{background:#14151a!important;color:#e6e6e8!important}';document.head.appendChild(s);}}catch(e){}})();</script>
+<title>GeoProof — Five-Pointed Star Angle Sum</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="The five tip angles of any pentagram always add up to exactly 180°.">
+<link rel="canonical" href="https://richard4481234.github.io/geoproof/StarAngleSum-Visual.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="GeoProof">
+<meta property="og:title" content="Star Angle Sum — GeoProof">
+<meta property="og:description" content="The five tip angles of any pentagram always add up to exactly 180°.">
+<meta property="og:url" content="https://richard4481234.github.io/geoproof/StarAngleSum-Visual.html">
+<meta property="og:image" content="https://richard4481234.github.io/geoproof/og/StarAngleSum-Visual.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Star Angle Sum — GeoProof">
+<meta name="twitter:description" content="The five tip angles of any pentagram always add up to exactly 180°.">
+<meta name="twitter:image" content="https://richard4481234.github.io/geoproof/og/StarAngleSum-Visual.png">
+<style>
+  body{background:#f4f4f5;display:flex;justify-content:center;padding:40px 16px;font-family:sans-serif;}
+  .widget{width:680px;max-width:100%;}
+  .card{background:#ffffff;border:1px solid #e2e2e2;padding:1.25rem;}
+  .sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;}
+  #st-svg{width:100%;height:auto;display:block;touch-action:none;}
+  .handle{cursor:grab;}
+  .handle:active{cursor:grabbing;}
+  .toggle-btn{padding:6px 14px;border-radius:999px;border:1px solid #d8d8d8;background:#f4f4f5;color:#888888;font-size:13px;font-weight:500;cursor:pointer;}
+  .toggle-btn.active{background:#1a1a1a;color:#ffffff;border-color:#1a1a1a;}
+  .stage{position:relative;border-radius:12px;overflow:hidden;border:1px solid #e2e2e2;}
+  .stage .card{border:none;}
+  .info-toggle{position:absolute;top:14px;right:14px;z-index:30;background:#1a1a1a;color:#ffffff;border:none;border-radius:999px;padding:7px 14px;font-size:13px;font-weight:500;cursor:pointer;}
+  .info-toggle:hover{background:#333333;}
+  .info-backdrop{position:absolute;inset:0;background:rgba(0,0,0,0.22);opacity:0;visibility:hidden;transition:opacity .2s ease;z-index:25;}
+  .info-backdrop.open{opacity:1;visibility:visible;}
+  .info-drawer{position:absolute;top:0;right:0;height:100%;width:320px;max-width:88%;background:#ffffff;border-left:1px solid #e2e2e2;box-shadow:-8px 0 24px rgba(0,0,0,0.14);padding:22px 20px;overflow-y:auto;transform:translateX(100%);transition:transform .25s ease;z-index:28;box-sizing:border-box;}
+  .info-drawer.open{transform:translateX(0);}
+  .info-close{position:absolute;top:14px;right:14px;background:#f4f4f5;border:1px solid #e2e2e2;border-radius:50%;width:28px;height:28px;font-size:14px;cursor:pointer;color:#555555;}
+  .info-drawer h3{font-size:17px;margin:6px 0 12px;padding-right:30px;color:#1a1a1a;}
+  .info-drawer h4{font-size:12px;margin:18px 0 6px;color:#666666;text-transform:uppercase;letter-spacing:.04em;}
+  .info-drawer p{font-size:13.5px;line-height:1.55;color:#333333;margin:0 0 10px;}
+  .formula-box{background:#f4f4f5;border-radius:8px;padding:10px 12px;text-align:center;font-size:13px;font-weight:600;margin:10px 0;color:#1a1a1a;}
+  .widget svg text{paint-order:stroke;stroke:#ffffff;stroke-width:3px;stroke-linejoin:round;stroke-opacity:0.92;}
+</style>
+</head>
+<body>
+<div class="widget">
+<div style="margin-bottom:12px;"><a href="index.html" style="font-size:14px;color:#1a1a1a;text-decoration:none;">&larr; GeoProof</a></div>
+<div class="stage">
+<div class="card">
+<h2 class="sr-only">A five-pointed star (pentagram) is drawn from five points, each of which you can drag. The star is made by connecting every second point. At each of the five tips there is a point angle. No matter how the five points are arranged, as long as they form a proper star, the five tip angles always add up to 180 degrees. Each tip angle is marked and its value shown, along with their running total, which stays at 180. An info button opens a drawer with the explanation.</h2>
+<svg id="st-svg" viewBox="0 0 680 560" aria-hidden="true">
+  <polygon id="star" fill="#BA7517" fill-opacity="0.12" stroke="#1a1a1a" stroke-width="2.5" fill-rule="nonzero"></polygon>
+  <g id="wedges"></g>
+  <g id="tiplabs"></g>
+  <circle id="h0" class="handle" r="11" fill="#ffffff" stroke="#1a1a1a" stroke-width="2"></circle>
+  <circle id="h1" class="handle" r="11" fill="#ffffff" stroke="#1a1a1a" stroke-width="2"></circle>
+  <circle id="h2" class="handle" r="11" fill="#ffffff" stroke="#1a1a1a" stroke-width="2"></circle>
+  <circle id="h3" class="handle" r="11" fill="#ffffff" stroke="#1a1a1a" stroke-width="2"></circle>
+  <circle id="h4" class="handle" r="11" fill="#ffffff" stroke="#1a1a1a" stroke-width="2"></circle>
+</svg>
+
+<div style="display:flex; justify-content:center; gap:10px; flex-wrap:wrap; margin-top:0.75rem;">
+  <button type="button" id="toggle-wedges" class="toggle-btn active">Show tip angles</button>
+</div>
+
+<div style="display:flex; justify-content:center; margin-top:0.85rem;">
+  <span id="status-badge" style="display:inline-block; padding:4px 14px; border-radius:999px; font-size:14px; font-weight:500;"></span>
+</div>
+
+<div id="formula-symbolic" style="text-align:center; font-size:14px; font-weight:600; color:#1a1a1a; margin-top:1.1rem;">∠1 + ∠2 + ∠3 + ∠4 + ∠5 = 180°</div>
+<div id="eq-row" style="display:flex; align-items:center; justify-content:center; gap:8px; flex-wrap:wrap; margin-top:0.6rem; font-size:14.5px; color:#1a1a1a;"></div>
+<div id="detail-row" style="text-align:center; font-size:12.5px; color:#777777; margin-top:0.5rem;"></div>
+</div>
+
+<button type="button" id="info-toggle-btn" class="info-toggle">ⓘ About this theorem</button>
+<div id="info-backdrop" class="info-backdrop"></div>
+<aside id="info-drawer" class="info-drawer">
+  <button type="button" id="info-close" class="info-close" aria-label="Close">✕</button>
+  <h3>The Star's Angle Sum</h3>
+  <p>Take any five-pointed star drawn in one stroke (a pentagram). Add up the angles at its five points:</p>
+  <div class="formula-box">∠1 + ∠2 + ∠3 + ∠4 + ∠5 = 180°</div>
+  <p>It doesn't matter whether the star is regular or lopsided — the total is always 180°, the same as a single triangle.</p>
+  <h4>Why it holds</h4>
+  <p>Each tip is the apex of a small triangle whose base is a chord of the star. Chasing the base angles around the inner pentagon, every interior angle cancels in pairs, and what survives is exactly one triangle's worth of angle — 180°.</p>
+  <h4>The bigger pattern</h4>
+  <p>For a star polygon written {n/k} (connect every k-th of n points), the tip angles sum to 180°·(n − 2k). The five-pointed star is {5/2}, giving 180·(5 − 4) = 180°.</p>
+  <h4>Keep it a star</h4>
+  <p>The result needs a proper star: keep the five points in convex position (none tucked inside the others). The badge warns you if the shape stops being a clean pentagram.</p>
+</aside>
+</div>
+</div>
+
+<script>
+(function(){
+  var svg=document.getElementById('st-svg');
+  // five raw points (regular pentagon by default); all draggable
+  var pts=[];
+  (function(){ var cx=340,cy=278,R=188; for(var i=0;i<5;i++){ var a=(-90+i*72)*Math.PI/180; pts.push({x:cx+R*Math.cos(a),y:cy+R*Math.sin(a)}); } })();
+  var minX=36,maxX=644,minY=40,maxY=500, showWedges=true;
+
+  function sub(p,q){return {x:p.x-q.x,y:p.y-q.y};}
+  function len(v){return Math.hypot(v.x,v.y);}
+  function fmt(n){ var r=Math.round(n*10)/10; return (Math.abs(r-Math.round(r))<1e-9)?Math.round(r).toString():r.toFixed(1); }
+  function angleDeg(P,Q,R){ var u=sub(Q,P),v=sub(R,P),lu=len(u),lv=len(v); if(lu<1e-6||lv<1e-6)return 0; var c=(u.x*v.x+u.y*v.y)/(lu*lv); c=Math.min(1,Math.max(-1,c)); return Math.acos(c)*180/Math.PI; }
+  function wedge(P0,Pp,Pn,radius){
+    var ua=Math.atan2(Pp.y-P0.y,Pp.x-P0.x)*180/Math.PI, ub=Math.atan2(Pn.y-P0.y,Pn.x-P0.x)*180/Math.PI;
+    var diff=((ub-ua+540)%360)-180, steps=Math.max(2,Math.round(Math.abs(diff)/5)), arr=[P0];
+    for(var i=0;i<=steps;i++){ var a=(ua+diff*(i/steps))*Math.PI/180; arr.push({x:P0.x+radius*Math.cos(a),y:P0.y+radius*Math.sin(a)}); }
+    return arr.map(function(p){return p.x.toFixed(1)+','+p.y.toFixed(1);}).join(' ');
+  }
+  function svgEl(tag,attrs){ var el=document.createElementNS('http://www.w3.org/2000/svg',tag); for(var k in attrs){el.setAttribute(k,attrs[k]);} return el; }
+  function clearKids(el){ while(el.firstChild) el.removeChild(el.firstChild); }
+
+  var star=document.getElementById('star'), wedges=document.getElementById('wedges'), tiplabs=document.getElementById('tiplabs');
+  var handles=[]; for(var i=0;i<5;i++) handles.push(document.getElementById('h'+i));
+  var statusBadge=document.getElementById('status-badge');
+  var eqRow=document.getElementById('eq-row'), detailRow=document.getElementById('detail-row');
+  var toggleWedges=document.getElementById('toggle-wedges');
+
+  var COL=['#378ADD','#1D9E75','#BA7517','#993556','#6E59C7'];
+
+  function centroid(){ var c={x:0,y:0}; pts.forEach(function(p){c.x+=p.x;c.y+=p.y;}); c.x/=5;c.y/=5; return c; }
+  function isConvex(ord){ // ord: array of points in cyclic order
+    var sign=0;
+    for(var i=0;i<5;i++){
+      var a=ord[i], b=ord[(i+1)%5], c=ord[(i+2)%5];
+      var cr=(b.x-a.x)*(c.y-b.y)-(b.y-a.y)*(c.x-b.x);
+      if(Math.abs(cr)<1e-9) continue;
+      var s=cr>0?1:-1; if(sign===0) sign=s; else if(s!==sign) return false;
+    }
+    return true;
+  }
+
+  function update(){
+    for(var i=0;i<5;i++){ handles[i].setAttribute('cx',pts[i].x); handles[i].setAttribute('cy',pts[i].y); }
+
+    // cyclic order around centroid
+    var c=centroid();
+    var ord=pts.slice().sort(function(p,q){ return Math.atan2(p.y-c.y,p.x-c.x)-Math.atan2(q.y-c.y,q.x-c.x); });
+    var convex=isConvex(ord);
+
+    // star path: connect every 2nd point in cyclic order  (0→2→4→1→3→0)
+    var path=[ord[0],ord[2],ord[4],ord[1],ord[3]];
+    star.setAttribute('points',path.map(function(p){return p.x.toFixed(1)+','+p.y.toFixed(1);}).join(' '));
+
+    // tip angle at ord[k] is between its star-neighbors ord[k+2] and ord[k-2]
+    clearKids(wedges); clearKids(tiplabs);
+    var tips=[], sum=0;
+    for(var k=0;k<5;k++){
+      var V=ord[k], Pp=ord[(k+2)%5], Pn=ord[(k+3)%5];
+      var ang=angleDeg(V,Pp,Pn); tips.push(ang); sum+=ang;
+      if(showWedges){
+        wedges.appendChild(svgEl('polygon',{points:wedge(V,Pp,Pn,24),fill:COL[k],'fill-opacity':0.38,stroke:'none'}));
+        // outward direction = opposite the bisector of the two tip edges (away from the wedge)
+        var u=sub(Pp,V),v=sub(Pn,V), lu=len(u)||1, lv=len(v)||1;
+        var bx=u.x/lu+v.x/lv, by=u.y/lu+v.y/lv, bl=len({x:bx,y:by});
+        var ox,oy;
+        if(bl>1e-3){ ox=-bx/bl; oy=-by/bl; } else { var d=sub(V,c),l=len(d)||1; ox=d.x/l; oy=d.y/l; }
+        var lab=svgEl('text',{x:V.x+ox*30,y:V.y+oy*30,'text-anchor':'middle','dominant-baseline':'middle','font-size':12.5,'font-weight':700,fill:COL[k]});
+        lab.textContent=fmt(ang)+'°'; tiplabs.appendChild(lab);
+      }
+    }
+
+    var ok=convex && Math.abs(sum-180)<0.5;
+    if(!convex){
+      statusBadge.textContent='Not a clean star — keep the 5 points in convex position';
+      statusBadge.style.background='#FBECEC'; statusBadge.style.color='#a23b3b';
+      eqRow.innerHTML='<span style="color:#a23b3b;">Drag the tucked-in point back outward to reform the pentagram.</span>';
+      detailRow.textContent='';
+      return;
+    }
+
+    statusBadge.textContent='Five tip angles sum to 180°';
+    statusBadge.style.background='#FBF3E0'; statusBadge.style.color='#8a5710';
+
+    eqRow.innerHTML = tips.map(function(t,idx){ return '<span style="color:'+COL[idx]+';font-weight:700;">'+fmt(t)+'°</span>'; }).join('<span style="color:#999;">+</span>')
+                    + '<span style="color:#999;">=</span><span><b>'+fmt(sum)+'°</b></span>';
+    detailRow.textContent='Drag any point — the individual tip angles change, but their total stays 180°.';
+  }
+
+  var dragging=null;
+  function toSvgPoint(evt){
+    var rect=svg.getBoundingClientRect(), vb=svg.viewBox.baseVal;
+    return { x:(evt.clientX-rect.left)/rect.width*vb.width+vb.x, y:(evt.clientY-rect.top)/rect.height*vb.height+vb.y };
+  }
+  function onDown(i){ return function(e){ dragging=i; if(e.target.setPointerCapture){try{e.target.setPointerCapture(e.pointerId);}catch(err){}} e.preventDefault(); }; }
+  function onMove(e){
+    if(dragging===null) return;
+    var p=toSvgPoint(e);
+    pts[dragging]={x:Math.min(maxX,Math.max(minX,p.x)), y:Math.min(maxY,Math.max(minY,p.y))};
+    update();
+  }
+  function onUp(){ dragging=null; }
+  for(var h=0;h<5;h++) handles[h].addEventListener('pointerdown',onDown(h));
+  svg.addEventListener('pointermove',onMove);
+  window.addEventListener('pointerup',onUp);
+
+  toggleWedges.addEventListener('click',function(){ showWedges=!showWedges; toggleWedges.classList.toggle('active',showWedges); update(); });
+
+  var infoToggle=document.getElementById('info-toggle-btn');
+  var infoDrawer=document.getElementById('info-drawer');
+  var infoBackdrop=document.getElementById('info-backdrop');
+  var infoClose=document.getElementById('info-close');
+  function openDrawer(){ infoDrawer.classList.add('open'); infoBackdrop.classList.add('open'); }
+  function closeDrawer(){ infoDrawer.classList.remove('open'); infoBackdrop.classList.remove('open'); }
+  infoToggle.addEventListener('click',function(){ if(infoDrawer.classList.contains('open')) closeDrawer(); else openDrawer(); });
+  infoClose.addEventListener('click',closeDrawer);
+  infoBackdrop.addEventListener('click',closeDrawer);
+  document.addEventListener('keydown',function(e){ if(e.key==='Escape') closeDrawer(); });
+
+  update();
+})();
+</script>
+<script defer src="site-chrome.js"></script>
+</body>
+</html>
