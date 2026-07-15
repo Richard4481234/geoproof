@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<script>/*gp-noflash*/(function(){try{var t=localStorage.getItem('gp:theme')||(matchMedia('(prefers-color-scheme:dark)').matches?'dark':'light');document.documentElement.setAttribute('data-theme',t);if(t==='dark'){var s=document.createElement('style');s.textContent='html[data-theme=dark]{background:#14151a}html[data-theme=dark] body{background:#14151a!important;color:#e6e6e8!important}';document.head.appendChild(s);}}catch(e){}})();</script>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sign in — GeoProof</title>
+<meta name="description" content="Sign in to GeoProof or create a free account.">
+<link rel="canonical" href="https://geoproof.knovay.com/login.html">
+<meta name="robots" content="noindex">
+<style>
+  *{box-sizing:border-box;}
+  body{margin:0;background:#f4f4f5;color:#1a1a1a;font-family:system-ui,-apple-system,sans-serif;}
+  .auth-wrap{max-width:420px;margin:0 auto;padding:40px 20px 64px;}
+  .auth-card{background:#fff;border:1px solid #e2e2e2;border-radius:16px;padding:26px 24px;box-shadow:0 8px 30px rgba(0,0,0,0.05);}
+  .eyebrow{font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#8a8f98;}
+  h1{font-size:25px;font-weight:800;letter-spacing:-0.02em;margin:8px 0 4px;}
+  .sub{font-size:14px;color:#666;margin:0 0 18px;}
+  .tabs{display:flex;gap:6px;background:#f0f0f2;border-radius:999px;padding:4px;margin-bottom:20px;}
+  .tab{flex:1;border:none;background:transparent;border-radius:999px;padding:9px 0;font-size:14px;font-weight:600;color:#666;cursor:pointer;font-family:inherit;}
+  .tab.active{background:#fff;color:#1a1a1a;box-shadow:0 1px 3px rgba(0,0,0,0.12);}
+  label{display:block;font-size:13px;font-weight:600;color:#444;margin:14px 0 6px;}
+  input{width:100%;border:1px solid #d8d8d8;border-radius:10px;padding:11px 13px;font-size:15px;font-family:inherit;background:#fff;color:#1a1a1a;}
+  input:focus{outline:none;border-color:#378ADD;box-shadow:0 0 0 3px rgba(55,138,221,0.15);}
+  .primary{width:100%;margin-top:20px;background:#1a1a1a;color:#fff;border:none;border-radius:999px;padding:13px;font-size:15px;font-weight:700;cursor:pointer;font-family:inherit;}
+  .primary:hover{background:#000;}
+  .primary:disabled{opacity:.6;cursor:default;}
+  .gbtn{width:100%;display:flex;align-items:center;justify-content:center;gap:10px;border:1px solid #d8d8d8;background:#fff;color:#1a1a1a;border-radius:999px;padding:12px;font-size:15px;font-weight:600;cursor:pointer;font-family:inherit;}
+  .gbtn:hover{background:#f7f7f8;border-color:#c2c2c2;}
+  .gbtn:disabled{opacity:.6;cursor:default;}
+  .gbtn svg{width:18px;height:18px;display:block;}
+  .divider{display:flex;align-items:center;gap:12px;margin:18px 0 2px;color:#9aa0a6;font-size:12.5px;}
+  .divider::before,.divider::after{content:"";flex:1;height:1px;background:#e6e6e8;}
+  .linkrow{display:flex;justify-content:space-between;margin-top:14px;font-size:13px;}
+  .linkbtn{background:none;border:none;color:#185FA5;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;padding:0;}
+  .linkbtn:hover{text-decoration:underline;}
+  a{color:#185FA5;text-decoration:none;}a:hover{text-decoration:underline;}
+  .msg{margin-top:16px;font-size:13.5px;border-radius:10px;padding:11px 13px;display:none;}
+  .msg.err{display:block;background:#fdecec;color:#a1291f;border:1px solid #f4c7c3;}
+  .msg.ok{display:block;background:#eaf7ee;color:#1e7a3c;border:1px solid #b6e3c3;}
+  .backhome{display:block;text-align:center;margin-top:18px;font-size:13px;color:#888;}
+  .note{font-size:12px;color:#8a8f98;text-align:center;margin-top:14px;line-height:1.5;}
+  html[data-theme=dark] body{background:#14151a;color:#e6e6e8;}
+  html[data-theme=dark] .auth-card{background:#1f2127;border-color:#2e3138;box-shadow:none;}
+  html[data-theme=dark] h1{color:#f0f0f2;}
+  html[data-theme=dark] .sub{color:#9aa0a6;}
+  html[data-theme=dark] .tabs{background:#26282f;}
+  html[data-theme=dark] .tab{color:#9aa0a6;}
+  html[data-theme=dark] .tab.active{background:#3a3d45;color:#fff;}
+  html[data-theme=dark] label{color:#c2c4ca;}
+  html[data-theme=dark] input{background:#26282f;border-color:#3a3d45;color:#e6e6e8;}
+  html[data-theme=dark] .primary{background:#e9e9ee;color:#16171c;}
+  html[data-theme=dark] .gbtn{background:#26282f;border-color:#3a3d45;color:#e6e6e8;}
+  html[data-theme=dark] .gbtn:hover{background:#2f323a;border-color:#565a63;}
+  html[data-theme=dark] .divider{color:#7e828c;}
+  html[data-theme=dark] .divider::before,html[data-theme=dark] .divider::after{background:#2e3138;}
+  html[data-theme=dark] .linkbtn,html[data-theme=dark] a{color:#7fb2ec;}
+</style>
+</head>
+<body>
+<main class="auth-wrap">
+  <div style="margin-bottom:14px;"><a href="index.html">&larr; GeoProof</a></div>
+  <div class="auth-card">
+    <div class="eyebrow">Account</div>
+    <h1 id="a-title">Welcome back</h1>
+    <p class="sub" id="a-sub">Sign in to save your favorite explorers across devices.</p>
+
+    <div class="tabs" role="tablist">
+      <button class="tab active" id="tab-login" type="button">Log in</button>
+      <button class="tab" id="tab-signup" type="button">Create account</button>
+    </div>
+
+    <div id="oauth-area">
+      <button class="gbtn" id="google-btn" type="button">
+        <svg viewBox="0 0 48 48" aria-hidden="true"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>
+        Continue with Google
+      </button>
+      <div class="divider"><span>or</span></div>
+    </div>
+
+    <form id="auth-form" novalidate>
+      <label for="email">Email</label>
+      <input id="email" type="email" autocomplete="email" placeholder="you@example.com" required>
+      <label for="password">Password</label>
+      <input id="password" type="password" autocomplete="current-password" placeholder="At least 6 characters" required>
+      <button class="primary" id="submit-btn" type="submit">Log in</button>
+    </form>
+
+    <div class="linkrow">
+      <button class="linkbtn" id="forgot-btn" type="button">Forgot password?</button>
+    </div>
+
+    <div class="msg" id="msg" role="status"></div>
+    <div class="note" id="setup-note" style="display:none;">Accounts aren't switched on yet. Once the site owner finishes Firebase setup, sign-in will work here.</div>
+  </div>
+  <a class="backhome" href="index.html">Continue without an account &rarr;</a>
+</main>
+
+<script type="module">
+  import { auth, db, FIREBASE_READY } from "./firebase-config.js";
+  import {
+    onAuthStateChanged, signOut,
+    signInWithEmailAndPassword, createUserWithEmailAndPassword,
+    sendPasswordResetEmail,
+    GoogleAuthProvider, signInWithPopup, getAdditionalUserInfo
+  } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+  import { doc, setDoc, increment }
+    from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+  var mode = "login"; // or "signup"
+  var $ = function(id){ return document.getElementById(id); };
+  var form = $("auth-form"), email = $("email"), pass = $("password"),
+      submit = $("submit-btn"), msg = $("msg");
+
+  function show(kind, text){ msg.className = "msg " + kind; msg.textContent = text; }
+  function clearMsg(){ msg.className = "msg"; msg.textContent = ""; }
+
+  function setMode(m){
+    mode = m;
+    var login = (m === "login");
+    $("tab-login").classList.toggle("active", login);
+    $("tab-signup").classList.toggle("active", !login);
+    $("a-title").textContent = login ? "Welcome back" : "Create your account";
+    $("a-sub").textContent   = login
+      ? "Sign in to save your favorite explorers across devices."
+      : "It's free — just an email and a password (6+ characters).";
+    submit.textContent = login ? "Log in" : "Create account";
+    pass.setAttribute("autocomplete", login ? "current-password" : "new-password");
+    clearMsg();
+  }
+  $("tab-login").addEventListener("click", function(){ setMode("login"); });
+  $("tab-signup").addEventListener("click", function(){ setMode("signup"); });
+
+  // If Firebase isn't configured yet, disable the form gracefully.
+  if (!FIREBASE_READY){
+    $("setup-note").style.display = "block";
+    submit.disabled = true; email.disabled = true; pass.disabled = true;
+    $("forgot-btn").disabled = true; $("google-btn").disabled = true;
+  } else {
+    // Already signed in? Show that instead.
+    onAuthStateChanged(auth, function(user){
+      if (user){
+        $("a-title").textContent = "You're signed in";
+        $("a-sub").textContent = "Signed in as " + (user.email || "your account") + ".";
+        form.style.display = "none";
+        $("forgot-btn").style.display = "none";
+        var oa = $("oauth-area"); if (oa) oa.style.display = "none";
+        show("ok", "You're all set. ");
+        msg.innerHTML = "You're signed in as <b>" + (user.email || "") +
+          "</b>. <a href='index.html'>Go to the explorers &rarr;</a> &nbsp;·&nbsp; " +
+          "<button class='linkbtn' id='logout-now' type='button'>Log out</button>";
+        var lo = document.getElementById("logout-now");
+        if (lo) lo.addEventListener("click", function(){ signOut(auth); location.reload(); });
+      }
+    });
+
+    form.addEventListener("submit", function(e){
+      e.preventDefault();
+      clearMsg();
+      var em = email.value.trim(), pw = pass.value;
+      if (!em || !pw){ show("err", "Please enter your email and password."); return; }
+      submit.disabled = true;
+      var action = (mode === "login")
+        ? signInWithEmailAndPassword(auth, em, pw)
+        : createUserWithEmailAndPassword(auth, em, pw);
+      action.then(function(cred){
+        if (mode === "signup"){
+          // count registered users (best-effort)
+          setDoc(doc(db, "stats", "site"), { users: increment(1) }, { merge: true }).catch(function(){});
+        }
+        show("ok", "Success! Taking you to the explorers…");
+        setTimeout(function(){ location.href = "index.html"; }, 700);
+      }).catch(function(err){
+        submit.disabled = false;
+        show("err", friendly(err && err.code));
+      });
+    });
+
+    $("forgot-btn").addEventListener("click", function(){
+      var em = email.value.trim();
+      if (!em){ show("err", "Enter your email above first, then click “Forgot password?”."); return; }
+      sendPasswordResetEmail(auth, em).then(function(){
+        show("ok", "Password reset email sent to " + em + ". Check your inbox.");
+      }).catch(function(err){ show("err", friendly(err && err.code)); });
+    });
+
+    $("google-btn").addEventListener("click", function(){
+      clearMsg();
+      $("google-btn").disabled = true;
+      signInWithPopup(auth, new GoogleAuthProvider()).then(function(result){
+        try {
+          var info = getAdditionalUserInfo(result);
+          if (info && info.isNewUser){
+            setDoc(doc(db, "stats", "site"), { users: increment(1) }, { merge: true }).catch(function(){});
+          }
+        } catch(e){}
+        show("ok", "Success! Taking you to the explorers…");
+        setTimeout(function(){ location.href = "index.html"; }, 700);
+      }).catch(function(err){
+        $("google-btn").disabled = false;
+        var code = err && err.code;
+        if (code === "auth/popup-closed-by-user" || code === "auth/cancelled-popup-request"){ clearMsg(); return; }
+        show("err", friendly(code));
+      });
+    });
+  }
+
+  function friendly(code){
+    switch(code){
+      case "auth/invalid-email":        return "That doesn't look like a valid email address.";
+      case "auth/missing-password":     return "Please enter a password.";
+      case "auth/weak-password":        return "Password should be at least 6 characters.";
+      case "auth/email-already-in-use": return "An account already exists with that email. Try logging in.";
+      case "auth/invalid-credential":
+      case "auth/wrong-password":
+      case "auth/user-not-found":       return "Email or password is incorrect.";
+      case "auth/too-many-requests":    return "Too many attempts. Please wait a moment and try again.";
+      case "auth/network-request-failed": return "Network error. Check your connection and try again.";
+      case "auth/operation-not-allowed":  return "That sign-in method isn't enabled for this project yet.";
+      case "auth/popup-blocked":          return "Your browser blocked the sign-in popup. Allow popups for this site and try again.";
+      case "auth/unauthorized-domain":    return "This site's domain isn't authorized in Firebase yet.";
+      case "auth/account-exists-with-different-credential": return "You already have an account with this email using a different sign-in method. Try that one.";
+      default: return "Something went wrong. Please try again.";
+    }
+  }
+</script>
+<script defer src="site-chrome.js"></script>
+</body>
+</html>

@@ -1,0 +1,125 @@
+/* GeoProof — auth + usage counter (loaded on every page by site-chrome.js).
+   - Reflects login state in the header (Sign in  <->  name + Log out).
+   - Counts unique visitors (once per browser) in Firestore and shows the total
+     live in the footer.
+   Safe when Firebase isn't configured yet: if FIREBASE_READY is false, this file
+   does nothing and the site behaves exactly as before. */
+
+import { auth, db, FIREBASE_READY } from "./firebase-config.js";
+import { onAuthStateChanged, signOut }
+  from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+import { doc, setDoc, onSnapshot, increment }
+  from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+if (FIREBASE_READY) {
+  ready(init);
+}
+
+function ready(fn){
+  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", fn);
+  else fn();
+}
+
+/* Wait for site-chrome to have built the header/footer, then wire everything. */
+function init(){
+  injectStyle();
+  whenPresent(".gp-nav", buildAccountControl, 40);
+  whenPresent(".gp-footer", buildVisitCounter, 40);
+  countVisit();
+}
+
+function whenPresent(sel, fn, tries){
+  var el = document.querySelector(sel);
+  if (el) { fn(el); return; }
+  if (tries <= 0) return;
+  setTimeout(function(){ whenPresent(sel, fn, tries - 1); }, 50);
+}
+
+/* ---------- account control in the header ---------- */
+function buildAccountControl(nav){
+  if (document.getElementById("gp-acct-wrap")) return;
+  var wrap = document.createElement("span");
+  wrap.id = "gp-acct-wrap";
+  wrap.className = "gp-acct-wrap";
+  // insert just before the theme toggle so it sits at the end of the nav links
+  var themeBtn = nav.querySelector("#gp-theme-btn");
+  if (themeBtn) nav.insertBefore(wrap, themeBtn); else nav.appendChild(wrap);
+
+  onAuthStateChanged(auth, function(user){
+    if (user){
+      var name = displayName(user);
+      wrap.innerHTML =
+        '<span class="gp-acct-name" title="' + escAttr(user.email || "") + '">' + escHtml(name) + '</span>' +
+        '<button type="button" class="gp-acct-out" id="gp-logout">Log out</button>';
+      var out = document.getElementById("gp-logout");
+      if (out) out.addEventListener("click", function(){
+        signOut(auth).catch(function(){});
+      });
+    } else {
+      wrap.innerHTML = '<a class="gp-acct-in" href="login.html">Sign in</a>';
+    }
+  });
+}
+
+function displayName(user){
+  if (user.displayName) return user.displayName;
+  var e = user.email || "there";
+  return e.split("@")[0];
+}
+
+/* ---------- unique-visitor counter in the footer ---------- */
+function buildVisitCounter(footer){
+  if (document.getElementById("gp-visits-wrap")) return;
+  var dot = document.createElement("span");
+  dot.className = "gp-dot gp-foot-sm";
+  dot.innerHTML = "&middot;";
+  var span = document.createElement("span");
+  span.className = "gp-foot-sm";
+  span.id = "gp-visits-wrap";
+  span.innerHTML = '<span id="gp-visits">&hellip;</span> explorers';
+  footer.appendChild(dot);
+  footer.appendChild(span);
+}
+
+function countVisit(){
+  var ref = doc(db, "stats", "site");
+  var firstTime = false;
+  try { firstTime = !localStorage.getItem("gp:visited"); } catch(e){}
+  if (firstTime){
+    setDoc(ref, { visitors: increment(1) }, { merge: true })
+      .then(function(){ try { localStorage.setItem("gp:visited", "1"); } catch(e){} })
+      .catch(function(){});
+  }
+  // live total, updates the footer whenever the count changes
+  try {
+    onSnapshot(ref, function(snap){
+      var n = (snap.exists() && snap.data().visitors) || 0;
+      var el = document.getElementById("gp-visits");
+      if (el) el.textContent = Number(n).toLocaleString();
+    });
+  } catch(e){}
+}
+
+/* ---------- styles (theme-aware) ---------- */
+function injectStyle(){
+  if (document.getElementById("gp-auth-style")) return;
+  var css =
+    ".gp-acct-wrap{display:inline-flex;align-items:center;gap:10px;}" +
+    ".gp-acct-in{text-decoration:none;color:#185FA5;font-size:14px;font-weight:600;}" +
+    ".gp-acct-in:hover{text-decoration:underline;}" +
+    ".gp-acct-name{font-size:13.5px;font-weight:600;color:#1a1a1a;max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}" +
+    ".gp-acct-out{border:1px solid #d8d8d8;background:#fff;color:#555;border-radius:999px;padding:6px 13px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;}" +
+    ".gp-acct-out:hover{border-color:#1a1a1a;color:#1a1a1a;}" +
+    "html[data-theme=dark] .gp-acct-in{color:#7fb2ec;}" +
+    "html[data-theme=dark] .gp-acct-name{color:#f0f0f2;}" +
+    "html[data-theme=dark] .gp-acct-out{background:#2a2d35;border-color:#3a3d45;color:#cfd2d8;}" +
+    "html[data-theme=dark] .gp-acct-out:hover{border-color:#6b6f78;color:#fff;}" +
+    "@media(max-width:520px){.gp-acct-name{max-width:76px;}}";
+  var s = document.createElement("style");
+  s.id = "gp-auth-style";
+  s.textContent = css;
+  document.head.appendChild(s);
+}
+
+function escHtml(s){ return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;"); }
+function escAttr(s){ return escHtml(s).replace(/"/g,"&quot;"); }

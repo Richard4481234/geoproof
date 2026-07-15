@@ -304,6 +304,12 @@
         applyTheme(t); try{localStorage.setItem(TK,t);}catch(e){} paintTheme(tb,t);
       });
     }
+    // account control (Sign in / Log out) + usage counter — Firebase-backed.
+    // Loads as a module; it is a no-op until firebase-config.js is filled in.
+    if(!document.getElementById('gp-auth-mod')){
+      var am=document.createElement('script'); am.type='module'; am.src='auth.js'; am.id='gp-auth-mod';
+      document.head.appendChild(am);
+    }
     injectExplorerNav();
     injectRelated();
     injectShare();
