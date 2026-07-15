@@ -76,7 +76,7 @@ function buildVisitCounter(footer){
   var span = document.createElement("span");
   span.className = "gp-foot-sm";
   span.id = "gp-visits-wrap";
-  span.innerHTML = '<span id="gp-visits">&hellip;</span> explorers';
+  span.innerHTML = '<span id="gp-visits">&hellip;</span> visitors';
   footer.appendChild(dot);
   footer.appendChild(span);
 }
@@ -93,9 +93,9 @@ function countVisit(){
   // live total, updates the footer whenever the count changes
   try {
     onSnapshot(ref, function(snap){
-      var n = (snap.exists() && snap.data().visitors) || 0;
-      var el = document.getElementById("gp-visits");
-      if (el) el.textContent = Number(n).toLocaleString();
+      var n = Number((snap.exists() && snap.data().visitors) || 0);
+      var wrap = document.getElementById("gp-visits-wrap");
+      if (wrap) wrap.innerHTML = '<span id="gp-visits">' + n.toLocaleString() + '</span> ' + (n === 1 ? "visitor" : "visitors");
     });
   } catch(e){}
 }
