@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<script>/*gp-noflash*/(function(){try{var t=localStorage.getItem('gp:theme')||(matchMedia('(prefers-color-scheme:dark)').matches?'dark':'light');document.documentElement.setAttribute('data-theme',t);if(t==='dark'){var s=document.createElement('style');s.textContent='html[data-theme=dark]{background:#14151a}html[data-theme=dark] body{background:#14151a!important;color:#e6e6e8!important}';document.head.appendChild(s);}}catch(e){}})();</script>
+<title>GeoProof — Space Diagonal of a Box explorer</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="Rotate a 3-D box and watch the space diagonal follow d = √(a² + b² + c²) — the Pythagorean theorem extended into three dimensions.">
+<link rel="canonical" href="https://geoproof.knovay.com/SpaceDiagonal-Visual.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="GeoProof">
+<meta property="og:title" content="Space Diagonal of a Box — GeoProof">
+<meta property="og:description" content="Rotate a 3-D box and watch the space diagonal follow d = √(a² + b² + c²) — Pythagoras in three dimensions.">
+<meta property="og:url" content="https://geoproof.knovay.com/SpaceDiagonal-Visual.html">
+<meta property="og:image" content="https://geoproof.knovay.com/og-image.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Space Diagonal of a Box — GeoProof">
+<meta name="twitter:description" content="Rotate a 3-D box and watch d = √(a² + b² + c²) — Pythagoras in three dimensions.">
+<meta name="twitter:image" content="https://geoproof.knovay.com/og-image.png">
+<style>
+  body{background:#f4f4f5;display:flex;justify-content:center;padding:40px 16px;font-family:sans-serif;}
+  .widget{width:680px;max-width:100%;}
+  .card{background:#ffffff;border:1px solid #e2e2e2;padding:1.25rem;}
+  .sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;}
+  .scene-wrap{position:relative;width:100%;border-radius:12px;overflow:hidden;background:#ffffff;border:1px solid #e6e6e8;touch-action:none;}
+  #c3d{display:block;width:100%;cursor:grab;}
+  #c3d:active{cursor:grabbing;}
+  #labels{position:absolute;inset:0;pointer-events:none;}
+  #labels .lb{position:absolute;transform:translate(-50%,-50%);font-size:13px;font-weight:700;background:rgba(255,255,255,0.72);padding:0 3px;border-radius:4px;white-space:nowrap;}
+  .hint{position:absolute;left:12px;bottom:10px;font-size:11px;color:#9a9aa2;background:rgba(255,255,255,0.7);padding:2px 7px;border-radius:6px;}
+  .zoom-ctrl{position:absolute;right:12px;bottom:12px;display:flex;flex-direction:column;gap:6px;z-index:6;}
+  .zoom-ctrl button{width:36px;height:36px;border-radius:9px;border:1px solid #d8d8d8;background:rgba(255,255,255,0.92);color:#1a1a1a;font-size:20px;font-weight:700;line-height:1;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 1px 4px rgba(0,0,0,0.08);}
+  .zoom-ctrl button:hover{border-color:#1a1a1a;background:#ffffff;}
+  .zoom-ctrl button:active{transform:scale(0.94);}
+  .zoom-ctrl .reset{font-size:15px;}
+  .toggle-btn{padding:6px 14px;border-radius:999px;border:1px solid #d8d8d8;background:#f4f4f5;color:#888888;font-size:13px;font-weight:500;cursor:pointer;}
+  .toggle-btn.active{background:#1a1a1a;color:#ffffff;border-color:#1a1a1a;}
+  .sliders{display:flex;flex-wrap:wrap;gap:14px;justify-content:center;margin-top:0.9rem;}
+  .slider{display:flex;flex-direction:column;align-items:center;font-size:13px;font-weight:600;color:#444;min-width:150px;}
+  .slider .val{font-size:14px;color:#1a1a1a;}
+  .slider input{width:150px;}
+  .swatch{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:5px;vertical-align:middle;}
+  .stage{position:relative;border-radius:12px;overflow:hidden;border:1px solid #e2e2e2;}
+  .stage .card{border:none;}
+  .info-toggle{position:absolute;top:14px;right:14px;z-index:30;background:#1a1a1a;color:#ffffff;border:none;border-radius:999px;padding:7px 14px;font-size:13px;font-weight:500;cursor:pointer;}
+  .info-toggle:hover{background:#333333;}
+  .info-backdrop{position:absolute;inset:0;background:rgba(0,0,0,0.22);opacity:0;visibility:hidden;transition:opacity .2s ease;z-index:25;}
+  .info-backdrop.open{opacity:1;visibility:visible;}
+  .info-drawer{position:absolute;top:0;right:0;height:100%;width:320px;max-width:88%;background:#ffffff;border-left:1px solid #e2e2e2;box-shadow:-8px 0 24px rgba(0,0,0,0.14);padding:22px 20px;overflow-y:auto;transform:translateX(100%);transition:transform .25s ease;z-index:28;box-sizing:border-box;}
+  .info-drawer.open{transform:translateX(0);}
+  .info-close{position:absolute;top:14px;right:14px;background:#f4f4f5;border:1px solid #e2e2e2;border-radius:50%;width:28px;height:28px;font-size:14px;cursor:pointer;color:#555555;}
+  .info-drawer h3{font-size:17px;margin:6px 0 12px;padding-right:30px;color:#1a1a1a;}
+  .info-drawer h4{font-size:12px;margin:18px 0 6px;color:#666666;text-transform:uppercase;letter-spacing:.04em;}
+  .info-drawer p{font-size:13.5px;line-height:1.55;color:#333333;margin:0 0 10px;}
+  .formula-box{background:#f4f4f5;border-radius:8px;padding:10px 12px;text-align:center;font-size:13.5px;font-weight:600;margin:10px 0;color:#1a1a1a;}
+</style>
+</head>
+<body>
+<div class="widget">
+<div style="margin-bottom:12px;"><a href="index.html" style="font-size:14px;color:#1a1a1a;text-decoration:none;">&larr; GeoProof</a></div>
+<div class="stage">
+<div class="card">
+<h2 class="sr-only">A three-dimensional rectangular box (cuboid) is shown with length a, width b and height c, set by three sliders. Drag on the box to rotate it in space. The space diagonal runs from one bottom corner to the opposite top corner, and its length is the square root of a squared plus b squared plus c squared. The picture builds it in two Pythagorean steps: first the face diagonal across the base, of length the square root of a squared plus b squared, then a right triangle whose legs are that face diagonal and the vertical edge c, whose hypotenuse is the space diagonal. The face diagonal, the space diagonal computed from the formula, and the space diagonal measured directly are shown live and agree. Toggles show the right-triangle proof and the edge labels. An info button opens a drawer explaining the theorem.</h2>
+
+<div class="scene-wrap" id="scene-wrap">
+  <canvas id="c3d"></canvas>
+  <div id="labels"></div>
+  <div class="hint">drag to rotate · scroll, +/− or pinch to zoom</div>
+  <div class="zoom-ctrl">
+    <button type="button" id="zoom-in" aria-label="Zoom in">+</button>
+    <button type="button" id="zoom-out" aria-label="Zoom out">−</button>
+    <button type="button" id="zoom-reset" class="reset" aria-label="Reset view" title="Reset view">⟳</button>
+  </div>
+</div>
+
+<div style="display:flex; justify-content:center; gap:10px; flex-wrap:wrap; margin-top:0.85rem;">
+  <button type="button" id="toggle-tri" class="toggle-btn active">Right-triangle proof</button>
+  <button type="button" id="toggle-labels" class="toggle-btn active">Edge labels</button>
+</div>
+
+<div style="display:flex; justify-content:center; margin-top:0.85rem;">
+  <span id="status-badge" style="display:inline-block; padding:4px 14px; border-radius:999px; font-size:14px; font-weight:500;"></span>
+</div>
+
+<div id="face-row" style="text-align:center; font-size:14.5px; color:#1a1a1a; margin-top:1rem;"></div>
+<div id="space-row" style="text-align:center; font-size:14.5px; color:#1a1a1a; margin-top:0.5rem;"></div>
+<div id="cube-row" style="text-align:center; font-size:13px; color:#777; margin-top:0.4rem;"></div>
+
+<div class="sliders">
+  <label class="slider"><span><span class="swatch" style="background:#185FA5"></span>length a = <span class="val" id="va">6.0</span></span><input type="range" id="sa" min="1" max="8" step="0.5" value="6"></label>
+  <label class="slider"><span><span class="swatch" style="background:#185FA5"></span>width b = <span class="val" id="vb">4.0</span></span><input type="range" id="sb" min="1" max="8" step="0.5" value="4"></label>
+  <label class="slider"><span><span class="swatch" style="background:#185FA5"></span>height c = <span class="val" id="vc">3.0</span></span><input type="range" id="sc" min="1" max="8" step="0.5" value="3"></label>
+</div>
+</div>
+
+<button type="button" id="info-toggle-btn" class="info-toggle">ⓘ About this theorem</button>
+<div id="info-backdrop" class="info-backdrop"></div>
+<aside id="info-drawer" class="info-drawer">
+  <button type="button" id="info-close" class="info-close" aria-label="Close">✕</button>
+  <h3>The Space Diagonal of a Box</h3>
+  <p>A rectangular box has three edge lengths — a, b and c. The longest line you can draw inside it runs from one corner to the opposite corner, through the interior. That space diagonal has length:</p>
+  <div class="formula-box">d = √(a² + b² + c²)</div>
+  <p>It is the Pythagorean theorem carried into three dimensions.</p>
+  <h4>The two-step proof</h4>
+  <p>First find the diagonal across the base rectangle. Its legs are a and b, so by Pythagoras the <b>face diagonal</b> is f = √(a² + b²).</p>
+  <p>That face diagonal and the vertical edge c meet at a right angle, and together with the space diagonal they form a right triangle. Applying Pythagoras again: d = √(f² + c²) = √((a² + b²) + c²) = √(a² + b² + c²). Turn on “Right-triangle proof” to see the green face diagonal, the blue vertical edge, and the red space diagonal.</p>
+  <h4>The cube case</h4>
+  <p>When a = b = c, the formula collapses to d = √(3a²) = a√3 ≈ 1.732 a. Set all three sliders equal to see it.</p>
+  <h4>Where it comes from</h4>
+  <p>This is exactly the 3-D distance formula: the distance between opposite corners (0,0,0) and (a,b,c) is √(a² + b² + c²). It’s also the three-dimensional cousin of the British Flag theorem, and the reason a diagonal brace stiffens a rectangular frame.</p>
+</aside>
+</div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+(function(){
+  var wrap=document.getElementById('scene-wrap');
+  var canvas=document.getElementById('c3d');
+  var labelsDiv=document.getElementById('labels');
+  var statusBadge=document.getElementById('status-badge');
+  var faceRow=document.getElementById('face-row'), spaceRow=document.getElementById('space-row'), cubeRow=document.getElementById('cube-row');
+  var showTri=true, showLabels=true;
+  var a=6,b=4,c=3;
+
+  if(!window.THREE){
+    wrap.innerHTML='<div style="padding:40px 16px;text-align:center;color:#888;font-size:14px;">3-D view needs WebGL / an internet connection to load. The relationship is still d = √(a² + b² + c²).</div>';
+  } else { run(); }
+
+  function fmt(n){ var r=Math.round(n*100)/100; return (Math.abs(r-Math.round(r))<1e-9)?Math.round(r).toString():r.toFixed(2); }
+
+  function run(){
+    var renderer=new THREE.WebGLRenderer({canvas:canvas,antialias:true});
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio||1,2));
+    renderer.setClearColor(0xffffff,1);
+    var scene=new THREE.Scene();
+    var camera=new THREE.PerspectiveCamera(42,1,0.1,100);
+    camera.position.set(0,0,17);
+    var group=new THREE.Group(); scene.add(group);
+    group.rotation.x=-0.5; group.rotation.y=-0.65;
+
+    var W=1,H=1;
+    function resize(){
+      W=wrap.clientWidth; H=Math.round(W*0.62);
+      renderer.setSize(W,H,false);
+      canvas.style.width=W+'px'; canvas.style.height=H+'px';
+      camera.aspect=W/H; camera.updateProjectionMatrix();
+    }
+
+    // ---- label DOM ----
+    var LB={};
+    ['a','b','c','f','d'].forEach(function(k){ var e=document.createElement('div'); e.className='lb'; labelsDiv.appendChild(e); LB[k]=e; });
+    var COL={a:'#185FA5',b:'#185FA5',c:'#185FA5',f:'#2f7d12',d:'#c02f5e'};
+    for(var k in COL){ LB[k].style.color=COL[k]; }
+
+    function corners(){
+      return {
+        P0:new THREE.Vector3(-a/2,-c/2,-b/2),
+        P1:new THREE.Vector3( a/2,-c/2, b/2),
+        P2:new THREE.Vector3( a/2, c/2, b/2)
+      };
+    }
+    function tube(p,q,rad,color){
+      var dir=new THREE.Vector3().subVectors(q,p); var len=dir.length()||1e-6;
+      var geo=new THREE.CylinderGeometry(rad,rad,len,12);
+      var m=new THREE.Mesh(geo,new THREE.MeshBasicMaterial({color:color}));
+      m.position.copy(p).addScaledVector(dir,0.5);
+      m.quaternion.setFromUnitVectors(new THREE.Vector3(0,1,0),dir.clone().normalize());
+      return m;
+    }
+    function dot(p){ var m=new THREE.Mesh(new THREE.SphereGeometry(0.10,14,14),new THREE.MeshBasicMaterial({color:0x1a1a1a})); m.position.copy(p); return m; }
+
+    function clearGroup(){ for(var i=group.children.length-1;i>=0;i--){ var o=group.children[i]; group.remove(o); if(o.geometry)o.geometry.dispose(); if(o.material)o.material.dispose(); } }
+
+    function build(){
+      clearGroup();
+      var bg=new THREE.BoxGeometry(a,c,b);
+      group.add(new THREE.Mesh(bg,new THREE.MeshBasicMaterial({color:0x378ADD,transparent:true,opacity:0.06,depthWrite:false})));
+      group.add(new THREE.LineSegments(new THREE.EdgesGeometry(bg),new THREE.LineBasicMaterial({color:0x1a1a1a})));
+      var C=corners();
+      if(showTri){
+        group.add(tube(C.P0,C.P1,0.05,0x2f7d12));   // face diagonal f (green)
+        group.add(tube(C.P1,C.P2,0.05,0x185FA5));   // vertical edge c (blue)
+        // right-angle marker at P1
+        var u=new THREE.Vector3().subVectors(C.P0,C.P1).normalize().multiplyScalar(0.5);
+        var v=new THREE.Vector3().subVectors(C.P2,C.P1).normalize().multiplyScalar(0.5);
+        var ra=new THREE.Vector3().copy(C.P1).add(u);
+        var rb=new THREE.Vector3().copy(ra).add(v);
+        var rc=new THREE.Vector3().copy(C.P1).add(v);
+        var rg=new THREE.BufferGeometry().setFromPoints([ra,rb,rc]);
+        group.add(new THREE.Line(rg,new THREE.LineBasicMaterial({color:0x1a1a1a})));
+      }
+      group.add(tube(C.P0,C.P2,0.06,0xc02f5e));      // space diagonal d (red)
+      group.add(dot(C.P0)); group.add(dot(C.P1)); group.add(dot(C.P2));
+      updateReadout();
+    }
+
+    function updateReadout(){
+      var f=Math.sqrt(a*a+b*b), d=Math.sqrt(a*a+b*b+c*c);
+      statusBadge.textContent='d = √(a² + b² + c²)';
+      statusBadge.style.background='#E1F0FB'; statusBadge.style.color='#0E3F66';
+      faceRow.innerHTML='<b style="color:#2f7d12">Face diagonal</b> f = √(a² + b²) = √('+fmt(a*a)+' + '+fmt(b*b)+') = <b>'+fmt(f)+'</b>';
+      spaceRow.innerHTML='<b style="color:#c02f5e">Space diagonal</b> d = √(a² + b² + c²) = √('+fmt(a*a)+' + '+fmt(b*b)+' + '+fmt(c*c)+') = <b>'+fmt(d)+'</b> &nbsp;(= √(f² + c²))';
+      cubeRow.textContent = (a===b && b===c) ? 'Cube: d = a√3 = '+fmt(a)+'·√3 = '+fmt(a*Math.sqrt(3)) : '';
+    }
+
+    // ---- projected labels ----
+    function place(el,vec3){
+      var v=vec3.clone().project(camera);
+      el.style.left=((v.x*0.5+0.5)*W)+'px';
+      el.style.top=((-v.y*0.5+0.5)*H)+'px';
+      el.style.display=(showLabels && v.z<1)?'block':'none';
+    }
+    function updateLabels(){
+      group.updateMatrixWorld();
+      var mids={
+        a:new THREE.Vector3(0,-c/2,-b/2),
+        b:new THREE.Vector3(a/2,-c/2,0),
+        c:new THREE.Vector3(a/2,0,b/2),
+        f:new THREE.Vector3(0,-c/2,0),
+        d:new THREE.Vector3(-a*0.12,c*0.12,-b*0.12)
+      };
+      var txt={a:'a = '+fmt(a),b:'b = '+fmt(b),c:'c = '+fmt(c),f:'f = '+fmt(Math.sqrt(a*a+b*b)),d:'d = '+fmt(Math.sqrt(a*a+b*b+c*c))};
+      for(var k in mids){
+        if((k==='f'||k==='d')&&!showTri&&k==='f'){ LB[k].style.display='none'; continue; }
+        LB[k].textContent=txt[k];
+        place(LB[k], group.localToWorld(mids[k].clone()));
+      }
+    }
+
+    // ---- interaction ----
+    var pointers=new Map(), lastX=0,lastY=0,pinchDist=0,dragging=false;
+    function zoomBy(f){ camera.position.z=Math.max(9,Math.min(26,camera.position.z*f)); }
+    function twoDist(){ var p=[]; pointers.forEach(function(v){ p.push(v); }); return Math.hypot(p[0].x-p[1].x,p[0].y-p[1].y); }
+    canvas.addEventListener('pointerdown',function(e){ pointers.set(e.pointerId,{x:e.clientX,y:e.clientY}); dragging=true; lastX=e.clientX; lastY=e.clientY; if(pointers.size===2) pinchDist=twoDist(); if(canvas.setPointerCapture){try{canvas.setPointerCapture(e.pointerId);}catch(err){}} });
+    window.addEventListener('pointermove',function(e){
+      if(!pointers.has(e.pointerId)) return;
+      pointers.set(e.pointerId,{x:e.clientX,y:e.clientY});
+      if(pointers.size===2){ var d=twoDist(); if(pinchDist>0) zoomBy(pinchDist/d); pinchDist=d; return; }
+      group.rotation.y+=(e.clientX-lastX)*0.01;
+      group.rotation.x=Math.max(-1.35,Math.min(1.35,group.rotation.x+(e.clientY-lastY)*0.01));
+      lastX=e.clientX; lastY=e.clientY;
+    });
+    function endPtr(e){ pointers.delete(e.pointerId); if(pointers.size<2) pinchDist=0; if(pointers.size===1){ var p=[...pointers.values()][0]; lastX=p.x; lastY=p.y; } if(pointers.size===0) dragging=false; }
+    window.addEventListener('pointerup',endPtr);
+    window.addEventListener('pointercancel',endPtr);
+    wrap.addEventListener('wheel',function(e){ e.preventDefault(); zoomBy(e.deltaY>0?1.08:0.9); },{passive:false});
+    document.getElementById('zoom-in').addEventListener('click',function(){ zoomBy(0.85); });
+    document.getElementById('zoom-out').addEventListener('click',function(){ zoomBy(1.18); });
+    document.getElementById('zoom-reset').addEventListener('click',function(){ camera.position.z=17; group.rotation.x=-0.5; group.rotation.y=-0.65; });
+
+    // ---- sliders / toggles ----
+    function bind(id,vid,set){ var s=document.getElementById(id),v=document.getElementById(vid); s.addEventListener('input',function(){ set(parseFloat(s.value)); v.textContent=parseFloat(s.value).toFixed(1); build(); }); }
+    bind('sa','va',function(x){a=x;}); bind('sb','vb',function(x){b=x;}); bind('sc','vc',function(x){c=x;});
+    var tt=document.getElementById('toggle-tri'), tl=document.getElementById('toggle-labels');
+    tt.addEventListener('click',function(){ showTri=!showTri; tt.classList.toggle('active',showTri); build(); });
+    tl.addEventListener('click',function(){ showLabels=!showLabels; tl.classList.toggle('active',showLabels); });
+
+    window.addEventListener('resize',resize);
+    resize(); build();
+    (function loop(){ requestAnimationFrame(loop); renderer.render(scene,camera); updateLabels(); })();
+  }
+
+  // ---- info drawer ----
+  var infoToggle=document.getElementById('info-toggle-btn');
+  var infoDrawer=document.getElementById('info-drawer');
+  var infoBackdrop=document.getElementById('info-backdrop');
+  var infoClose=document.getElementById('info-close');
+  function openDrawer(){ infoDrawer.classList.add('open'); infoBackdrop.classList.add('open'); }
+  function closeDrawer(){ infoDrawer.classList.remove('open'); infoBackdrop.classList.remove('open'); }
+  infoToggle.addEventListener('click',function(){ if(infoDrawer.classList.contains('open')) closeDrawer(); else openDrawer(); });
+  infoClose.addEventListener('click',closeDrawer);
+  infoBackdrop.addEventListener('click',closeDrawer);
+  document.addEventListener('keydown',function(e){ if(e.key==='Escape') closeDrawer(); });
+})();
+</script>
+<script defer src="site-chrome.js"></script>
+</body>
+</html>

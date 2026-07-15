@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<script>/*gp-noflash*/(function(){try{var t=localStorage.getItem('gp:theme')||(matchMedia('(prefers-color-scheme:dark)').matches?'dark':'light');document.documentElement.setAttribute('data-theme',t);if(t==='dark'){var s=document.createElement('style');s.textContent='html[data-theme=dark]{background:#14151a}html[data-theme=dark] body{background:#14151a!important;color:#e6e6e8!important}';document.head.appendChild(s);}}catch(e){}})();</script>
+<title>GeoProof — Cone : Sphere : Cylinder = 1:2:3 explorer</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="Archimedes' theorem in 3-D: a cone, a sphere and a cylinder with the same radius and height 2r have volumes in the exact ratio 1 : 2 : 3.">
+<link rel="canonical" href="https://geoproof.knovay.com/ArchimedesRatio-Visual.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="GeoProof">
+<meta property="og:title" content="Cone : Sphere : Cylinder = 1:2:3 — GeoProof">
+<meta property="og:description" content="Archimedes' ratio: same radius and height 2r give volumes 1 : 2 : 3, and cone + sphere = cylinder.">
+<meta property="og:url" content="https://geoproof.knovay.com/ArchimedesRatio-Visual.html">
+<meta property="og:image" content="https://geoproof.knovay.com/og-image.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Cone : Sphere : Cylinder = 1:2:3 — GeoProof">
+<meta name="twitter:description" content="Archimedes' 1:2:3 volume ratio, in 3-D.">
+<meta name="twitter:image" content="https://geoproof.knovay.com/og-image.png">
+<style>
+  body{background:#f4f4f5;display:flex;justify-content:center;padding:40px 16px;font-family:sans-serif;}
+  .widget{width:680px;max-width:100%;}
+  .card{background:#ffffff;border:1px solid #e2e2e2;padding:1.25rem;}
+  .sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;}
+  .cap{text-align:center;margin:0 0 12px;}
+  .cap-eye{display:block;font-size:12px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:#8a8f98;}
+  .cap-sub{display:block;font-size:15px;color:#333;font-weight:600;margin-top:3px;}
+  .scene-wrap{position:relative;width:100%;border-radius:12px;overflow:hidden;background:#ffffff;border:1px solid #e6e6e8;touch-action:none;}
+  #c3d{display:block;width:100%;cursor:grab;}
+  #c3d:active{cursor:grabbing;}
+  #labels{position:absolute;inset:0;pointer-events:none;}
+  #labels .lb{position:absolute;transform:translate(-50%,-50%);font-size:13px;font-weight:700;background:rgba(255,255,255,0.82);padding:0 5px;border-radius:5px;white-space:nowrap;}
+  .hint{position:absolute;left:12px;bottom:10px;font-size:11px;color:#9a9aa2;background:rgba(255,255,255,0.7);padding:2px 7px;border-radius:6px;}
+  .zoom-ctrl{position:absolute;right:12px;bottom:12px;display:flex;flex-direction:column;gap:6px;z-index:6;}
+  .zoom-ctrl button{width:36px;height:36px;border-radius:9px;border:1px solid #d8d8d8;background:rgba(255,255,255,0.92);color:#1a1a1a;font-size:20px;font-weight:700;line-height:1;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 1px 4px rgba(0,0,0,0.08);}
+  .zoom-ctrl button:hover{border-color:#1a1a1a;background:#ffffff;}
+  .zoom-ctrl button:active{transform:scale(0.94);}
+  .zoom-ctrl .reset{font-size:15px;}
+  .toggle-btn{padding:6px 14px;border-radius:999px;border:1px solid #d8d8d8;background:#f4f4f5;color:#888888;font-size:13px;font-weight:500;cursor:pointer;font-family:inherit;}
+  .toggle-btn.active{background:#1a1a1a;color:#ffffff;border-color:#1a1a1a;}
+  .nest-note{text-align:center;font-size:13px;color:#4f7a2e;font-weight:600;margin-top:0.5rem;min-height:18px;}
+  .vhead{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;color:#8a8f98;margin:1rem 0 8px;}
+  .vhead span{color:#555;text-transform:none;letter-spacing:0;font-weight:600;}
+  .brow{display:flex;align-items:center;gap:10px;margin:8px 0;font-size:13.5px;}
+  .blabel{width:96px;font-weight:700;display:flex;align-items:center;gap:7px;flex:none;}
+  .sw{width:12px;height:12px;border-radius:3px;display:inline-block;flex:none;}
+  .btrack{flex:1;background:#f0f0f2;border-radius:6px;height:24px;overflow:hidden;}
+  .bfill{display:block;height:100%;border-radius:6px;transition:width .2s ease;}
+  .bval{width:140px;text-align:right;color:#333;font-variant-numeric:tabular-nums;flex:none;}
+  .bval b{font-size:15px;}
+  .ratio-line{text-align:center;font-size:17px;font-weight:800;margin-top:1rem;color:#1a1a1a;letter-spacing:.01em;}
+  .ratio-line .c1{color:#c98a1e;}.ratio-line .c2{color:#2f6db0;}.ratio-line .c3{color:#4f7a2e;}
+  .sum-line{text-align:center;font-size:13px;color:#777;margin-top:0.35rem;}
+  .slider{display:flex;flex-direction:column;align-items:center;font-size:13px;font-weight:600;color:#444;margin-top:1rem;}
+  .slider .val{font-size:14px;color:#1a1a1a;}
+  .slider input{width:220px;}
+  .stage{position:relative;border-radius:12px;overflow:hidden;border:1px solid #e2e2e2;}
+  .stage .card{border:none;}
+  .info-toggle{position:absolute;top:14px;right:14px;z-index:30;background:#1a1a1a;color:#ffffff;border:none;border-radius:999px;padding:7px 14px;font-size:13px;font-weight:500;cursor:pointer;}
+  .info-toggle:hover{background:#333333;}
+  .info-backdrop{position:absolute;inset:0;background:rgba(0,0,0,0.22);opacity:0;visibility:hidden;transition:opacity .2s ease;z-index:25;}
+  .info-backdrop.open{opacity:1;visibility:visible;}
+  .info-drawer{position:absolute;top:0;right:0;height:100%;width:320px;max-width:88%;background:#ffffff;border-left:1px solid #e2e2e2;box-shadow:-8px 0 24px rgba(0,0,0,0.14);padding:22px 20px;overflow-y:auto;transform:translateX(100%);transition:transform .25s ease;z-index:28;box-sizing:border-box;}
+  .info-drawer.open{transform:translateX(0);}
+  .info-close{position:absolute;top:14px;right:14px;background:#f4f4f5;border:1px solid #e2e2e2;border-radius:50%;width:28px;height:28px;font-size:14px;cursor:pointer;color:#555555;}
+  .info-drawer h3{font-size:17px;margin:6px 0 12px;padding-right:30px;color:#1a1a1a;}
+  .info-drawer h4{font-size:12px;margin:18px 0 6px;color:#666666;text-transform:uppercase;letter-spacing:.04em;}
+  .info-drawer p{font-size:13.5px;line-height:1.55;color:#333333;margin:0 0 10px;}
+  .formula-box{background:#f4f4f5;border-radius:8px;padding:10px 12px;text-align:center;font-size:14px;font-weight:600;margin:10px 0;color:#1a1a1a;}
+</style>
+</head>
+<body>
+<div class="widget">
+<div style="margin-bottom:12px;"><a href="index.html" style="font-size:14px;color:#1a1a1a;text-decoration:none;">&larr; GeoProof</a></div>
+<div class="stage">
+<div class="card">
+<h2 class="sr-only">Three solids are shown in 3-D and can be rotated by dragging: a cone, a sphere and a cylinder, all with the same radius r and the same height equal to twice the radius. Each is labelled. Their volumes are in the exact ratio one to two to three — the cone is one third of the cylinder, the sphere two thirds, so the cone and sphere together equal the cylinder. A slider sets the radius; coloured bars and numbers show the three volumes and their fixed 1 to 2 to 3 ratio. Buttons show the three shapes side by side, or nest the sphere inside the cylinder (the figure Archimedes had carved on his tomb, filling two thirds of it), or nest the cone inside the cylinder (filling one third of it). Zoom with the buttons, scroll or pinch. An info button opens a drawer explaining the theorem.</h2>
+
+<div class="cap">
+  <span class="cap-eye">Archimedes' 1 : 2 : 3</span>
+  <span class="cap-sub">Cone, sphere &amp; cylinder — same radius r, same height 2r. Compare their volumes.</span>
+</div>
+
+<div class="scene-wrap" id="scene-wrap">
+  <canvas id="c3d"></canvas>
+  <div id="labels"></div>
+  <div class="hint">drag to rotate · scroll, +/− or pinch to zoom</div>
+  <div class="zoom-ctrl">
+    <button type="button" id="zoom-in" aria-label="Zoom in">+</button>
+    <button type="button" id="zoom-out" aria-label="Zoom out">−</button>
+    <button type="button" id="zoom-reset" class="reset" aria-label="Reset view" title="Reset view">⟳</button>
+  </div>
+</div>
+
+<div style="display:flex; justify-content:center; gap:8px; flex-wrap:wrap; margin-top:0.85rem;">
+  <button type="button" class="toggle-btn active" data-mode="row">Side by side</button>
+  <button type="button" class="toggle-btn" data-mode="sphere">Sphere in cylinder</button>
+  <button type="button" class="toggle-btn" data-mode="cone">Cone in cylinder</button>
+</div>
+<div class="nest-note" id="nest-note"></div>
+
+<div class="vhead">Volume <span id="rlabel">(radius r = 2.0)</span></div>
+<div class="bars">
+  <div class="brow">
+    <span class="blabel"><span class="sw" style="background:#E1A33A"></span>Cone</span>
+    <span class="btrack"><span class="bfill" style="background:#E1A33A;width:33.3%"></span></span>
+    <span class="bval"><b>1</b> part &nbsp;·&nbsp; <span id="v-cone"></span></span>
+  </div>
+  <div class="brow">
+    <span class="blabel"><span class="sw" style="background:#5B9BD5"></span>Sphere</span>
+    <span class="btrack"><span class="bfill" style="background:#5B9BD5;width:66.7%"></span></span>
+    <span class="bval"><b>2</b> parts &nbsp;·&nbsp; <span id="v-sph"></span></span>
+  </div>
+  <div class="brow">
+    <span class="blabel"><span class="sw" style="background:#7DAF57"></span>Cylinder</span>
+    <span class="btrack"><span class="bfill" style="background:#7DAF57;width:100%"></span></span>
+    <span class="bval"><b>3</b> parts &nbsp;·&nbsp; <span id="v-cyl"></span></span>
+  </div>
+</div>
+<div class="ratio-line"><span class="c1">Cone</span> : <span class="c2">Sphere</span> : <span class="c3">Cylinder</span> = 1 : 2 : 3</div>
+<div class="sum-line">cone + sphere = cylinder&nbsp;&nbsp;(1 + 2 = 3) &nbsp;·&nbsp; sphere volume = ⁴⁄₃·π·r³</div>
+
+<label class="slider"><span>radius r = <span class="val" id="vr">2.0</span> &nbsp;(height = 2r)</span><input type="range" id="sr" min="1" max="5" step="0.5" value="2"></label>
+</div>
+
+<button type="button" id="info-toggle-btn" class="info-toggle">ⓘ About this theorem</button>
+<div id="info-backdrop" class="info-backdrop"></div>
+<aside id="info-drawer" class="info-drawer">
+  <button type="button" id="info-close" class="info-close" aria-label="Close">✕</button>
+  <h3>Cone : Sphere : Cylinder = 1 : 2 : 3</h3>
+  <p>Take a cone, a sphere and a cylinder that all share the same radius r, where the cone and cylinder have height equal to the diameter, 2r. Their volumes fall into a strikingly simple pattern:</p>
+  <div class="formula-box">V<sub>cone</sub> : V<sub>sphere</sub> : V<sub>cylinder</sub> = 1 : 2 : 3</div>
+  <p>Spelled out: the cone is ⅓·π·r²·(2r) = ⅔·π·r³, the sphere is ⁴⁄₃·π·r³, and the cylinder is π·r²·(2r) = 2·π·r³. Dividing through by ⅔·π·r³ gives 1 : 2 : 3.</p>
+  <h4>A beautiful consequence</h4>
+  <p>Since the cone is one third of the cylinder and the sphere is two thirds, the cone and the sphere together exactly fill the cylinder: 1 + 2 = 3.</p>
+  <h4>How Archimedes found the sphere</h4>
+  <p>This is how the sphere's volume was first discovered. Archimedes showed the sphere is two-thirds of its circumscribing cylinder, which gives V = ⁴⁄₃·π·r³. He considered it his finest result — and asked for a sphere-in-a-cylinder to be carved on his tombstone. Turn on “Nest sphere in cylinder” to see it.</p>
+  <h4>Why the ratio never changes</h4>
+  <p>Every term is a constant times r³, so scaling r rescales all three volumes together — the 1 : 2 : 3 ratio is the same for a marble or a planet.</p>
+  <h4>A bit of history</h4>
+  <p>Archimedes of Syracuse (c. 287–212 BCE) proved it in <i>On the Sphere and Cylinder</i>, long before calculus, using his “method of exhaustion.”</p>
+</aside>
+</div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+(function(){
+  var wrap=document.getElementById('scene-wrap'), canvas=document.getElementById('c3d'), labelsDiv=document.getElementById('labels');
+  var r=2, mode='row';
+  var vCone=document.getElementById('v-cone'),vSph=document.getElementById('v-sph'),vCyl=document.getElementById('v-cyl');
+  var nestNote=document.getElementById('nest-note');
+
+  function fmt(n){ return (Math.round(n*10)/10).toFixed(1); }
+  function readout(){
+    var pr3=Math.PI*r*r*r;
+    vCone.textContent=fmt(2/3*pr3)+' u³'; vSph.textContent=fmt(4/3*pr3)+' u³'; vCyl.textContent=fmt(2*pr3)+' u³';
+    document.getElementById('rlabel').textContent='(radius r = '+r.toFixed(1)+')';
+  }
+  readout();
+
+  if(!window.THREE){ wrap.innerHTML='<div style="padding:40px 16px;text-align:center;color:#888;font-size:14px;">3-D view needs WebGL / an internet connection. The volumes are still cone : sphere : cylinder = 1 : 2 : 3.</div>'; return; }
+
+  var renderer=new THREE.WebGLRenderer({canvas:canvas,antialias:true});
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio||1,2));
+  renderer.setClearColor(0xffffff,1);
+  var scene=new THREE.Scene();
+  var camera=new THREE.PerspectiveCamera(42,1,0.1,100); camera.position.set(0,0,17);
+  scene.add(new THREE.AmbientLight(0xffffff,0.82));
+  var dl=new THREE.DirectionalLight(0xffffff,0.5); dl.position.set(5,8,10); scene.add(dl);
+  var dl2=new THREE.DirectionalLight(0xffffff,0.22); dl2.position.set(-6,-3,-7); scene.add(dl2);
+  var group=new THREE.Group(); scene.add(group); group.rotation.set(-0.16,0.0,0);
+
+  var R=1.7, GAP=4.7;
+  function mat(col,op){ return new THREE.MeshLambertMaterial({color:col,transparent:op<1,opacity:op,depthWrite:op>=1,side:THREE.DoubleSide}); }
+  function clearGroup(){ for(var i=group.children.length-1;i>=0;i--){var o=group.children[i];group.remove(o);if(o.geometry)o.geometry.dispose();if(o.material)o.material.dispose();} }
+
+  // labels
+  var LB={cone:mklabel('Cone','#c98a1e'),sph:mklabel('Sphere','#2f6db0'),cyl:mklabel('Cylinder','#4f7a2e')};
+  function mklabel(txt,col){ var e=document.createElement('div'); e.className='lb'; e.textContent=txt; e.style.color=col; labelsDiv.appendChild(e); return e; }
+
+  // a clearly-outlined cylinder "cage" (faint fill + thick rim rings + vertical struts) at x = cx
+  function cageCyl(cx){
+    var green=0x2f7d12;
+    group.add(new THREE.Mesh(new THREE.CylinderGeometry(R,R,2*R,48),mat(0x7DAF57,0.12)).translateX(cx));
+    [R,-R].forEach(function(y){ var t=new THREE.Mesh(new THREE.TorusGeometry(R,0.045,12,60),new THREE.MeshBasicMaterial({color:green})); t.rotation.x=Math.PI/2; t.position.set(cx,y,0); group.add(t); });
+    for(var a=0;a<6;a++){ var ang=a*Math.PI/3; var st=new THREE.Mesh(new THREE.CylinderGeometry(0.045,0.045,2*R,10),new THREE.MeshBasicMaterial({color:green})); st.position.set(cx+R*Math.cos(ang),0,R*Math.sin(ang)); group.add(st); }
+  }
+
+  function build(){
+    clearGroup();
+    if(mode==='row'){
+      var cone=new THREE.Mesh(new THREE.ConeGeometry(R,2*R,44),mat(0xE1A33A,1)); cone.position.set(-GAP,0,0); group.add(cone);
+      group.add(new THREE.Mesh(new THREE.SphereGeometry(R,40,28),mat(0x5B9BD5,1)));
+      var cyl=new THREE.Mesh(new THREE.CylinderGeometry(R,R,2*R,44),mat(0x7DAF57,1)); cyl.position.set(GAP,0,0); group.add(cyl);
+      nestNote.textContent='';
+    } else if(mode==='sphere'){
+      group.add(new THREE.Mesh(new THREE.SphereGeometry(R,40,28),mat(0x5B9BD5,1)));
+      cageCyl(0);
+      nestNote.textContent='The blue sphere is inscribed in the green cylinder — it fills exactly ⅔ of it.';
+    } else { // cone
+      group.add(new THREE.Mesh(new THREE.ConeGeometry(R,2*R,44),mat(0xE1A33A,1)));
+      cageCyl(0);
+      nestNote.textContent='The amber cone is inscribed in the green cylinder — it fills exactly ⅓ of it.';
+    }
+  }
+
+  var W=1,H=1;
+  function resize(){ W=wrap.clientWidth; H=Math.round(W*0.6); renderer.setSize(W,H,false); canvas.style.width=W+'px'; canvas.style.height=H+'px'; camera.aspect=W/H; camera.updateProjectionMatrix(); }
+
+  function place(el,vx,vy,vz){
+    var v=group.localToWorld(new THREE.Vector3(vx,vy,vz)).project(camera);
+    el.style.left=((v.x*0.5+0.5)*W)+'px'; el.style.top=((-v.y*0.5+0.5)*H)+'px'; el.style.display=(v.z<1)?'block':'none';
+  }
+  function updateLabels(){
+    group.updateMatrixWorld();
+    LB.cone.style.display='none'; LB.sph.style.display='none'; LB.cyl.style.display='none';
+    if(mode==='row'){
+      place(LB.cone,-GAP,-R-0.55,0); place(LB.sph,0,-R-0.55,0); place(LB.cyl,GAP,-R-0.55,0);
+    } else if(mode==='sphere'){
+      place(LB.cyl,0,R+0.6,0); place(LB.sph,R+0.75,0,0);
+    } else {
+      place(LB.cyl,0,R+0.6,0); place(LB.cone,R+0.75,0,0);
+    }
+  }
+
+  // interaction
+  var pointers=new Map(), lastX=0,lastY=0,pinchDist=0;
+  function zoomBy(f){ camera.position.z=Math.max(9,Math.min(28,camera.position.z*f)); }
+  function twoDist(){ var p=[]; pointers.forEach(function(v){p.push(v);}); return Math.hypot(p[0].x-p[1].x,p[0].y-p[1].y); }
+  canvas.addEventListener('pointerdown',function(e){ pointers.set(e.pointerId,{x:e.clientX,y:e.clientY}); lastX=e.clientX; lastY=e.clientY; if(pointers.size===2)pinchDist=twoDist(); if(canvas.setPointerCapture){try{canvas.setPointerCapture(e.pointerId);}catch(err){}} });
+  window.addEventListener('pointermove',function(e){ if(!pointers.has(e.pointerId))return; pointers.set(e.pointerId,{x:e.clientX,y:e.clientY}); if(pointers.size===2){var d=twoDist(); if(pinchDist>0)zoomBy(pinchDist/d); pinchDist=d; return;} group.rotation.y+=(e.clientX-lastX)*0.01; group.rotation.x=Math.max(-1.4,Math.min(1.4,group.rotation.x+(e.clientY-lastY)*0.01)); lastX=e.clientX; lastY=e.clientY; });
+  function endPtr(e){ pointers.delete(e.pointerId); if(pointers.size<2)pinchDist=0; if(pointers.size===1){var p=[];pointers.forEach(function(v){p.push(v);}); lastX=p[0].x; lastY=p[0].y;} }
+  window.addEventListener('pointerup',endPtr); window.addEventListener('pointercancel',endPtr);
+  wrap.addEventListener('wheel',function(e){ e.preventDefault(); zoomBy(e.deltaY>0?1.08:0.9); },{passive:false});
+  document.getElementById('zoom-in').addEventListener('click',function(){ zoomBy(0.85); });
+  document.getElementById('zoom-out').addEventListener('click',function(){ zoomBy(1.18); });
+  document.getElementById('zoom-reset').addEventListener('click',function(){ camera.position.z=17; group.rotation.set(-0.16,0,0); });
+
+  Array.prototype.forEach.call(document.querySelectorAll('[data-mode]'),function(b){
+    b.addEventListener('click',function(){ mode=b.getAttribute('data-mode'); Array.prototype.forEach.call(document.querySelectorAll('[data-mode]'),function(x){x.classList.toggle('active',x===b);}); camera.position.z=17; build(); });
+  });
+  var sr=document.getElementById('sr'),vr=document.getElementById('vr');
+  sr.addEventListener('input',function(){ r=parseFloat(sr.value); vr.textContent=r.toFixed(1); readout(); });
+
+  window.addEventListener('resize',resize);
+  resize(); build();
+  (function loop(){ requestAnimationFrame(loop); renderer.render(scene,camera); updateLabels(); })();
+
+  var infoToggle=document.getElementById('info-toggle-btn'),infoDrawer=document.getElementById('info-drawer'),infoBackdrop=document.getElementById('info-backdrop'),infoClose=document.getElementById('info-close');
+  function openD(){infoDrawer.classList.add('open');infoBackdrop.classList.add('open');}
+  function closeD(){infoDrawer.classList.remove('open');infoBackdrop.classList.remove('open');}
+  infoToggle.addEventListener('click',function(){ infoDrawer.classList.contains('open')?closeD():openD(); });
+  infoClose.addEventListener('click',closeD); infoBackdrop.addEventListener('click',closeD);
+  document.addEventListener('keydown',function(e){ if(e.key==='Escape')closeD(); });
+})();
+</script>
+<script defer src="site-chrome.js"></script>
+</body>
+</html>

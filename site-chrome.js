@@ -3,7 +3,6 @@
    <script defer src="site-chrome.js"></script>. Overlays via fixed positioning. */
 (function(){
   if(window.__gpChrome) return; window.__gpChrome=true;
-  var GH='https://github.com/Richard4481234/geoproof';
   var EMBED = /[?&]embed(?:=|&|$)/.test(location.search) || (function(){ try{ return window.top!==window.self; }catch(e){ return true; } })();
   if(EMBED){ try{ document.documentElement.classList.add('gp-embed'); }catch(e){} }
   var ORDER=[["AnglesAroundPoint-Visual.html", "Angles Around a Point"], ["CompSuppAngles-Visual.html", "Complementary & Supplementary"], ["VerticalAngles-Visual.html", "Vertical Angles"], ["ParallelTransversal-Visual.html", "Parallel Lines & Transversal"], ["TriangleAngleSum-Visual.html", "Triangle Angle Sum"], ["ExteriorAngle-Visual.html", "Exterior Angle Theorem"], ["TriangleInequality-Visual.html", "Triangle Inequality"], ["Isosceles-Visual.html", "Isosceles Triangle"], ["PerpBisector-Visual.html", "Perpendicular Bisector"], ["AngleBisectorLocus-Visual.html", "Angle Bisector (Locus)"], ["DistanceMidpoint-Visual.html", "Distance & Midpoint"], ["Midsegment-Visual.html", "Triangle Midsegment"], ["PolygonAngleSum-Visual.html", "Angle Sum of Polygons"], ["PolygonExteriorAngleSum-Visual.html", "Sum of Exterior Angles"], ["TangentRadius-Visual.html", "Tangent ⟂ Radius"], ["GeoProof-Visual.html", "Pythagorean Theorem"], ["Reflection-Visual.html", "Reflection"], ["Rotation-Visual.html", "Rotation"], ["Translation-Visual.html", "Translation"], ["Dilation-Visual.html", "Dilation (Scaling)"], ["ArcSector-Visual.html", "Arc Length & Sector Area"], ["LawOfCosines-Visual.html", "Law of Cosines"], ["InscribedAngle-Visual.html", "Inscribed Angle Theorem"], ["AngleBisector-Visual.html", "Angle Bisector Theorem"], ["BasicProportionality-Visual.html", "Basic Proportionality"], ["AASimilarity-Visual.html", "AA Similarity"], ["SASSimilarity-Visual.html", "SAS Similarity"], ["CentroidMedians-Visual.html", "Centroid & the 2:1 Median"], ["Incircle-Visual.html", "Incenter & Incircle"], ["Circumcircle-Visual.html", "Circumcenter & Circumcircle"], ["Orthocenter-Visual.html", "Orthocenter"], ["Heron-Visual.html", "Heron's Formula"], ["Shoelace-Visual.html", "Shoelace Formula"], ["RegularPolygonArea-Visual.html", "Regular Polygon Area"], ["TriangleAreaSine-Visual.html", "Triangle Area (sine)"], ["AreaInradius-Visual.html", "Area = r·s"], ["EqualTangents-Visual.html", "Equal Tangents"], ["ChordBisector-Visual.html", "Chord & Center"], ["EqualChords-Visual.html", "Equal Chords"], ["TangentChordAngle-Visual.html", "Tangent–Chord Angle"], ["CyclicQuadrilateral-Visual.html", "Cyclic Quadrilateral"], ["PowerOfAPoint-Visual.html", "Power of a Point"], ["IntersectingChordsAngle-Visual.html", "Intersecting Chords Angle"], ["SecantsAngle-Visual.html", "Intersecting Secants Angle"], ["TangentTangentAngle-Visual.html", "Tangent–Tangent Angle"], ["Viviani-Visual.html", "Viviani's Theorem"], ["BritishFlag-Visual.html", "British Flag Theorem"], ["TrapezoidMidsegment-Visual.html", "Trapezoid Midsegment"], ["ParallelogramDiagonals-Visual.html", "Diagonals Bisect"], ["RhombusDiagonals-Visual.html", "Rhombus Diagonals"], ["ParallelogramLaw-Visual.html", "Parallelogram Law"], ["Varignon-Visual.html", "Varignon's Theorem"], ["GeometricMean-Visual.html", "Geometric Mean"], ["RightMedian-Visual.html", "Median to Hypotenuse"], ["StarAngleSum-Visual.html", "Star Angle Sum"], ["LawOfSinesCircumradius-Visual.html", "Sine Rule & 2R"], ["AreaCircumradius-Visual.html", "Area = abc/4R"], ["TwoReflections-Visual.html", "Two Reflections"], ["GlideReflection-Visual.html", "Glide Reflection"], ["Ptolemy-Visual.html", "Ptolemy's Theorem"], ["Ceva-Visual.html", "Ceva's Theorem"], ["Menelaus-Visual.html", "Menelaus' Theorem"], ["Stewart-Visual.html", "Stewart's Theorem"], ["NinePointCircle-Visual.html", "Nine-Point Circle"], ["EulerLine-Visual.html", "Euler Line"], ["SimsonLine-Visual.html", "Simson Line"], ["Napoleon-Visual.html", "Napoleon's Theorem"], ["Morley-Visual.html", "Morley's Trisector"], ["Pitot-Visual.html", "Pitot's Theorem"], ["Brahmagupta-Visual.html", "Brahmagupta's Formula"], ["CarnotTheorem-Visual.html", "Carnot's Theorem"], ["EulerInequality-Visual.html", "Euler's Inequality"], ["Picks-Visual.html", "Pick's Theorem"]];
@@ -134,7 +133,13 @@
     '.gp-keys-hint{margin-top:14px;font-size:11.5px;color:#999999;text-align:center;}',
     '@media(max-width:520px){.gp-nav{gap:13px;}.gp-hide-sm{display:none !important;}.gp-footer{font-size:11.5px;gap:6px;}',
       '.gp-foot-sm{display:none !important;}.gp-ex-t{display:none;}.gp-ex-prev,.gp-ex-next{max-width:none;}',
-      '.gp-th-t{display:none;}.gp-theme{padding:8px 11px;font-size:16px;}}'
+      '.gp-th-t{display:none;}.gp-theme{padding:8px 11px;font-size:16px;}}',
+    '.gp-zoom-host{position:relative;overflow:hidden;}',
+    '.gp-zoom-ctrl{position:absolute;right:10px;bottom:10px;display:flex;flex-direction:column;gap:6px;z-index:8;}',
+    '.gp-zoom-ctrl button{width:34px;height:34px;border-radius:9px;border:1px solid #d8d8d8;background:rgba(255,255,255,0.92);color:#1a1a1a;font-size:19px;font-weight:700;line-height:1;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 1px 4px rgba(0,0,0,0.08);}',
+    '.gp-zoom-ctrl button:hover{border-color:#1a1a1a;background:#fff;}',
+    '.gp-zoom-ctrl button:active{transform:scale(0.94);}',
+    '.gp-zoom-ctrl .gp-zr{font-size:14px;}'
   ];
   var D='html[data-theme=dark] ';
   var dark=[
@@ -244,25 +249,51 @@
     +'<polygon points="4,20 20,20 4,7" fill="none" stroke="#1a1a1a" stroke-width="2.2" stroke-linejoin="round"/>'
     +'<rect x="4" y="16.4" width="3.6" height="3.6" fill="#378ADD"/></svg>';
 
+  // Central zoom (+/- and reset) for every 2-D diagram. Scales the SVG within a clipped
+  // wrapper so it never overlaps the controls below. Drag/keyboard handles keep working
+  // because pointer mapping uses getBoundingClientRect, which scales with the transform.
+  function injectZoom(){
+    if(document.querySelector('.gp-zoom-host')) return;
+    var svg=document.querySelector('.stage svg:not(.panel-icon)');
+    if(!svg) return;                       // non-diagram pages and 3-D (canvas) pages: skip
+    var host=document.createElement('div'); host.className='gp-zoom-host';
+    svg.parentNode.insertBefore(host, svg); host.appendChild(svg);
+    svg.style.transformOrigin='center center';
+    svg.style.transition='transform .12s ease';
+    var scale=1;
+    function apply(){ svg.style.transform = (scale===1) ? '' : 'scale('+scale.toFixed(3)+')'; }
+    var ctrl=document.createElement('div'); ctrl.className='gp-zoom-ctrl';
+    ctrl.innerHTML='<button type="button" data-z="in" aria-label="Zoom in">+</button>'
+      +'<button type="button" data-z="out" aria-label="Zoom out">−</button>'
+      +'<button type="button" data-z="reset" class="gp-zr" aria-label="Reset zoom" title="Reset zoom">⟲</button>';
+    host.appendChild(ctrl);
+    ctrl.addEventListener('click',function(e){
+      var b=e.target.closest && e.target.closest('button'); if(!b) return;
+      var z=b.getAttribute('data-z');
+      if(z==='in') scale=Math.min(3,scale*1.25);
+      else if(z==='out') scale=Math.max(0.6,scale/1.25);
+      else scale=1;
+      apply();
+    });
+  }
+
   function ready(fn){ if(document.body) fn(); else document.addEventListener('DOMContentLoaded',fn); }
 
   ready(function(){
     // these run in every mode (incl. embed): light diagram canvas + keyboard a11y
     Array.prototype.forEach.call(document.querySelectorAll('svg:not(.panel-icon)'),function(s){ s.classList.add('gp-canvas'); });
     setupKeyboardHandles();
+    injectZoom();       // zoom in/out control on every 2-D diagram (3-D pages bring their own)
     if(EMBED) return;   // embedded widget: no header/footer/nav/share
     if(!document.querySelector('.gp-header')){
       var header=document.createElement('header'); header.className='gp-header';
       header.innerHTML='<a class="gp-brand" href="index.html">'+logo+'<span>GeoProof</span></a>'
         +'<nav class="gp-nav"><a class="gp-hide-sm" href="index.html">All explorers</a><a href="paths.html">Paths</a><a href="quiz.html">Quiz</a><a href="about.html">About</a>'
-        +'<a class="gp-hide-sm" href="'+GH+'" target="_blank" rel="noopener">GitHub</a>'
         +'<button class="gp-theme" id="gp-theme-btn" type="button" aria-label="Toggle dark mode"></button></nav>';
       document.body.insertBefore(header, document.body.firstChild);
 
       var footer=document.createElement('footer'); footer.className='gp-footer';
       footer.innerHTML='<span>GeoProof <span class="gp-foot-sm">- interactive geometry explorers</span></span>'
-        +'<span class="gp-dot">&middot;</span><a href="'+GH+'" target="_blank" rel="noopener">Source on GitHub</a>'
-        +'<span class="gp-dot">&middot;</span><a href="LICENSE">MIT License</a>'
         +'<span class="gp-dot gp-foot-sm">&middot;</span><span class="gp-foot-sm">&copy; 2026</span>'
         +'<span class="gp-dot gp-foot-sm">&middot;</span><span class="gp-foot-sm">Press ? for shortcuts</span>';
       document.body.appendChild(footer);
@@ -326,7 +357,7 @@
     var file=(location.pathname.split('/').pop()||'');
     if(!/-Visual\.html$/i.test(file)) return;
     if(document.querySelector('.gp-share')) return;
-    var BASE='https://richard4481234.github.io/geoproof/', pageUrl=BASE+file;
+    var BASE='https://geoproof.knovay.com/', pageUrl=BASE+file;
     var snippet='<iframe src="'+pageUrl+'?embed=1" title="'+(document.title||'GeoProof explorer')+'" width="680" height="800" loading="lazy" style="max-width:100%;border:1px solid #e2e2e2;border-radius:14px;"></iframe>';
     var host=document.querySelector('.wrap,.widget,.about,.page') || document.body;
     var bar=document.createElement('div'); bar.className='gp-share';
