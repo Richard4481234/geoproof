@@ -102,6 +102,8 @@ function countVisit(){
       var n = Number((snap.exists() && snap.data().visitors) || 0);
       var wrap = document.getElementById("gp-visits-wrap");
       if (wrap) wrap.innerHTML = '<span id="gp-visits">' + n.toLocaleString() + '</span> ' + (n === 1 ? "visitor" : "visitors");
+      var hero = document.getElementById("statVisitors");   // live count in the home-page hero
+      if (hero) hero.textContent = n.toLocaleString();
     });
   } catch(e){}
 }
