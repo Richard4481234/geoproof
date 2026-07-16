@@ -1,15 +1,20 @@
-/* GeoProof — auth + usage counter (loaded on every page by site-chrome.js).
+/* GeoProof — auth + usage counter + per-user sync (loaded on every page by site-chrome.js).
    - Reflects login state in the header (Sign in  <->  name + Log out).
-   - Counts unique visitors (once per browser) in Firestore and shows the total
-     live in the footer.
+   - Counts unique visitors (once per browser) in Firestore; shows the total live in the footer.
+   - When signed in, syncs favorites (the ☆ Save buttons) and the quiz best-score to the
+     user's account, so they follow them across devices and browsers.
    Safe when Firebase isn't configured yet: if FIREBASE_READY is false, this file
    does nothing and the site behaves exactly as before. */
 
 import { auth, db, FIREBASE_READY } from "./firebase-config.js";
 import { onAuthStateChanged, signOut }
   from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-import { doc, setDoc, onSnapshot, increment }
+import { doc, getDoc, setDoc, onSnapshot, increment }
   from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+var FAV_KEY  = "gp:favorites";
+var BEST_KEY = "gp:quizbestpct";
+var currentUid = null;
 
 if (FIREBASE_READY) {
   ready(init);
@@ -26,6 +31,7 @@ function init(){
   whenPresent(".gp-nav", buildAccountControl, 40);
   whenPresent(".gp-footer", buildVisitCounter, 40);
   countVisit();
+  initSync();
 }
 
 function whenPresent(sel, fn, tries){
@@ -98,6 +104,49 @@ function countVisit(){
       if (wrap) wrap.innerHTML = '<span id="gp-visits">' + n.toLocaleString() + '</span> ' + (n === 1 ? "visitor" : "visitors");
     });
   } catch(e){}
+}
+
+/* ---------- per-user favorites + quiz best-score sync ---------- */
+function lsArr(k){ try { return JSON.parse(localStorage.getItem(k)) || []; } catch(e){ return []; } }
+function lsInt(k){ try { return parseInt(localStorage.getItem(k) || "0", 10) || 0; } catch(e){ return 0; } }
+function lsSet(k, v){ try { localStorage.setItem(k, v); } catch(e){} }
+function union(a, b){ var out = a.slice(); for (var i = 0; i < b.length; i++){ if (out.indexOf(b[i]) < 0) out.push(b[i]); } return out; }
+
+function initSync(){
+  onAuthStateChanged(auth, function(user){
+    if (user){ currentUid = user.uid; mergeOnLogin(user); }
+    else { currentUid = null; }
+  });
+  // pushed whenever the user stars/unstars an explorer or finishes a better quiz round
+  window.addEventListener("gp:favchange", pushFavorites);
+  window.addEventListener("gp:quizchange", pushQuizBest);
+}
+
+// On sign-in, union this browser's data with the account's so nothing is lost,
+// then write the merged result to both localStorage and the cloud.
+function mergeOnLogin(user){
+  var ref = doc(db, "users", user.uid);
+  getDoc(ref).then(function(snap){
+    var cloud = (snap && snap.exists()) ? (snap.data() || {}) : {};
+    var cloudFav  = Array.isArray(cloud.favorites) ? cloud.favorites : [];
+    var cloudBest = Number(cloud.quizBestPct || 0);
+    var mergedFav  = union(lsArr(FAV_KEY), cloudFav);
+    var mergedBest = Math.max(lsInt(BEST_KEY), cloudBest);
+    lsSet(FAV_KEY, JSON.stringify(mergedFav));
+    lsSet(BEST_KEY, String(mergedBest));
+    setDoc(ref, { favorites: mergedFav, quizBestPct: mergedBest, email: user.email || "" }, { merge: true }).catch(function(){});
+    try { window.dispatchEvent(new CustomEvent("gp:favsync")); } catch(e){}
+    try { window.dispatchEvent(new CustomEvent("gp:quizsync")); } catch(e){}
+  }).catch(function(){});
+}
+
+function pushFavorites(){
+  if (!currentUid) return;
+  setDoc(doc(db, "users", currentUid), { favorites: lsArr(FAV_KEY) }, { merge: true }).catch(function(){});
+}
+function pushQuizBest(){
+  if (!currentUid) return;
+  setDoc(doc(db, "users", currentUid), { quizBestPct: lsInt(BEST_KEY) }, { merge: true }).catch(function(){});
 }
 
 /* ---------- styles (theme-aware) ---------- */

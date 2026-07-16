@@ -1222,7 +1222,7 @@
   var FK='gp:favorites', favOnly=false;
   function favGet(){try{return JSON.parse(localStorage.getItem(FK))||[];}catch(e){return [];}}
   function favHas(f){return favGet().indexOf(f)>=0;}
-  function favToggle(f){var a=favGet(),i=a.indexOf(f);if(i>=0)a.splice(i,1);else a.push(f);try{localStorage.setItem(FK,JSON.stringify(a));}catch(e){}}
+  function favToggle(f){var a=favGet(),i=a.indexOf(f);if(i>=0)a.splice(i,1);else a.push(f);try{localStorage.setItem(FK,JSON.stringify(a));}catch(e){}try{window.dispatchEvent(new CustomEvent('gp:favchange'));}catch(e){}}
 
   var allPanels=Array.prototype.slice.call(grid.querySelectorAll('.panel'));
   // tag each panel with its difficulty badge + search text, then order easy -> hard
@@ -1257,6 +1257,16 @@
   });
   allPanels.sort(function(a,b){ return a._order-b._order; });
   allPanels.forEach(function(p){ grid.appendChild(p); });
+
+  // when sign-in merges the account's favorites in, re-paint the grid stars live
+  window.addEventListener('gp:favsync', function(){
+    allPanels.forEach(function(p){
+      var st=p.querySelector('.cat-star'); if(!st) return;
+      var s=favHas(p._key);
+      st.textContent=s?'★':'☆'; st.classList.toggle('saved',s); st.setAttribute('aria-pressed',s?'true':'false');
+    });
+    if(typeof applyFilter==='function') applyFilter();
+  });
 
   var perPage=12, page=1, pages=1, query='', filtered=allPanels;
   var activeCats={}, activeDiffs={};

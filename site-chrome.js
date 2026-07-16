@@ -84,7 +84,7 @@
   var FK='gp:favorites';
   function favGet(){try{return JSON.parse(localStorage.getItem(FK))||[];}catch(e){return [];}}
   function favHas(f){return favGet().indexOf(f)>=0;}
-  function favToggle(f){var a=favGet(),i=a.indexOf(f);if(i>=0)a.splice(i,1);else a.push(f);try{localStorage.setItem(FK,JSON.stringify(a));}catch(e){}return i<0;}
+  function favToggle(f){var a=favGet(),i=a.indexOf(f);if(i>=0)a.splice(i,1);else a.push(f);try{localStorage.setItem(FK,JSON.stringify(a));}catch(e){}try{window.dispatchEvent(new CustomEvent('gp:favchange'));}catch(e){}return i<0;}
   window.gpFav={get:favGet,has:favHas,toggle:favToggle};
   function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
 

@@ -446,7 +446,7 @@
   function renderResult(){
     var pct=Math.round(score/quiz.length*100);
     var best=0; try{ best=parseInt(localStorage.getItem(BK)||'0',10)||0; }catch(e){}
-    if(pct>best){ best=pct; try{ localStorage.setItem(BK,String(best)); }catch(e){} }
+    if(pct>best){ best=pct; try{ localStorage.setItem(BK,String(best)); }catch(e){} try{ window.dispatchEvent(new CustomEvent('gp:quizchange')); }catch(e){} }
     var msg = pct===100?"Perfect score! ⭐" : pct>=80?"Great work." : pct>=50?"Nice — keep going." : "Worth another round.";
     var missed=log.filter(function(l){ return !l.ok; });
 
