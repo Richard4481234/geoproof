@@ -47,6 +47,8 @@
   .q-msg{font-size:16px;color:#444444;margin:0 0 6px;}
   .q-best{font-size:13px;color:#8a8f98;margin:0 0 18px;}
   .q-key{display:inline-block;min-width:17px;margin-right:9px;font-size:12px;font-weight:700;color:#9aa0a6;}
+  .q-timer{font-variant-numeric:tabular-nums;}
+  .q-timer.low{color:#b22a28;font-weight:700;}
   .q-actions{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;}
   .q-ghost{display:inline-block;text-decoration:none;background:#ffffff;color:#1a1a1a;border:1px solid #d8d8d8;font-weight:600;font-size:14px;padding:10px 18px;border-radius:999px;cursor:pointer;font-family:inherit;}
   .q-ghost:hover{border-color:#1a1a1a;}
@@ -719,6 +721,7 @@
   var CATS=[['all','All topics'],['triangle','Triangles'],['circle','Circles'],['angle','Angles'],['quad','Quadrilaterals'],['polygon','Polygons'],['transform','Transformations']];
   var DIFFS=[['all','All levels'],['Easy','Easy'],['Medium','Medium'],['Hard','Hard']];
   var LENS=[[10,'10'],[20,'20'],[0,'All']];
+  var TIMES=[[0,'Relaxed'],[30,'30s'],[15,'15s']];
   var BK='gp:quizbestpct';
   var SK='gp:quizstats';
   var STREAKK='gp:quizstreak';
@@ -728,7 +731,7 @@
     if(ok){ streak++; if(streak>bestStreak()){ try{ localStorage.setItem(STREAKK,String(streak)); }catch(e){} try{ window.dispatchEvent(new CustomEvent('gp:quizchange')); }catch(e){} } }
     else streak=0;
   }
-  var sel={cat:'all',diff:'all',len:10};
+  var sel={cat:'all',diff:'all',len:10,timer:0};
 
   // ---- per-question history: powers adaptive rounds + lifetime stats ----
   function qid(it){ var s=it.q, hsh=0; for(var i=0;i<s.length;i++){ hsh=(hsh*31+s.charCodeAt(i))|0; } return String(hsh); }
@@ -742,7 +745,8 @@
   function lifetime(){ var st=getStats(), r=0, w=0; for(var k in st){ r+=st[k].r||0; w+=st[k].w||0; } return {r:r,w:w,total:r+w}; }
 
   var card=document.getElementById('quizCard');
-  var quiz, idx, score, log, retry;
+  var quiz, idx, score, log, retry, timerId=null;
+  function clearTimer(){ if(timerId){ clearInterval(timerId); timerId=null; } }
 
   function shuffle(a){ for(var i=a.length-1;i>0;i--){ var j=Math.floor(Math.random()*(i+1)), t=a[i]; a[i]=a[j]; a[j]=t; } return a; }
   function esc(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
@@ -772,6 +776,7 @@
     var h=chipRow('Topic',CATS,sel.cat,'cat')
       +chipRow('Difficulty',DIFFS,sel.diff,'diff')
       +chipRow('Questions per round',LENS,sel.len,'len')
+      +chipRow('Pace',TIMES,sel.timer,'timer')
       +'<button type="button" class="start-btn" id="startBtn"'+(n===0?' disabled':'')+'>'
       +(n===0?'No questions match — widen your filters':'Start round ('+Math.min(sel.len||n,n)+' question'+((Math.min(sel.len||n,n))===1?'':'s')+')')
       +'</button>'+statsLine();
@@ -779,7 +784,7 @@
     Array.prototype.forEach.call(card.querySelectorAll('.chip'),function(b){
       b.addEventListener('click',function(){
         var act=b.getAttribute('data-act'), v=b.getAttribute('data-v');
-        if(act==='len') sel.len=parseInt(v,10); else sel[act]=v;
+        if(act==='len'||act==='timer') sel[act]=parseInt(v,10); else sel[act]=v;
         renderStart();
       });
     });
@@ -812,37 +817,51 @@
   }
 
   function renderQ(){
+    clearTimer();
     if(idx>=quiz.length){ return renderResult(); }
     var it=quiz[idx], answered=false;
     var choices=shuffle([it.a].concat(it.o));
     var pct=Math.round(idx/quiz.length*100);
     var html='<div class="progress-bar"><div class="progress-fill" style="width:'+pct+'%"></div></div>'
-      +'<div class="q-top"><span>Question '+(idx+1)+' of '+quiz.length+'</span><span>'+(streak>=2?'Streak '+streak+' \u00b7 ':'')+'Score '+score+'</span></div>'
+      +'<div class="q-top"><span>Question '+(idx+1)+' of '+quiz.length+'</span><span>'+(sel.timer?'<span id="qTimer" class="q-timer">'+sel.timer+'s</span> \u00b7 ':'')+(streak>=2?'Streak '+streak+' \u00b7 ':'')+'Score '+score+'</span></div>'
       +(it.s?'<div class="q-figure">'+it.s+'</div>':'')+'<p class="q-text">'+esc(it.q)+'</p><div class="q-choices">';
     choices.forEach(function(c,i){ html+='<button type="button" class="q-choice" data-i="'+i+'"><span class="q-key">'+(i+1)+'</span>'+esc(c)+'</button>'; });
     html+='</div><div id="qFoot"></div>';
     card.innerHTML=html;
     var btns=card.querySelectorAll('.q-choice');
-    Array.prototype.forEach.call(btns,function(b){
-      b.addEventListener('click',function(){
-        if(answered) return; answered=true;
-        var chosen=choices[+b.getAttribute('data-i')], ok=(chosen===it.a);
-        if(ok) score++;
-        log.push({it:it,chosen:chosen,ok:ok});
-        recordStat(it,ok); bumpStreak(ok);
-        Array.prototype.forEach.call(btns,function(x){
-          x.disabled=true;
-          var cv=choices[+x.getAttribute('data-i')];
-          if(cv===it.a) x.classList.add('correct');
-          else if(x===b) x.classList.add('wrong');
-        });
-        var foot=document.getElementById('qFoot');
-        foot.innerHTML='<div class="q-explain">'+(ok?'<b style="color:#1e7a3c">Correct.</b> ':'<b style="color:#b22a28">Not quite.</b> ')
-          +esc(it.x)+' <a href="'+it.f+'">Open the '+esc(it.t)+' explorer →</a></div>'
-          +'<button type="button" class="q-next" id="qNext">'+(idx+1>=quiz.length?'See results':'Next question')+'</button>';
-        document.getElementById('qNext').addEventListener('click',function(){ idx++; renderQ(); });
+    function finish(chosen, clickedBtn){
+      if(answered) return; answered=true; clearTimer();
+      var ok=(chosen===it.a);
+      if(ok) score++;
+      log.push({it:it,chosen:(chosen===null?'(time ran out)':chosen),ok:ok});
+      recordStat(it,ok); bumpStreak(ok);
+      Array.prototype.forEach.call(btns,function(x){
+        x.disabled=true;
+        var cv=choices[+x.getAttribute('data-i')];
+        if(cv===it.a) x.classList.add('correct');
+        else if(x===clickedBtn) x.classList.add('wrong');
       });
+      var lead = ok ? '<b style="color:#1e7a3c">Correct.</b> '
+               : (chosen===null ? '<b style="color:#b22a28">Time\u2019s up.</b> '
+                                : '<b style="color:#b22a28">Not quite.</b> ');
+      var foot=document.getElementById('qFoot');
+      foot.innerHTML='<div class="q-explain">'+lead
+        +esc(it.x)+' <a href="'+it.f+'">Open the '+esc(it.t)+' explorer →</a></div>'
+        +'<button type="button" class="q-next" id="qNext">'+(idx+1>=quiz.length?'See results':'Next question')+'</button>';
+      document.getElementById('qNext').addEventListener('click',function(){ idx++; renderQ(); });
+    }
+    Array.prototype.forEach.call(btns,function(b){
+      b.addEventListener('click',function(){ finish(choices[+b.getAttribute('data-i')], b); });
     });
+    if(sel.timer){
+      var left=sel.timer;
+      timerId=setInterval(function(){
+        left--;
+        var tEl=document.getElementById('qTimer');
+        if(tEl){ tEl.textContent=left+'s'; if(left<=5) tEl.className='q-timer low'; }
+        if(left<=0){ finish(null, null); }
+      },1000);
+    }
   }
 
   function renderResult(){
