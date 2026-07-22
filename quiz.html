@@ -677,7 +677,7 @@
   var sel={cat:'all',diff:'all',len:10};
 
   var card=document.getElementById('quizCard');
-  var quiz, idx, score, log;
+  var quiz, idx, score, log, retry;
 
   function shuffle(a){ for(var i=a.length-1;i>0;i--){ var j=Math.floor(Math.random()*(i+1)), t=a[i]; a[i]=a[j]; a[j]=t; } return a; }
   function esc(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
@@ -712,7 +712,13 @@
   function start(){
     var p=shuffle(pool().slice());
     var n=sel.len===0?p.length:Math.min(sel.len,p.length);
-    quiz=p.slice(0,n); idx=0; score=0; log=[];
+    quiz=p.slice(0,n); idx=0; score=0; log=[]; retry=false;
+    renderQ();
+  }
+
+  // Re-run a round built only from the questions just missed.
+  function startRetry(items){
+    quiz=shuffle(items.slice()); idx=0; score=0; log=[]; retry=true;
     renderQ();
   }
 
@@ -752,16 +758,19 @@
   function renderResult(){
     var pct=Math.round(score/quiz.length*100);
     var best=0; try{ best=parseInt(localStorage.getItem(BK)||'0',10)||0; }catch(e){}
-    if(pct>best){ best=pct; try{ localStorage.setItem(BK,String(best)); }catch(e){} try{ window.dispatchEvent(new CustomEvent('gp:quizchange')); }catch(e){} }
+    // a short retry round shouldn't be able to set a "best round" record
+    if(!retry && pct>best){ best=pct; try{ localStorage.setItem(BK,String(best)); }catch(e){} try{ window.dispatchEvent(new CustomEvent('gp:quizchange')); }catch(e){} }
     var msg = pct===100?"Perfect score! ⭐" : pct>=80?"Great work." : pct>=50?"Nice — keep going." : "Worth another round.";
     var missed=log.filter(function(l){ return !l.ok; });
 
     var h='<div class="q-result">'
-      +'<div class="q-top" style="justify-content:center">Round complete</div>'
+      +'<div class="q-top" style="justify-content:center">'+(retry?'Retry complete':'Round complete')+'</div>'
       +'<div class="q-score">'+score+' / '+quiz.length+'</div>'
       +'<p class="q-msg">'+msg+' ('+pct+'%)</p>'
       +'<p class="q-best">Best round so far: '+best+'%</p>'
-      +'<div class="q-actions"><button type="button" class="q-next" id="qAgain">New round</button>'
+      +'<div class="q-actions">'
+      +(missed.length?'<button type="button" class="q-next" id="qRetry">Practice these '+missed.length+' again</button>':'')
+      +'<button type="button" class="'+(missed.length?'q-ghost':'q-next')+'" id="qAgain">New round</button>'
       +'<a class="q-ghost" href="index.html">Browse explorers</a></div></div>';
 
     if(missed.length){
@@ -780,6 +789,10 @@
     }
     card.innerHTML=h;
     document.getElementById('qAgain').addEventListener('click',renderStart);
+    var rb=document.getElementById('qRetry');
+    if(rb) rb.addEventListener('click',function(){
+      startRetry(missed.map(function(l){ return l.it; }));
+    });
   }
 
   renderStart();
