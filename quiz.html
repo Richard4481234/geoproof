@@ -721,6 +721,13 @@
   var LENS=[[10,'10'],[20,'20'],[0,'All']];
   var BK='gp:quizbestpct';
   var SK='gp:quizstats';
+  var STREAKK='gp:quizstreak';
+  var streak=0;
+  function bestStreak(){ try{ return parseInt(localStorage.getItem(STREAKK)||'0',10)||0; }catch(e){ return 0; } }
+  function bumpStreak(ok){
+    if(ok){ streak++; if(streak>bestStreak()){ try{ localStorage.setItem(STREAKK,String(streak)); }catch(e){} try{ window.dispatchEvent(new CustomEvent('gp:quizchange')); }catch(e){} } }
+    else streak=0;
+  }
   var sel={cat:'all',diff:'all',len:10};
 
   // ---- per-question history: powers adaptive rounds + lifetime stats ----
@@ -755,6 +762,7 @@
     var weakN=pool().filter(function(it){ var s=st[qid(it)]; return !!(s&&s.w>0); }).length;
     return '<p class="q-best" style="text-align:center;margin-top:14px;">'
       +'You have answered <b>'+lt.total+'</b> question'+(lt.total===1?'':'s')+' — <b>'+pct+'%</b> correct.'
+      +(bestStreak()>=3?' Best streak: <b>'+bestStreak()+'</b> in a row.':'')
       +(weakN?' Rounds favour the <b>'+weakN+'</b> you have missed before.':'')
       +'<br>'+tip+'</p>';
   }
@@ -809,7 +817,7 @@
     var choices=shuffle([it.a].concat(it.o));
     var pct=Math.round(idx/quiz.length*100);
     var html='<div class="progress-bar"><div class="progress-fill" style="width:'+pct+'%"></div></div>'
-      +'<div class="q-top"><span>Question '+(idx+1)+' of '+quiz.length+'</span><span>Score '+score+'</span></div>'
+      +'<div class="q-top"><span>Question '+(idx+1)+' of '+quiz.length+'</span><span>'+(streak>=2?'Streak '+streak+' \u00b7 ':'')+'Score '+score+'</span></div>'
       +(it.s?'<div class="q-figure">'+it.s+'</div>':'')+'<p class="q-text">'+esc(it.q)+'</p><div class="q-choices">';
     choices.forEach(function(c,i){ html+='<button type="button" class="q-choice" data-i="'+i+'"><span class="q-key">'+(i+1)+'</span>'+esc(c)+'</button>'; });
     html+='</div><div id="qFoot"></div>';
@@ -821,7 +829,7 @@
         var chosen=choices[+b.getAttribute('data-i')], ok=(chosen===it.a);
         if(ok) score++;
         log.push({it:it,chosen:chosen,ok:ok});
-        recordStat(it,ok);
+        recordStat(it,ok); bumpStreak(ok);
         Array.prototype.forEach.call(btns,function(x){
           x.disabled=true;
           var cv=choices[+x.getAttribute('data-i')];

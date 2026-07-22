@@ -14,7 +14,8 @@ import { doc, getDoc, setDoc, onSnapshot, increment }
 
 var FAV_KEY   = "gp:favorites";
 var BEST_KEY  = "gp:quizbestpct";
-var STATS_KEY = "gp:quizstats";
+var STATS_KEY  = "gp:quizstats";
+var STREAK_KEY = "gp:quizstreak";
 var currentUid = null;
 
 if (FIREBASE_READY) {
@@ -148,11 +149,13 @@ function mergeOnLogin(user){
     var cloudStats = (cloud.quizStats && typeof cloud.quizStats === "object") ? cloud.quizStats : {};
     var mergedFav   = union(lsArr(FAV_KEY), cloudFav);
     var mergedBest  = Math.max(lsInt(BEST_KEY), cloudBest);
-    var mergedStats = mergeStats(lsObj(STATS_KEY), cloudStats);
+    var mergedStats   = mergeStats(lsObj(STATS_KEY), cloudStats);
+    var mergedStreak  = Math.max(lsInt(STREAK_KEY), Number(cloud.quizStreak||0));
     lsSet(FAV_KEY, JSON.stringify(mergedFav));
     lsSet(BEST_KEY, String(mergedBest));
     lsSet(STATS_KEY, JSON.stringify(mergedStats));
-    setDoc(ref, { favorites: mergedFav, quizBestPct: mergedBest, quizStats: mergedStats, email: user.email || "" }, { merge: true }).catch(function(){});
+    lsSet(STREAK_KEY, String(mergedStreak));
+    setDoc(ref, { favorites: mergedFav, quizBestPct: mergedBest, quizStats: mergedStats, quizStreak: mergedStreak, email: user.email || "" }, { merge: true }).catch(function(){});
     try { window.dispatchEvent(new CustomEvent("gp:favsync")); } catch(e){}
     try { window.dispatchEvent(new CustomEvent("gp:quizsync")); } catch(e){}
   }).catch(function(){});
@@ -165,7 +168,7 @@ function pushFavorites(){
 function pushQuizBest(){
   if (!currentUid) return;
   setDoc(doc(db, "users", currentUid),
-    { quizBestPct: lsInt(BEST_KEY), quizStats: lsObj(STATS_KEY) },
+    { quizBestPct: lsInt(BEST_KEY), quizStats: lsObj(STATS_KEY), quizStreak: lsInt(STREAK_KEY) },
     { merge: true }).catch(function(){});
 }
 
