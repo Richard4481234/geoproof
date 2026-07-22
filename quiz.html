@@ -46,6 +46,7 @@
   .q-score{font-size:46px;font-weight:800;letter-spacing:-0.02em;margin:6px 0;}
   .q-msg{font-size:16px;color:#444444;margin:0 0 6px;}
   .q-best{font-size:13px;color:#8a8f98;margin:0 0 18px;}
+  .q-key{display:inline-block;min-width:17px;margin-right:9px;font-size:12px;font-weight:700;color:#9aa0a6;}
   .q-actions{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;}
   .q-ghost{display:inline-block;text-decoration:none;background:#ffffff;color:#1a1a1a;border:1px solid #d8d8d8;font-weight:600;font-size:14px;padding:10px 18px;border-radius:999px;cursor:pointer;font-family:inherit;}
   .q-ghost:hover{border-color:#1a1a1a;}
@@ -719,7 +720,19 @@
   var DIFFS=[['all','All levels'],['Easy','Easy'],['Medium','Medium'],['Hard','Hard']];
   var LENS=[[10,'10'],[20,'20'],[0,'All']];
   var BK='gp:quizbestpct';
+  var SK='gp:quizstats';
   var sel={cat:'all',diff:'all',len:10};
+
+  // ---- per-question history: powers adaptive rounds + lifetime stats ----
+  function qid(it){ var s=it.q, hsh=0; for(var i=0;i<s.length;i++){ hsh=(hsh*31+s.charCodeAt(i))|0; } return String(hsh); }
+  function getStats(){ try{ return JSON.parse(localStorage.getItem(SK))||{}; }catch(e){ return {}; } }
+  function recordStat(it,ok){
+    var st=getStats(), k=qid(it), e=st[k]||{r:0,w:0};
+    if(ok) e.r++; else e.w++; st[k]=e;
+    try{ localStorage.setItem(SK,JSON.stringify(st)); }catch(e2){}
+    try{ window.dispatchEvent(new CustomEvent('gp:quizchange')); }catch(e2){}
+  }
+  function lifetime(){ var st=getStats(), r=0, w=0; for(var k in st){ r+=st[k].r||0; w+=st[k].w||0; } return {r:r,w:w,total:r+w}; }
 
   var card=document.getElementById('quizCard');
   var quiz, idx, score, log, retry;
@@ -734,6 +747,18 @@
     return h+'</div></div>';
   }
 
+  function statsLine(){
+    var lt=lifetime(), st=getStats();
+    var tip='Answer with keys <b>1</b>–<b>4</b>, then <b>Enter</b> for the next question.';
+    if(!lt.total) return '<p class="q-best" style="text-align:center;margin-top:14px;">'+tip+'</p>';
+    var pct=Math.round(lt.r/lt.total*100);
+    var weakN=pool().filter(function(it){ var s=st[qid(it)]; return !!(s&&s.w>0); }).length;
+    return '<p class="q-best" style="text-align:center;margin-top:14px;">'
+      +'You have answered <b>'+lt.total+'</b> question'+(lt.total===1?'':'s')+' — <b>'+pct+'%</b> correct.'
+      +(weakN?' Rounds favour the <b>'+weakN+'</b> you have missed before.':'')
+      +'<br>'+tip+'</p>';
+  }
+
   function renderStart(){
     var n=pool().length;
     var h=chipRow('Topic',CATS,sel.cat,'cat')
@@ -741,7 +766,7 @@
       +chipRow('Questions per round',LENS,sel.len,'len')
       +'<button type="button" class="start-btn" id="startBtn"'+(n===0?' disabled':'')+'>'
       +(n===0?'No questions match — widen your filters':'Start round ('+Math.min(sel.len||n,n)+' question'+((Math.min(sel.len||n,n))===1?'':'s')+')')
-      +'</button>';
+      +'</button>'+statsLine();
     card.innerHTML=h;
     Array.prototype.forEach.call(card.querySelectorAll('.chip'),function(b){
       b.addEventListener('click',function(){
@@ -755,9 +780,20 @@
   }
 
   function start(){
-    var p=shuffle(pool().slice());
+    var p=pool().slice();
     var n=sel.len===0?p.length:Math.min(sel.len,p.length);
-    quiz=p.slice(0,n); idx=0; score=0; log=[]; retry=false;
+    // adaptive: prioritise questions this person has missed before
+    var st=getStats();
+    var weak=shuffle(p.filter(function(it){ var s=st[qid(it)]; return !!(s&&s.w>0); }));
+    var fresh=shuffle(p.filter(function(it){ var s=st[qid(it)]; return !(s&&s.w>0); }));
+    var take=Math.min(weak.length, Math.ceil(n*0.4));
+    var picked=weak.slice(0,take).concat(fresh.slice(0,n-take));
+    if(picked.length<n){
+      var used={}; picked.forEach(function(it){ used[qid(it)]=1; });
+      var extra=weak.concat(fresh).filter(function(it){ return !used[qid(it)]; });
+      picked=picked.concat(extra.slice(0,n-picked.length));
+    }
+    quiz=shuffle(picked.slice(0,n)); idx=0; score=0; log=[]; retry=false;
     renderQ();
   }
 
@@ -775,7 +811,7 @@
     var html='<div class="progress-bar"><div class="progress-fill" style="width:'+pct+'%"></div></div>'
       +'<div class="q-top"><span>Question '+(idx+1)+' of '+quiz.length+'</span><span>Score '+score+'</span></div>'
       +(it.s?'<div class="q-figure">'+it.s+'</div>':'')+'<p class="q-text">'+esc(it.q)+'</p><div class="q-choices">';
-    choices.forEach(function(c,i){ html+='<button type="button" class="q-choice" data-i="'+i+'">'+esc(c)+'</button>'; });
+    choices.forEach(function(c,i){ html+='<button type="button" class="q-choice" data-i="'+i+'"><span class="q-key">'+(i+1)+'</span>'+esc(c)+'</button>'; });
     html+='</div><div id="qFoot"></div>';
     card.innerHTML=html;
     var btns=card.querySelectorAll('.q-choice');
@@ -785,6 +821,7 @@
         var chosen=choices[+b.getAttribute('data-i')], ok=(chosen===it.a);
         if(ok) score++;
         log.push({it:it,chosen:chosen,ok:ok});
+        recordStat(it,ok);
         Array.prototype.forEach.call(btns,function(x){
           x.disabled=true;
           var cv=choices[+x.getAttribute('data-i')];
@@ -839,6 +876,20 @@
       startRetry(missed.map(function(l){ return l.it; }));
     });
   }
+
+  // keyboard: 1-4 to answer, Enter for the next question
+  document.addEventListener('keydown',function(e){
+    if(e.ctrlKey||e.metaKey||e.altKey) return;
+    var tag=(e.target&&e.target.tagName)||'';
+    if(/^(INPUT|TEXTAREA|SELECT)$/.test(tag)) return;
+    if(e.key>='1'&&e.key<='4'){
+      var btns=card.querySelectorAll('.q-choice');
+      var b=btns[parseInt(e.key,10)-1];
+      if(b&&!b.disabled){ b.click(); e.preventDefault(); }
+    } else if(e.key==='Enter'){
+      var nx=document.getElementById('qNext'); if(nx){ nx.click(); e.preventDefault(); }
+    }
+  });
 
   renderStart();
 })();

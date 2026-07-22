@@ -12,8 +12,9 @@ import { onAuthStateChanged, signOut }
 import { doc, getDoc, setDoc, onSnapshot, increment }
   from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-var FAV_KEY  = "gp:favorites";
-var BEST_KEY = "gp:quizbestpct";
+var FAV_KEY   = "gp:favorites";
+var BEST_KEY  = "gp:quizbestpct";
+var STATS_KEY = "gp:quizstats";
 var currentUid = null;
 
 if (FIREBASE_READY) {
@@ -110,6 +111,18 @@ function countVisit(){
 
 /* ---------- per-user favorites + quiz best-score sync ---------- */
 function lsArr(k){ try { return JSON.parse(localStorage.getItem(k)) || []; } catch(e){ return []; } }
+function lsObj(k){ try { return JSON.parse(localStorage.getItem(k)) || {}; } catch(e){ return {}; } }
+// merge two per-question history maps by taking the higher count on each side,
+// so syncing repeatedly can never double-count an answer
+function mergeStats(a, b){
+  var out = {}, k;
+  for (k in a) out[k] = { r: (a[k].r)||0, w: (a[k].w)||0 };
+  for (k in b){
+    var x = out[k] || { r:0, w:0 };
+    out[k] = { r: Math.max(x.r, (b[k].r)||0), w: Math.max(x.w, (b[k].w)||0) };
+  }
+  return out;
+}
 function lsInt(k){ try { return parseInt(localStorage.getItem(k) || "0", 10) || 0; } catch(e){ return 0; } }
 function lsSet(k, v){ try { localStorage.setItem(k, v); } catch(e){} }
 function union(a, b){ var out = a.slice(); for (var i = 0; i < b.length; i++){ if (out.indexOf(b[i]) < 0) out.push(b[i]); } return out; }
@@ -132,11 +145,14 @@ function mergeOnLogin(user){
     var cloud = (snap && snap.exists()) ? (snap.data() || {}) : {};
     var cloudFav  = Array.isArray(cloud.favorites) ? cloud.favorites : [];
     var cloudBest = Number(cloud.quizBestPct || 0);
-    var mergedFav  = union(lsArr(FAV_KEY), cloudFav);
-    var mergedBest = Math.max(lsInt(BEST_KEY), cloudBest);
+    var cloudStats = (cloud.quizStats && typeof cloud.quizStats === "object") ? cloud.quizStats : {};
+    var mergedFav   = union(lsArr(FAV_KEY), cloudFav);
+    var mergedBest  = Math.max(lsInt(BEST_KEY), cloudBest);
+    var mergedStats = mergeStats(lsObj(STATS_KEY), cloudStats);
     lsSet(FAV_KEY, JSON.stringify(mergedFav));
     lsSet(BEST_KEY, String(mergedBest));
-    setDoc(ref, { favorites: mergedFav, quizBestPct: mergedBest, email: user.email || "" }, { merge: true }).catch(function(){});
+    lsSet(STATS_KEY, JSON.stringify(mergedStats));
+    setDoc(ref, { favorites: mergedFav, quizBestPct: mergedBest, quizStats: mergedStats, email: user.email || "" }, { merge: true }).catch(function(){});
     try { window.dispatchEvent(new CustomEvent("gp:favsync")); } catch(e){}
     try { window.dispatchEvent(new CustomEvent("gp:quizsync")); } catch(e){}
   }).catch(function(){});
@@ -148,7 +164,9 @@ function pushFavorites(){
 }
 function pushQuizBest(){
   if (!currentUid) return;
-  setDoc(doc(db, "users", currentUid), { quizBestPct: lsInt(BEST_KEY) }, { merge: true }).catch(function(){});
+  setDoc(doc(db, "users", currentUid),
+    { quizBestPct: lsInt(BEST_KEY), quizStats: lsObj(STATS_KEY) },
+    { merge: true }).catch(function(){});
 }
 
 /* ---------- styles (theme-aware) ---------- */
