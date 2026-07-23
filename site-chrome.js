@@ -310,6 +310,12 @@
       var am=document.createElement('script'); am.type='module'; am.src='auth.js'; am.id='gp-auth-mod';
       document.head.appendChild(am);
     }
+    // "Report an issue" button (floating, opens a comment box that emails the team)
+    if(!document.getElementById('gp-report-mod')){
+      window.REPORT_SITE='GeoProof'; window.REPORT_ACCENT='#378ADD'; window.REPORT_BOTTOM='58px';
+      var rm=document.createElement('script'); rm.src='report-issue.js'; rm.id='gp-report-mod'; rm.defer=true;
+      document.head.appendChild(rm);
+    }
     injectExplorerNav();
     injectRelated();
     injectShare();
