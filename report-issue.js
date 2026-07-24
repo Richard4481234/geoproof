@@ -1,18 +1,20 @@
 /* Knovay — "Report an issue" widget.
    A small fixed button; opens a modal where a visitor types a comment and
-   (optionally) their email. On submit it opens their mail app addressed to the
-   Knovay team with the comment + page context prefilled. Pure client-side, so it
-   works on any static page with no backend.
+   (optionally) their email. On submit the report is written straight to Firestore
+   via window.knovayFeedback() — no email app is opened. Shows a "thanks"
+   confirmation on success and a gentle retry message on failure.
+
+   Requires window.knovayFeedback(payload) -> Promise (provided by auth.js on
+   GeoProof, or an inline module on Knovay/Physica).
 
    Optional overrides (set on window before this script runs):
-     window.REPORT_SITE   = "GeoProof";   // label used in the email subject
+     window.REPORT_SITE   = "GeoProof";   // label stored with the report
      window.REPORT_ACCENT = "#378ADD";    // button + Send-button colour
      window.REPORT_BOTTOM = "58px";        // distance from the bottom edge (clear a fixed footer)
 */
 (function(){
   if (window.__knovayReport) return; window.__knovayReport = true;
 
-  var TO     = "lirichard448@gmail.com,knovay2@gmail.com";
   var SITE   = window.REPORT_SITE   || "Knovay";
   var ACCENT = window.REPORT_ACCENT || "#4f6bed";
   var BOTTOM = window.REPORT_BOTTOM || "18px";
@@ -45,13 +47,15 @@
       "#kv-report-card textarea:focus,#kv-report-card input:focus{outline:none;border-color:"+ACCENT+";",
         "box-shadow:0 0 0 3px rgba(120,140,230,.22);}",
       "#kv-report-card .kv-row{margin:0 0 13px;}",
-      "#kv-report-actions{display:flex;justify-content:flex-end;gap:9px;margin-top:4px;}",
+      "#kv-report-actions{display:flex;align-items:center;justify-content:flex-end;gap:9px;margin-top:4px;}",
       ".kv-btn{border-radius:999px;padding:9px 16px;font:600 13.5px/1 inherit;cursor:pointer;border:1px solid transparent;}",
       ".kv-cancel{background:#fff;border-color:#d5d8df;color:#4b5563;}",
       ".kv-cancel:hover{border-color:#9aa0aa;color:#1a1a1a;}",
       ".kv-send{background:"+ACCENT+";color:#fff;}",
       ".kv-send:hover{filter:brightness(1.06);}",
-      ".kv-send:disabled{opacity:.5;cursor:default;}"
+      ".kv-send:disabled{opacity:.5;cursor:default;}",
+      "#kv-report-actions .kv-status{flex:1;text-align:left;font-size:12px;color:#c0392b;line-height:1.35;}",
+      ".kv-ok{width:46px;height:46px;border-radius:50%;background:#e7f7ee;color:#1e7a3c;display:grid;place-items:center;font-size:24px;font-weight:800;margin:2px 0 12px;}"
     ].join("");
     var s = document.createElement("style");
     s.id = "kv-report-style";
@@ -77,7 +81,6 @@
   }
 
   function buildModal(){
-    if (document.getElementById("kv-report-ov")) return document.getElementById("kv-report-ov");
     var ov = document.createElement("div");
     ov.id = "kv-report-ov";
     ov.setAttribute("role", "dialog");
@@ -96,6 +99,7 @@
           '<input id="kv-email" type="email" placeholder="so we can reply">' +
         '</div>' +
         '<div id="kv-report-actions">' +
+          '<span class="kv-status" aria-live="polite"></span>' +
           '<button class="kv-btn kv-cancel" type="button">Cancel</button>' +
           '<button class="kv-btn kv-send" type="button" disabled>Send report</button>' +
         '</div>' +
@@ -119,6 +123,8 @@
 
   function openModal(){
     injectStyle();
+    var old = document.getElementById("kv-report-ov");
+    if (old && old.parentNode) old.parentNode.removeChild(old);   // fresh form each open
     var ov = buildModal();
     ov.classList.add("on");
     var msg = ov.querySelector("#kv-msg");
@@ -133,18 +139,36 @@
     comment = (comment || "").trim();
     if (!comment) return;
     replyEmail = (replyEmail || "").trim();
-    var body =
-      "Comment:\r\n" + comment + "\r\n\r\n" +
-      (replyEmail ? ("Reply to: " + replyEmail + "\r\n") : "") +
-      "Page: " + location.href + "\r\n" +
-      "Site: " + SITE + "\r\n" +
-      "When: " + new Date().toString() + "\r\n" +
-      "Browser: " + navigator.userAgent;
-    var url = "mailto:" + TO +
-      "?subject=" + encodeURIComponent("Knovay issue report — " + SITE) +
-      "&body=" + encodeURIComponent(body);
-    try { window.location.href = url; } catch(e){}
-    closeModal();
+    var ov = document.getElementById("kv-report-ov");
+    if (!ov) return;
+    var send = ov.querySelector(".kv-send");
+    var status = ov.querySelector(".kv-status");
+    if (status) status.textContent = "";
+    if (send){ send.disabled = true; send.textContent = "Sending…"; }
+    var payload = { message: comment, email: replyEmail, site: SITE, page: location.href, ua: navigator.userAgent };
+    function fail(){
+      if (send){ send.disabled = false; send.textContent = "Send report"; }
+      if (status) status.textContent = "Couldn't send just now — please try again.";
+    }
+    try {
+      if (typeof window.knovayFeedback === "function") {
+        window.knovayFeedback(payload).then(showThanks, fail);
+      } else { fail(); }
+    } catch(e){ fail(); }
+  }
+
+  function showThanks(){
+    var ov = document.getElementById("kv-report-ov");
+    if (!ov) return;
+    var card = ov.querySelector("#kv-report-card");
+    if (!card) return;
+    card.innerHTML =
+      '<div class="kv-ok" aria-hidden="true">&#10003;</div>' +
+      '<h3>Thanks for the report!</h3>' +
+      '<p class="kv-sub">It went straight to the Knovay team — we appreciate you taking the time.</p>' +
+      '<div id="kv-report-actions"><button class="kv-btn kv-send kv-done" type="button">Close</button></div>';
+    var d = card.querySelector(".kv-done");
+    if (d) d.addEventListener("click", closeModal);
   }
 
   ready(function(){ injectStyle(); buildButton(); });

@@ -9,7 +9,7 @@
 import { auth, db, FIREBASE_READY } from "./firebase-config.js";
 import { onAuthStateChanged, signOut }
   from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-import { doc, getDoc, setDoc, onSnapshot, increment }
+import { doc, getDoc, setDoc, onSnapshot, increment, collection, addDoc, serverTimestamp }
   from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 var FAV_KEY   = "gp:favorites";
@@ -17,6 +17,20 @@ var BEST_KEY  = "gp:quizbestpct";
 var STATS_KEY  = "gp:quizstats";
 var STREAK_KEY = "gp:quizstreak";
 var currentUid = null;
+
+// Issue reports submit straight to Firestore — used by the Report-an-issue widget (no email app).
+window.knovayFeedback = function(payload){
+  if (!FIREBASE_READY) return Promise.reject(new Error("firebase not configured"));
+  payload = payload || {};
+  return addDoc(collection(db, "feedback"), {
+    message: String(payload.message || ""),
+    email:   String(payload.email   || ""),
+    site:    String(payload.site    || "GeoProof"),
+    page:    String(payload.page    || ""),
+    ua:      String(payload.ua      || ""),
+    createdAt: serverTimestamp()
+  });
+};
 
 if (FIREBASE_READY) {
   ready(init);
