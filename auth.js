@@ -90,6 +90,13 @@ function displayName(user){
 }
 
 /* ---------- unique-visitor counter in the footer ---------- */
+function cachedVisits(){ try { var n = parseInt(localStorage.getItem("gp:vc") || "", 10); return isNaN(n) ? null : n; } catch(e){ return null; } }
+function paintVisits(n){
+  var wrap = document.getElementById("gp-visits-wrap");
+  if (wrap) wrap.innerHTML = '<span id="gp-visits">' + Number(n).toLocaleString() + '</span> ' + (n === 1 ? "visitor" : "visitors");
+  var hero = document.getElementById("statVisitors");   // live count in the home-page hero
+  if (hero) hero.textContent = Number(n).toLocaleString();
+}
 function buildVisitCounter(footer){
   if (document.getElementById("gp-visits-wrap")) return;
   var dot = document.createElement("span");
@@ -98,13 +105,16 @@ function buildVisitCounter(footer){
   var span = document.createElement("span");
   span.className = "gp-foot-sm";
   span.id = "gp-visits-wrap";
-  span.innerHTML = '<span id="gp-visits">&hellip;</span> visitors';
+  var c = cachedVisits();   // show the last known count immediately — no "…" flash on repeat visits
+  span.innerHTML = '<span id="gp-visits">' + (c === null ? "&hellip;" : c.toLocaleString()) + '</span> ' + (c === 1 ? "visitor" : "visitors");
   footer.appendChild(dot);
   footer.appendChild(span);
 }
 
 function countVisit(){
   var ref = doc(db, "stats", "site");
+  var c = cachedVisits();
+  if (c !== null) paintVisits(c);   // paint the home-hero stat instantly from cache
   var firstTime = false;
   try { firstTime = !localStorage.getItem("gp:visited"); } catch(e){}
   if (firstTime){
@@ -112,14 +122,12 @@ function countVisit(){
       .then(function(){ try { localStorage.setItem("gp:visited", "1"); } catch(e){} })
       .catch(function(){});
   }
-  // live total, updates the footer whenever the count changes
+  // live total, updates footer + hero whenever the count changes (and caches it)
   try {
     onSnapshot(ref, function(snap){
       var n = Number((snap.exists() && snap.data().visitors) || 0);
-      var wrap = document.getElementById("gp-visits-wrap");
-      if (wrap) wrap.innerHTML = '<span id="gp-visits">' + n.toLocaleString() + '</span> ' + (n === 1 ? "visitor" : "visitors");
-      var hero = document.getElementById("statVisitors");   // live count in the home-page hero
-      if (hero) hero.textContent = n.toLocaleString();
+      try { localStorage.setItem("gp:vc", String(n)); } catch(e){}
+      paintVisits(n);
     });
   } catch(e){}
 }
