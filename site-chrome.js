@@ -98,6 +98,16 @@
     '.gp-brand svg{display:block;}','.gp-brand:hover{opacity:0.78;}',
     '.gp-nav{display:flex;align-items:center;gap:18px;}',
     '.gp-nav a{text-decoration:none;color:#555;font-size:14px;font-weight:500;}','.gp-nav a:hover{color:#1a1a1a;}',
+    '.gp-switch{position:relative;display:inline-flex;}',
+    '.gp-switch-btn{display:inline-flex;align-items:center;gap:7px;border:1.5px solid #cfcfcf;background:#fff;cursor:pointer;font-size:14px;font-weight:600;line-height:1;color:#1a1a1a;padding:8px 13px;border-radius:999px;font-family:inherit;}',
+    '.gp-switch-btn:hover{border-color:#1a1a1a;}','.gp-switch-btn svg{display:block;}','.gp-switch-chev{font-size:10px;color:#8a8a8f;transition:transform .15s;}',
+    '.gp-switch.open .gp-switch-chev{transform:rotate(180deg);}',
+    '.gp-switch-menu{position:absolute;top:calc(100% + 8px);left:0;min-width:186px;background:#fff;border:1px solid #e6e6e8;border-radius:12px;box-shadow:0 16px 42px -12px rgba(0,0,0,.28);padding:6px;display:none;z-index:1100;}',
+    '.gp-switch.open .gp-switch-menu{display:block;}',
+    '.gp-switch-menu a{display:flex !important;align-items:center;gap:10px;padding:9px 11px;border-radius:8px;text-decoration:none;color:#1a1a1a !important;font-size:14px;font-weight:500;}',
+    '.gp-switch-menu a:hover{background:#f2f4f8;}',
+    '.gp-sw-ic{width:24px;height:24px;border-radius:7px;display:grid;place-items:center;font-size:13px;flex:none;line-height:1;}',
+    '.gp-sw-current{font-weight:700 !important;}','.gp-sw-current .gp-sw-tick{margin-left:auto;color:#378ADD;font-size:13px;}',
     '.gp-theme{display:inline-flex;align-items:center;gap:7px;border:1.5px solid #cfcfcf;background:#ffffff;cursor:pointer;font-size:15px;font-weight:700;line-height:1;color:#1a1a1a;padding:10px 20px;border-radius:999px;font-family:inherit;}',
     '.gp-theme:hover{border-color:#1a1a1a;color:#1a1a1a;}',
     '.gp-footer{position:fixed;bottom:0;left:0;right:0;min-height:40px;z-index:1000;display:flex;flex-wrap:wrap;',
@@ -150,6 +160,10 @@
     D+'.gp-nav a{color:#aeb2bb !important;}',D+'.gp-nav a:hover{color:#fff !important;}',
     D+'.gp-theme{background:#2a2d35 !important;border-color:#3a3d45 !important;color:#e6e6e8 !important;}',
     D+'.gp-theme:hover{border-color:#6b6f78 !important;}',
+    D+'.gp-switch-btn{background:#2a2d35 !important;border-color:#3a3d45 !important;color:#e6e6e8 !important;}',
+    D+'.gp-switch-btn:hover{border-color:#6b6f78 !important;}',D+'.gp-switch-chev{color:#9aa0a6 !important;}',
+    D+'.gp-switch-menu{background:#1f2127 !important;border-color:#2e3138 !important;box-shadow:0 16px 42px -12px rgba(0,0,0,.6) !important;}',
+    D+'.gp-switch-menu a{color:#e6e6e8 !important;}',D+'.gp-switch-menu a:hover{background:#2a2d35 !important;}',
     D+'.gp-footer{background:#181920 !important;border-top-color:#2c2e36 !important;color:#8a8d96 !important;}',
     D+'.gp-footer a{color:#aeb2bb !important;}',D+'.gp-dot{color:#3a3d45 !important;}',
     D+'.gp-exnav{background:#1f2127 !important;border-color:#2e3138 !important;}',
@@ -279,6 +293,32 @@
 
   function ready(fn){ if(document.body) fn(); else document.addEventListener('DOMContentLoaded',fn); }
 
+  // ---- cross-product "labs" switcher (Knovay hub / GeoProof / Physica) ----
+  function labSwitcherHTML(current){
+    function item(href, name, ic, col, tint){
+      var cur = (name === current);
+      return '<a role="menuitem"' + (cur ? ' class="gp-sw-current" aria-current="page"' : '') + ' href="' + href + '">'
+        + '<span class="gp-sw-ic" style="background:' + tint + ';color:' + col + '">' + ic + '</span>' + name
+        + (cur ? '<span class="gp-sw-tick">✓</span>' : '') + '</a>';
+    }
+    return '<div class="gp-switch" id="gp-switch">'
+      + '<button type="button" class="gp-switch-btn" id="gp-switch-btn" aria-haspopup="true" aria-expanded="false" aria-label="Switch labs">'
+      + '<svg width="17" height="17" viewBox="0 0 24 24" fill="none" aria-hidden="true"><rect x="2" y="2" width="20" height="20" rx="6" stroke="currentColor" stroke-width="1.6"/><path d="M7 16.5 L12 7.5 L17 16.5" stroke="#378ADD" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/></svg>'
+      + '<span>' + current + '</span><span class="gp-switch-chev">▾</span></button>'
+      + '<div class="gp-switch-menu" role="menu">'
+      + item('https://knovay.com/',          'Knovay home', '⌂', '#5b6cf0', 'rgba(120,140,230,.16)')
+      + item('https://geoproof.knovay.com/', 'GeoProof',    '△', '#378ADD', 'rgba(55,138,221,.16)')
+      + item('https://physica.knovay.com/',  'Physica',     '⚛', '#a774f4', 'rgba(167,116,244,.16)')
+      + '</div></div>';
+  }
+  function wireLabSwitcher(){
+    var sw = document.getElementById('gp-switch'), btn = document.getElementById('gp-switch-btn');
+    if(!sw || !btn) return;
+    btn.addEventListener('click', function(e){ e.stopPropagation(); var open = sw.classList.toggle('open'); btn.setAttribute('aria-expanded', open ? 'true' : 'false'); });
+    document.addEventListener('click', function(e){ if(sw.classList.contains('open') && !sw.contains(e.target)){ sw.classList.remove('open'); btn.setAttribute('aria-expanded','false'); } });
+    document.addEventListener('keydown', function(e){ if(e.key === 'Escape' && sw.classList.contains('open')){ sw.classList.remove('open'); btn.setAttribute('aria-expanded','false'); } });
+  }
+
   ready(function(){
     // these run in every mode (incl. embed): light diagram canvas + keyboard a11y
     Array.prototype.forEach.call(document.querySelectorAll('svg:not(.panel-icon)'),function(s){ s.classList.add('gp-canvas'); });
@@ -288,9 +328,10 @@
     if(!document.querySelector('.gp-header')){
       var header=document.createElement('header'); header.className='gp-header';
       header.innerHTML='<a class="gp-brand" href="index.html">'+logo+'<span>GeoProof</span></a>'
-        +'<nav class="gp-nav"><a class="gp-hide-sm" href="index.html">All explorers</a><a href="paths.html">Paths</a><a href="quiz.html">Quiz</a><a href="about.html">About</a>'
+        +'<nav class="gp-nav">'+labSwitcherHTML('GeoProof')+'<a class="gp-hide-sm" href="index.html">All explorers</a><a href="paths.html">Paths</a><a href="quiz.html">Quiz</a><a href="about.html">About</a>'
         +'<button class="gp-theme" id="gp-theme-btn" type="button" aria-label="Toggle dark mode"></button></nav>';
       document.body.insertBefore(header, document.body.firstChild);
+      wireLabSwitcher();
 
       var footer=document.createElement('footer'); footer.className='gp-footer';
       footer.innerHTML='<span>GeoProof <span class="gp-foot-sm">- interactive geometry explorers</span></span>'
