@@ -309,6 +309,7 @@
       + item('https://knovay.com/',          'Knovay home', '⌂', '#5b6cf0', 'rgba(120,140,230,.16)')
       + item('https://geoproof.knovay.com/', 'GeoProof',    '△', '#378ADD', 'rgba(55,138,221,.16)')
       + item('https://physica.knovay.com/',  'Physica',     '⚛', '#a774f4', 'rgba(167,116,244,.16)')
+      + item('https://calculo.knovay.com/',  'Calculo',     '∫', '#12b886', 'rgba(18,184,134,.16)')
       + '</div></div>';
   }
   function wireLabSwitcher(){
