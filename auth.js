@@ -98,17 +98,9 @@ function paintVisits(n){
   if (hero) hero.textContent = Number(n).toLocaleString();
 }
 function buildVisitCounter(footer){
-  if (document.getElementById("gp-visits-wrap")) return;
-  var dot = document.createElement("span");
-  dot.className = "gp-dot gp-foot-sm";
-  dot.innerHTML = "&middot;";
-  var span = document.createElement("span");
-  span.className = "gp-foot-sm";
-  span.id = "gp-visits-wrap";
-  var c = cachedVisits();   // show the last known count immediately — no "…" flash on repeat visits
-  span.innerHTML = '<span id="gp-visits">' + (c === null ? "&hellip;" : c.toLocaleString()) + '</span> ' + (c === 1 ? "visitor" : "visitors");
-  footer.appendChild(dot);
-  footer.appendChild(span);
+  // Visit counts are no longer shown on the pages themselves — they live on the
+  // Knovay stats dashboard (knovay.com/dashboard.html). Counting still runs in
+  // countVisit(); this just no longer paints a footer figure.
 }
 
 function countVisit(){
