@@ -67,7 +67,7 @@
   // ---- theme (set ASAP to limit flash) ----
   var TK='gp:theme';
   function sysDark(){ return window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches; }
-  function curTheme(){ try{var t=localStorage.getItem(TK); if(t==='dark'||t==='light') return t;}catch(e){} return sysDark()?'dark':'light'; }
+  function curTheme(){ try{var t=localStorage.getItem(TK); if(t==='dark'||t==='light') return t;}catch(e){} return 'light'; }
   function applyTheme(t){ document.documentElement.setAttribute('data-theme',t); }
   applyTheme(curTheme());
   function themeIco(t){ return t==='dark'?'☀':'☾'; }
