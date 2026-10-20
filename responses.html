@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex,nofollow">
+<title>Knovay — Feedback Responses (private)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="icon" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAzMiAzMiI+PHJlY3Qgd2lkdGg9IjMyIiBoZWlnaHQ9IjMyIiByeD0iNyIgZmlsbD0iIzRhNjNjOSIvPjxwYXRoIGQ9Ik03IDIxIEwxMiA5IEwxNyAyMSIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjZmZmIiBzdHJva2Utd2lkdGg9IjIiIHN0cm9rZS1saW5lam9pbj0icm91bmQiLz48Y2lyY2xlIGN4PSIxMiIgY3k9IjE1IiByPSIyIiBmaWxsPSIjZmZmIi8+PC9zdmc+">
+<style>
+  :root{--bg:#e7ecef;--card:#fff;--line:#d9dee3;--ink:#1b2430;--muted:#5c6672;--faint:#8a92a0;--accent:#4a63c9;--star:#e6a700}
+  *{box-sizing:border-box}html,body{margin:0}
+  body{background:var(--bg);color:var(--ink);font-family:'Inter',system-ui,sans-serif;min-height:100vh;padding:40px 20px 70px}
+  .wrap{max-width:760px;margin:0 auto}
+  a{color:var(--accent);text-decoration:none}
+  .back{color:var(--muted);font-size:13.5px}
+  h1{font-family:'Fraunces',Georgia,serif;font-weight:600;font-size:30px;margin:6px 0 4px;letter-spacing:-.01em}
+  .sub{color:var(--muted);font-size:14.5px;margin:0 0 24px}
+  .gate{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:40px 30px;text-align:center;margin-top:30px}
+  .gate p{color:var(--muted);font-size:15px;line-height:1.6;max-width:420px;margin:0 auto 20px}
+  .btn{display:inline-flex;align-items:center;gap:10px;background:var(--accent);color:#fff;font-weight:600;font-size:15px;
+    padding:12px 20px;border:0;border-radius:11px;cursor:pointer;font-family:inherit;transition:.15s}
+  .btn:hover{background:#3a51ad}
+  .btn.ghost{background:#fff;color:var(--muted);border:1px solid var(--line)}
+  .btn.ghost:hover{color:var(--ink);border-color:#b9c0c8}
+  .gicon{width:18px;height:18px;background:#fff;border-radius:3px;display:inline-flex;align-items:center;justify-content:center}
+  .summary{display:flex;gap:14px;flex-wrap:wrap;margin:0 0 20px}
+  .stat{flex:1;min-width:150px;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:18px 20px}
+  .stat .k{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--faint)}
+  .stat .v{font-family:'Fraunces',Georgia,serif;font-weight:600;font-size:34px;line-height:1.1;margin-top:4px}
+  .stat .v small{font-size:17px;color:var(--faint)}
+  .bars{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px 20px;margin:0 0 22px}
+  .bar{display:flex;align-items:center;gap:10px;margin:7px 0;font-size:13px;color:var(--muted)}
+  .bar .lab{width:46px;white-space:nowrap}
+  .bar .track{flex:1;height:9px;background:#eef1f4;border-radius:5px;overflow:hidden}
+  .bar .fill{height:100%;background:var(--accent);border-radius:5px}
+  .bar .n{width:26px;text-align:right;color:var(--ink);font-weight:600}
+  .topbar{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:0 0 16px}
+  .who{font-size:13px;color:var(--muted)}
+  .resp{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:18px 20px;margin:0 0 12px}
+  .resp .head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:8px;flex-wrap:wrap}
+  .stars{font-size:16px;letter-spacing:1px;color:var(--star)}
+  .stars .off{color:#d7dbe0}
+  .when{font-size:12.5px;color:var(--faint);font-family:'JetBrains Mono',monospace}
+  .msg{font-size:15px;line-height:1.6;color:var(--ink);white-space:pre-wrap;margin:2px 0 0}
+  .msg.empty{color:var(--faint);font-style:italic}
+  .mail{margin-top:10px;font-size:13px;color:var(--muted)}
+  .mail a{font-weight:600}
+  .empty-state{background:var(--card);border:1px dashed var(--line);border-radius:14px;padding:40px;text-align:center;color:var(--muted)}
+  .err{color:#a8341a}
+  .foot{margin-top:22px;color:var(--faint);font-size:12.5px;font-family:'JetBrains Mono',monospace}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <p><a class="back" href="https://knovay.com/">&larr; Knovay home</a></p>
+  <h1>Feedback &amp; study survey</h1>
+  <p class="sub">Private — only you (signed in as the Knovay owner) can see what people have sent.</p>
+
+  <div id="gate" class="gate">
+    <p>Sign in with the Google account that owns Knovay to view the responses.</p>
+    <button class="btn" id="signin"><span class="gicon">G</span> Sign in with Google</button>
+    <div id="gateMsg" class="sub" style="margin-top:18px"></div>
+  </div>
+
+  <div id="panel" style="display:none">
+    <div class="topbar">
+      <span class="who" id="who"></span>
+      <button class="btn ghost" id="signout" type="button">Sign out</button>
+    </div>
+    <div class="summary">
+      <div class="stat"><div class="k">Responses</div><div class="v" id="count">—</div></div>
+      <div class="stat"><div class="k">Average rating</div><div class="v" id="avg">—<small>/5</small></div></div>
+    </div>
+    <div class="bars" id="bars"></div>
+    <div id="list"></div>
+    <p class="foot" id="foot"></p>
+  </div>
+</div>
+
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+  import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged }
+    from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+  import { getFirestore, collection, query, orderBy, getDocs }
+    from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+  const CFG = { apiKey:"AIzaSyB2YooHATeNcu_3lYzL7vOjTwpDDlP6I1U", authDomain:"geoproof-a2db0.firebaseapp.com",
+    projectId:"geoproof-a2db0", storageBucket:"geoproof-a2db0.firebasestorage.app",
+    messagingSenderId:"504119803431", appId:"1:504119803431:web:87f82a578f16367801d802" };
+  const OWNER = "lirichard448@gmail.com";
+
+  const app = initializeApp(CFG, "responses");
+  const auth = getAuth(app);
+  const db = getFirestore(app);
+  const provider = new GoogleAuthProvider();
+
+  const $ = id => document.getElementById(id);
+  const gate = $("gate"), panel = $("panel"), gateMsg = $("gateMsg");
+
+  $("signin").addEventListener("click", () => {
+    gateMsg.textContent = "";
+    signInWithPopup(auth, provider).catch(e => {
+      gateMsg.innerHTML = '<span class="err">Sign-in failed: ' + (e && (e.code || e.message)) + '</span>';
+    });
+  });
+  $("signout").addEventListener("click", () => signOut(auth));
+
+  function esc(s){ return String(s).replace(/[&<>]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;'}[c])); }
+  function stars(n){ let s=""; for(let i=1;i<=5;i++) s += i<=n ? "★" : '<span class="off">★</span>'; return s; }
+  function fmtDate(ts){ try{ const d = ts && ts.toDate ? ts.toDate() : null; return d ? d.toLocaleString() : ""; }catch(e){ return ""; } }
+
+  onAuthStateChanged(auth, async user => {
+    if (!user){ gate.style.display="block"; panel.style.display="none"; return; }
+    if (user.email !== OWNER){
+      gate.style.display="block"; panel.style.display="none";
+      gateMsg.innerHTML = '<span class="err">Signed in as ' + esc(user.email) + ', which is not the owner account.</span>';
+      return;
+    }
+    gate.style.display="none"; panel.style.display="block";
+    $("who").textContent = "Signed in as " + user.email;
+    await load();
+  });
+
+  async function load(){
+    const list = $("list");
+    try {
+      const snap = await getDocs(query(collection(db,"survey"), orderBy("createdAt","desc")));
+      const rows = []; snap.forEach(d => rows.push(d.data()));
+      const n = rows.length;
+      $("count").textContent = n;
+      const rated = rows.filter(r => r.rating >= 1 && r.rating <= 5);
+      const avg = rated.length ? (rated.reduce((a,r)=>a+r.rating,0)/rated.length) : 0;
+      $("avg").innerHTML = (avg ? avg.toFixed(2) : "—") + '<small>/5</small>';
+      // distribution bars 5..1
+      const counts = {1:0,2:0,3:0,4:0,5:0}; rated.forEach(r => counts[r.rating]++);
+      const max = Math.max(1, ...Object.values(counts));
+      $("bars").innerHTML = [5,4,3,2,1].map(v =>
+        '<div class="bar"><span class="lab">'+v+' star</span><span class="track"><span class="fill" style="width:'+(counts[v]/max*100)+'%"></span></span><span class="n">'+counts[v]+'</span></div>'
+      ).join("");
+      if (!n){ list.innerHTML = '<div class="empty-state">No responses yet. They\'ll show up here as people fill in the survey on the homepage.</div>'; $("foot").textContent=""; return; }
+      list.innerHTML = rows.map(r => {
+        const msg = (r.message||"").trim();
+        const mail = (r.email||"").trim();
+        return '<div class="resp"><div class="head"><span class="stars">'+stars(r.rating||0)+'</span><span class="when">'+esc(fmtDate(r.createdAt))+'</span></div>'
+          + '<p class="msg'+(msg?'':' empty')+'">'+(msg?esc(msg):'(no comment)')+'</p>'
+          + (mail ? '<div class="mail">Reply to: <a href="mailto:'+esc(mail)+'">'+esc(mail)+'</a></div>' : '')
+          + '</div>';
+      }).join("");
+      $("foot").textContent = "Loaded " + n + " response" + (n===1?"":"s") + " · " + new Date().toLocaleTimeString();
+    } catch(e){
+      list.innerHTML = '<div class="empty-state err">Could not load responses: ' + esc(e && (e.code||e.message)) + '<br><br>If this says “permission-denied”, the Firestore rule for reading <b>survey</b> may not be published yet.</div>';
+    }
+  }
+</script>
+</body>
+</html>
